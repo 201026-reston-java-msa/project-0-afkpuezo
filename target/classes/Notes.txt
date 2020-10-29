@@ -5,14 +5,14 @@ October 29:
 				- ID/token
 				- owner(s)
 				- status (open, closed, pending)
-				- ~type (single, join) (necessary?) 
+				- ~type (single, joint) (necessary?) 
 				- funds
 			- user profiles
 				- ID/token
 				- username, password
 				- type (customer, employee, admin) (determines privileges)
 				- owned accounts	 
-			- transaction history
+			- transaction record
 				- ID/token
 				- timestamp
 				- type (account open, account close, transfer, 
@@ -44,7 +44,12 @@ October 29:
 			have its own class? or datatype? 
 		- do user profiles need IDs or is the username enough?
 	
-	- I'm going to start on the data classes first. They are mostly just containers for data. [ ]
+	- I'm going to start on the data classes first. They are mostly just containers for data. [x]
 		- should they inherit from an abstract class and/or implement an interface? How much do  
 			they have in common? I guess they could be grouped in a single data structure at some
-			point, so they should have some kind of polymorphism.
+			point, so they should have some kind of polymorphism. Let's call it BankData [x]
+			
+	- I'm going to represent money with doubles, but I could make some kind of Money class that
+		takes care of formatting, currency form, etc.
+		
+	- finished the data classes, I'll make a text DAO next. (and the general DAO interface) [ ]

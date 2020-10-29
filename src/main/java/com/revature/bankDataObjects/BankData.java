@@ -5,7 +5,7 @@
  * 
  * Andrew Curry, Project 0
  */
-package com.revature;
+package com.revature.bankDataObjects;
 
 public abstract class BankData {
 	
@@ -21,6 +21,4 @@ public abstract class BankData {
 	public void setId(int id) {
 		this.id = id;
 	}
-	
-	
 }

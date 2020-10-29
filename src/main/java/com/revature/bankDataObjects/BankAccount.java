@@ -1,0 +1,100 @@
+/**
+ * The BankAccount class is used to encapsulate information about
+ * bank accounts in the banking system.
+ * 
+ * Andrew Curry, Project 0
+ */
+package com.revature.bankDataObjects;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class BankAccount extends BankData {
+	
+	// enums
+	enum BankAccountStatus{
+		NONE, OPEN, CLOSED, PENDING
+	}
+	
+	// might have a 'Type' enum here eventually
+	
+	// instance variables
+	// id in super
+	List<Integer> owners; // could be a single or joint account
+	private BankAccountStatus status;
+	private double funds; // could be a special Money class or something
+	
+	
+	// constructor(s)
+	public BankAccount() {
+		super();
+		owners = new ArrayList<Integer>();
+		// status = BankAccountStatus.NONE;
+		funds = 0.0;
+	}
+	
+	public BankAccount(int id) {
+		super();
+		super.setId(id);
+		owners = new ArrayList<Integer>();
+		// status = BankAccountStatus.NONE;
+		funds = 0.0;
+	}
+	
+	// util methods
+	
+	
+	@Override
+	public String toString() {
+		return "ACCOUNT " + super.getId(); 
+	}
+
+	
+	// getters and setters
+	
+	
+	// technically I'm not sure if the List should have getters/setters or just
+	// add/remove methods, for now I'll keep both in.
+	public List<Integer> getOwners() {
+		return owners;
+	}
+
+	
+	public void setOwners(List<Integer> owners) {
+		this.owners = owners;
+	}
+	
+	
+	/**
+	 * Prevents repeats
+	 * @param ownerID
+	 */
+	public void addOwner(int ownerID) {
+		if (!owners.contains(ownerID)) {
+			owners.add(ownerID);
+		}
+	}
+	
+	
+	public void removeOwner(int ownerID) {
+		owners.remove(ownerID);
+	}
+
+	
+	public BankAccountStatus getStatus() {
+		return status;
+	}
+
+	
+	public void setStatus(BankAccountStatus status) {
+		this.status = status;
+	}
+
+	public double getFunds() {
+		return funds;
+	}
+
+	public void setFunds(double funds) {
+		this.funds = funds;
+	}
+}

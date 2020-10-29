@@ -53,3 +53,4 @@ October 29:
 		takes care of formatting, currency form, etc.
 		
 	- finished the data classes, I'll make a text DAO next. (and the general DAO interface) [ ]
+		- I probably need an exception if the DAO runs in to problems

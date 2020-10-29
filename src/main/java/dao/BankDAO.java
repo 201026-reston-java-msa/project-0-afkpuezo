@@ -17,12 +17,9 @@ public interface BankDAO {
 	
 	
 	/**
-	 * Can only be set once.
-	 * @param name : The name of the storage resource. EG, filename or database address.
-	 * @return boolean reflecting whether the name was set correctly
+	 * Name should be set in constructor, and not be changed
+	 * @return
 	 */
-	public boolean setResourceName(String name);
-	
 	public String getResourceName();
 	
 	/**
@@ -31,13 +28,13 @@ public interface BankDAO {
 	 * @param accID
 	 * @return BankAccount object
 	 */
-	public BankAccount readBankAccount(int accID);
+	public BankAccount readBankAccount(int accID) throws BankDAOException;
 	
 	/**
 	 * Fetches all bank accounts in the data storage.
 	 * @return
 	 */
-	public List<BankAccount> readAllBankAccounts();
+	public List<BankAccount> readAllBankAccounts() throws BankDAOException;
 	
 	
 	/**
@@ -46,13 +43,13 @@ public interface BankDAO {
 	 * @param userID
 	 * @return UserProfile object
 	 */
-	public UserProfile readUserProfile(int userID);
+	public UserProfile readUserProfile(int userID) throws BankDAOException;
 	
 	/**
 	 * Fetches all user profiles in the data storage.
 	 * @return
 	 */
-	public List<UserProfile> readAllUserProfiles();
+	public List<UserProfile> readAllUserProfiles() throws BankDAOException;
 	
 	/**
 	 * Fetches the TransactionRecord with the given ID number from the data storage.
@@ -60,13 +57,13 @@ public interface BankDAO {
 	 * @param recID
 	 * @return TransactionRecord
 	 */
-	public TransactionRecord readTransactionRecord(int recID);
+	public TransactionRecord readTransactionRecord(int recID) throws BankDAOException;
 	
 	/**
 	 * Fetches all TransactionRecords in the data storage.
 	 * @return
 	 */
-	public List<TransactionRecord> readAllTransactionRecords();
+	public List<TransactionRecord> readAllTransactionRecords() throws BankDAOException;
 	
 	/**
 	 * Writes the given BankData object to the data storage. WILL overwrite if matching
@@ -74,7 +71,7 @@ public interface BankDAO {
 	 * @param bd
 	 * @return true if write successful, false otherwise.
 	 */
-	public boolean write(BankData bd);
+	public boolean write(BankData bd) throws BankDAOException;
 	
 	/**
 	 * Writes each of the BankData objects in the given List to the data storage. 
@@ -82,6 +79,6 @@ public interface BankDAO {
 	 * @param bd
 	 * @return true if write successful, false otherwise.
 	 */
-	public boolean write(List<BankData> data);
+	public boolean write(List<BankData> data) throws BankDAOException;
 	
 }

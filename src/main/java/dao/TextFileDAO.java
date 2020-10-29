@@ -8,8 +8,11 @@ package dao;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 
 import com.revature.bankDataObjects.BankAccount;
@@ -18,6 +21,11 @@ import com.revature.bankDataObjects.TransactionRecord;
 import com.revature.bankDataObjects.UserProfile;
 
 public class TextFileDAO implements BankDAO {
+	
+	// class/static variables
+	private final String USER_PROFILE_PREFIX = "PRF";
+	private final String BANK_ACCOUNT_PREFIX = "ACC";
+	private final String TRANSACTION_RECORD_PREFIX = "TRR";
 	
 	// instance variables
 	private String filename;
@@ -29,11 +37,14 @@ public class TextFileDAO implements BankDAO {
 		this.filename = filename;
 		
 		// make sure the filename is valid
-		if (openFileReader()) {
-			closeFileReader();
+		try {
+			reader = openFileReader();
 		}
-		else {
-			 throw (new BankDAOException("Resource name not valid"));
+		catch (BankDAOException e) {
+			throw e;
+		}
+		finally {
+			closeFile(reader);
 		}
 	}
 	
@@ -41,23 +52,80 @@ public class TextFileDAO implements BankDAO {
 	
 	/**
 	 * Opens the file with a BufferedReader, handles the try/catch
-	 * @return true if the file could be opened
+	 * @return a reference to a new BufferedReader
 	 */
-	private boolean openFileReader() {
-		
-		boolean opened = false;
+	private BufferedReader openFileReader() throws BankDAOException {
 		
 		try {
-			reader = new BufferedReader(new FileReader(filename));
-			opened = true;
+			BufferedReader temp = new BufferedReader(new FileReader(filename));
+			return temp;
 		}
 		catch (FileNotFoundException e) {
-			
+			throw (new BankDAOException("File not found: " + filename));
 		}
-		
-		return opened;
 	}
 	
+	/**
+	 * Opens the file with a BufferedWriter, handles the try/catch
+	 * @return a reference to a new BufferedReader
+	 */
+	private BufferedWriter openFileWriter() throws BankDAOException {
+		
+		try {
+			BufferedWriter temp = new BufferedWriter(new FileWriter(filename));
+			return temp;
+		}
+		catch (IOException e) {
+			throw (new BankDAOException("Could not open file for writing: " + filename));
+		}
+	}
+	
+	/**
+	 * Closes the given BufferedReader or Writer 
+	 * (should only be this.reader or this.writer)
+	 * @param closeMe
+	 * @throws BankDAOException
+	 */
+	private void closeFile(Closeable closeMe) throws BankDAOException {
+		
+		try {
+			closeMe.close();			
+		}
+		catch (IOException e){
+			throw (new BankDAOException("Problem closing file: " + filename));
+		}
+	}
+	
+	// generic methods to search the file, used by BankDAO methods
+	
+	/**
+	 * generic method to search the file for a given single data entry.
+	 * If there is no matching entry, returns the empty string.
+	 * @param tag : the type tag + ' ' + the ID, eg "PRF 101"
+	 * @return a string containing all of the data in the entry matching the tag
+	 */
+	private String searchFile(String tag) throws BankDAOException {
+		reader = openFileReader();
+		String result = "";
+		
+		try {
+			while (reader.ready()) {
+				String line = reader.readLine();
+				if (line.startsWith(tag)){
+					result = line;
+					break;
+				}
+			}
+		}
+		catch (IOException e) {
+			throw (new BankDAOException("Problem searching file: " + filename));
+		}
+		finally {
+			closeFile(reader);
+		}
+		
+		return result;
+	}
 	
 	// methods from BankDAO interfacea
 		

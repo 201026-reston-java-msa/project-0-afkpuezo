@@ -54,3 +54,5 @@ October 29:
 		
 	- finished the data classes, I'll make a text DAO next. (and the general DAO interface) [ ]
 		- I probably need an exception if the DAO runs in to problems
+		
+	- tomorrow, continue working on TextFileDAO, starting with searchFile(List)

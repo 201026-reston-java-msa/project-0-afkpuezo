@@ -1,0 +1,50 @@
+October 29:
+	- design loose outline of project classes...I need:
+		- data:
+			- bank accounts
+				- ID/token
+				- owner(s)
+				- status (open, closed, pending)
+				- ~type (single, join) (necessary?) 
+				- funds
+			- user profiles
+				- ID/token
+				- username, password
+				- type (customer, employee, admin) (determines privileges)
+				- owned accounts	 
+			- transaction history
+				- ID/token
+				- timestamp
+				- type (account open, account close, transfer, 
+						deposit, withdrawal, user added/removed to/from account)
+				- who (which user triggered it)
+				- source account (only for transfer)
+				- destination account (only for transfer)
+				- transfer amount (only for transfer)	
+		- DAO (text first, db later)
+			- NOTE: for a bank, I think it makes sense to only read data on demand rather than
+				load ALL of the data for one user that isn't allowed to look at them
+			- name/identifier (eg filename, or database table-name/address)
+			- read() @params: data type, id
+			- write() @params: data object (account, profile, transaction)
+		- user IO (command line)
+			- notify() (print)
+			- prompt() -> request (print + get input)
+		- request (represents user input/commands)
+			- type
+			- additional param(s)
+		- hub/main/primary/controller/teller (connects everything and actually does the work)
+			- currentUser (profile)
+			- handleRequest()
+			- interactionLoop()
+			
+	- some thoughts:
+		- IDs for accounts, profiles, etc should be unique among each type of data, so I need
+			to keep track of how many of each kind exist (or keep a "next ID")...shoudl this
+			have its own class? or datatype? 
+		- do user profiles need IDs or is the username enough?
+	
+	- I'm going to start on the data classes first. They are mostly just containers for data. [ ]
+		- should they inherit from an abstract class and/or implement an interface? How much do  
+			they have in common? I guess they could be grouped in a single data structure at some
+			point, so they should have some kind of polymorphism.

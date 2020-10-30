@@ -60,9 +60,10 @@ October 29:
 	
 October 30:
 
-	- continue working on TextFileDAO [ ]
+	- continue working on TextFileDAO [~]
 		- writing entries is going to be more complicated than I thought, because it will involve
 			reading the file and checking for an old entry to be overwritten (I guess the database
 			version wont have this problem)
-		- Let's unit test these search methods before moving on [ ]
+		- Let's unit test these search methods before moving on [x]
 		- oh yeah if I want to test individual helper methods I cant set them to private
+		- next time write/test testWriteMultiple()

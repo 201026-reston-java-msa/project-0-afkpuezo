@@ -44,9 +44,8 @@ public class TextFileDAO implements BankDAO {
 		catch (BankDAOException e) {
 			throw e;
 		}
-		finally {
-			closeFile(reader);
-		}
+		
+		closeFile(reader);
 	}
 	
 	// methods from BankDAO interfacea
@@ -184,13 +183,15 @@ public class TextFileDAO implements BankDAO {
 	}
 	
 	/**
-	 * returns a list of strings, where each string is a representation of one of the
+	 * Returns a list of strings, where each string is a representation of one of the
 	 * entries that matches the given tag (EG, pass "PRF" to get all profiles)
+	 * Returns an empty list if no such entries are found.
+	 * Returns all entries if passed the empty string.
 	 * @param tags
 	 * @return
 	 * @throws BankDAOException
 	 */
-	public List<String> searchFileMultiple(String tag) throws BankDAOException{
+	public List<String> searchFileMultiple(String tag) throws BankDAOException {
 		reader = openFileReader();
 		List<String> results = new ArrayList<String>();
 		
@@ -210,6 +211,47 @@ public class TextFileDAO implements BankDAO {
 		}
 		
 		return results;
+	}
+	
+	/**
+	 * Writes the given string into the data file. The string should represent a BankData object.
+	 * If a matching entry (same type and id) already exists, it will be overwritten.
+	 * @param entry
+	 * @throws BankDAOException
+	 */
+	public void writeEntry(String entry) throws BankDAOException {
+		
+		// parse the entry for relevant data
+		String[] tokens = entry.split(" ", 3);
+		String tag = tokens[0] + " " + tokens[1];
+		
+		// get all of the data so that we can verify if the entry already exists
+		List<String> fileData = searchFileMultiple("");
+		
+		for (String s : fileData) {
+			if (s.startsWith(tag)) {
+				fileData.remove(s); // safe to do this while iterating?
+				break;
+			}
+		}
+		
+		// now add the entry and write the data back
+		fileData.add(entry);
+		
+		writer = openFileWriter();
+		
+		try {
+			for (String s : fileData) {
+				writer.write(s);
+				writer.write("\n");
+			}			
+		}
+		catch (IOException e) {
+			throw (new BankDAOException("ALERT: writeEntry failed to write to file: " + filename));
+		}
+		finally {
+			closeFile(writer);
+		}
 	}
 
 }

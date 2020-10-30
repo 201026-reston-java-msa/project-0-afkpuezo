@@ -14,7 +14,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -87,6 +89,7 @@ public class BankTest {
 	
 	@Test
 	public void testSearchFilePositive() {
+		
 		prepareTextFile();
 		prepareTextFileDAO();
 		boolean hasPassed = true;
@@ -113,6 +116,7 @@ public class BankTest {
 	
 	@Test
 	public void testSearchFileNegative() {
+		
 		prepareTextFile();
 		prepareTextFileDAO();
 		boolean hasPassed = true;
@@ -136,6 +140,7 @@ public class BankTest {
 	
 	@Test
 	public void testSearchFileMultiple() {
+		
 		prepareTextFile();
 		prepareTextFileDAO();
 		boolean hasPassed = true;
@@ -163,6 +168,7 @@ public class BankTest {
 	
 	@Test
 	public void testSearchFileMultipleNegative() {
+		
 		prepareTextFile();
 		prepareTextFileDAO();
 		boolean hasPassed = true;
@@ -178,5 +184,93 @@ public class BankTest {
 		finally {
 			assertTrue(hasPassed);
 		}
+	}
+	
+	@Test
+	public void testSearchFileGetAll() {
+		
+		prepareTextFile();
+		prepareTextFileDAO();
+		boolean hasPassed = true;
+		
+		try {
+			List<String> results = tdao.searchFileMultiple("");
+			List<String> allLines = List.of(FILELINES);
+			
+			hasPassed = results.equals(allLines);
+		}
+		catch (BankDAOException e) {
+			hasPassed = false;
+		}
+		finally {
+			assertTrue(hasPassed);
+		}
+	}
+	
+	@Test
+	public void testWriteEntry() throws BankDAOException, IOException {
+		
+		boolean hasPassed = true;
+		
+		// use a new/blank text document for this one
+		String writetest = "writetest.bdf";
+		BufferedWriter writer = new BufferedWriter(new FileWriter(writetest));
+		tdao = new TextFileDAO(writetest);
+		tdao.writeEntry("PRF 101 user pass CST 444");
+		
+		// now check the file
+		BufferedReader reader = new BufferedReader(new FileReader(writetest));
+		List<String> fileData = new ArrayList<String>();
+		while (reader.ready()) {
+			fileData.add(reader.readLine());
+		}
+		
+		hasPassed = hasPassed && 
+				((fileData.size() == 1) 
+				&& (fileData.get(0).equals("PRF 101 user pass CST 444")));
+		
+		assertTrue(hasPassed);
+	}
+	
+	@Test
+	public void testWriteEntryOverwrite() throws BankDAOException, IOException{
+		
+		prepareTextFile();
+		prepareTextFileDAO();
+		boolean hasPassed = true;
+		//System.out.println("Check");
+		
+		// cache file data before changing
+		BufferedReader reader = new BufferedReader(new FileReader(testFilename));
+		List<String> expected = new ArrayList<String>();
+		while (reader.ready()) {
+			expected.add(reader.readLine());
+		}
+		reader.close();
+		
+		tdao.writeEntry("PRF 101 user newpass CST 444");
+		
+		// check to make sure it's right
+		expected.remove("PRF 101 user pass CST 444");
+		expected.add("PRF 101 user newpass CST 444");
+		
+		List<String> fileData = new ArrayList<String>();
+		reader = new BufferedReader(new FileReader(testFilename));
+		while (reader.ready()) {
+			fileData.add(reader.readLine());
+		}
+		
+		hasPassed = expected.equals(fileData);
+		
+		System.out.println("expected:");
+		for (String s : expected) {
+			System.out.println("    " + s);
+		}
+		System.out.println("actual:");
+		for (String s : fileData) {
+			System.out.println("    " + s);
+		}
+		
+		assertTrue(hasPassed);
 	}
 }

@@ -13,6 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.revature.bankDataObjects.BankAccount;
@@ -46,6 +47,61 @@ public class TextFileDAO implements BankDAO {
 		finally {
 			closeFile(reader);
 		}
+	}
+	
+	// methods from BankDAO interfacea
+	
+	@Override
+	public String getResourceName() {
+		return filename;
+	}
+
+	@Override
+	public BankAccount readBankAccount(int accID) throws BankDAOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<BankAccount> readAllBankAccounts() throws BankDAOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public UserProfile readUserProfile(int userID) throws BankDAOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<UserProfile> readAllUserProfiles() throws BankDAOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public TransactionRecord readTransactionRecord(int recID) throws BankDAOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<TransactionRecord> readAllTransactionRecords() throws BankDAOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean write(BankData bd) throws BankDAOException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean write(List<BankData> data) throws BankDAOException {
+		// TODO Auto-generated method stub
+		return false;
 	}
 	
 	// helper / util methods for file IO
@@ -104,7 +160,7 @@ public class TextFileDAO implements BankDAO {
 	 * @param tag : the type tag + ' ' + the ID, eg "PRF 101"
 	 * @return a string containing all of the data in the entry matching the tag
 	 */
-	private String searchFile(String tag) throws BankDAOException {
+	public String searchFile(String tag) throws BankDAOException {
 		reader = openFileReader();
 		String result = "";
 		
@@ -127,59 +183,33 @@ public class TextFileDAO implements BankDAO {
 		return result;
 	}
 	
-	// methods from BankDAO interfacea
+	/**
+	 * returns a list of strings, where each string is a representation of one of the
+	 * entries that matches the given tag (EG, pass "PRF" to get all profiles)
+	 * @param tags
+	 * @return
+	 * @throws BankDAOException
+	 */
+	public List<String> searchFileMultiple(String tag) throws BankDAOException{
+		reader = openFileReader();
+		List<String> results = new ArrayList<String>();
 		
-	@Override
-	public String getResourceName() {
-		return filename;
-	}
-
-	@Override
-	public BankAccount readBankAccount(int accID) throws BankDAOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<BankAccount> readAllBankAccounts() throws BankDAOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public UserProfile readUserProfile(int userID) throws BankDAOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<UserProfile> readAllUserProfiles() throws BankDAOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public TransactionRecord readTransactionRecord(int recID) throws BankDAOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<TransactionRecord> readAllTransactionRecords() throws BankDAOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean write(BankData bd) throws BankDAOException {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean write(List<BankData> data) throws BankDAOException {
-		// TODO Auto-generated method stub
-		return false;
+		try {
+			while (reader.ready()) {
+				String line = reader.readLine();
+				if (line.startsWith(tag)){
+					results.add(line);
+				}
+			}
+		}
+		catch (IOException e) {
+			throw (new BankDAOException("Problem searching file: " + filename));
+		}
+		finally {
+			closeFile(reader);
+		}
+		
+		return results;
 	}
 
 }

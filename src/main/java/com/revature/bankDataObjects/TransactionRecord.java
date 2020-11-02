@@ -24,7 +24,7 @@ public class TransactionRecord extends BankData {
 	private int actingUser; // who triggered it
 	private int sourceAccount; // might not be used in all transaction types
 	private int destinationAccount; // might not be used in all transaction types
-	private double moneyAmount; // might not be used in all transaction types
+	private int moneyAmount; // might not be used in all transaction types
 	
 	
 	// constructors
@@ -99,12 +99,12 @@ public class TransactionRecord extends BankData {
 	}
 
 
-	public double getMoneyAmount() {
+	public int getMoneyAmount() {
 		return moneyAmount;
 	}
 
 
-	public void setMoneyAmount(double moneyAmount) {
+	public void setMoneyAmount(int moneyAmount) {
 		this.moneyAmount = moneyAmount;
 	}
 	

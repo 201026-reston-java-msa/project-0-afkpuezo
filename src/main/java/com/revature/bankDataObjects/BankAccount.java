@@ -22,7 +22,7 @@ public class BankAccount extends BankData {
 	// id in super
 	List<Integer> owners; // could be a single or joint account
 	private BankAccountStatus status;
-	private double funds; // could be a special Money class or something
+	private int funds; // could be a special Money class or something
 	
 	
 	// constructor(s)
@@ -30,7 +30,7 @@ public class BankAccount extends BankData {
 		super();
 		owners = new ArrayList<Integer>();
 		// status = BankAccountStatus.NONE;
-		funds = 0.0;
+		funds = 0;
 	}
 	
 	public BankAccount(int id) {
@@ -38,7 +38,7 @@ public class BankAccount extends BankData {
 		super.setId(id);
 		owners = new ArrayList<Integer>();
 		// status = BankAccountStatus.NONE;
-		funds = 0.0;
+		funds = 0;
 	}
 	
 	// util methods
@@ -94,7 +94,7 @@ public class BankAccount extends BankData {
 		return funds;
 	}
 
-	public void setFunds(double funds) {
+	public void setFunds(int funds) {
 		this.funds = funds;
 	}
 }

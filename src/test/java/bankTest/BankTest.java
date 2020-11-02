@@ -273,4 +273,21 @@ public class BankTest {
 		
 		assertTrue(hasPassed);
 	}
+	
+	@Test
+	public void testWriteMultipleEntries() throws BankDAOException, IOException{
+		
+		prepareTextFile();
+		prepareTextFileDAO();
+		boolean hasPassed = true;
+		//System.out.println("Check");
+		
+		// cache file data before changing
+		BufferedReader reader = new BufferedReader(new FileReader(testFilename));
+		List<String> expected = new ArrayList<String>();
+		while (reader.ready()) {
+			expected.add(reader.readLine());
+		}
+		reader.close();
+	}
 }

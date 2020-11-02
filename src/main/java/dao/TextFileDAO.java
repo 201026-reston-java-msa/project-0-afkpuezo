@@ -13,6 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.security.KeyStore.Entry;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -124,7 +125,7 @@ public class TextFileDAO implements BankDAO {
 	 * Opens the file with a BufferedWriter, handles the try/catch
 	 * @return a reference to a new BufferedReader
 	 */
-	private BufferedWriter openFileWriter() throws BankDAOException {
+	private static BufferedWriter openFileWriter(String filename) throws BankDAOException {
 		
 		try {
 			BufferedWriter temp = new BufferedWriter(new FileWriter(filename));
@@ -141,13 +142,13 @@ public class TextFileDAO implements BankDAO {
 	 * @param closeMe
 	 * @throws BankDAOException
 	 */
-	private void closeFile(Closeable closeMe) throws BankDAOException {
+	private static void closeFile(Closeable closeMe) throws BankDAOException {
 		
 		try {
 			closeMe.close();			
 		}
 		catch (IOException e){
-			throw (new BankDAOException("Problem closing file: " + filename));
+			throw (new BankDAOException("Problem closing file in TextFileDAO."));
 		}
 	}
 	
@@ -238,7 +239,7 @@ public class TextFileDAO implements BankDAO {
 		// now add the entry and write the data back
 		fileData.add(entry);
 		
-		writer = openFileWriter();
+		writer = openFileWriter(filename);
 		
 		try {
 			for (String s : fileData) {
@@ -253,5 +254,53 @@ public class TextFileDAO implements BankDAO {
 			closeFile(writer);
 		}
 	}
+	
+	/**
+	 * Writes each string in the given list into the data file. Each string should represent a BankData 
+	 * object. If a matching entry (same type and id) already exists, it will be overwritten.
+	 * @param entries
+	 * @throws BankDAOException
+	 */
+	public void writeMultipleEntries(List<String> entries) throws BankDAOException {
+		
+		// get all of the data so that we can verify if entries already exist
+		List<String> fileData = searchFileMultiple("");
+		List<String> outputData = new ArrayList<>(entries); // copy the list
+		
+		// rather than just calling WriteEntry for each entry, going to optimize things a little
+		// (actually is this even better?)
+		for (String s : fileData) {
+			String[] tokens = s.split(" ", 3);
+			String tag = tokens[0] + " " + tokens[1];
+			boolean was_found = false;
+			
+			for (String entry : outputData) {
+				if (entry.startsWith(tag)) {
+					was_found = true;
+					break; // don't add duplicates/outdated entries
+				}
+			}
+			
+			if (!was_found) {
+				outputData.add(s);
+			}
+		}
+		
+		writer = openFileWriter(filename);
+		
+		try {
+			for (String s : outputData) {
+				writer.write(s);
+				writer.write("\n");
+			}			
+		}
+		catch (IOException e) {
+			throw (new BankDAOException("ALERT: writeMultipleEntries failed to write to file: " + filename));
+		}
+		finally {
+			closeFile(writer);
+		}
+		
+	} // end writeMultipleEntries method
 
 }

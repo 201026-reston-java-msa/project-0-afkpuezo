@@ -66,4 +66,8 @@ October 30:
 			version wont have this problem)
 		- Let's unit test these search methods before moving on [x]
 		- oh yeah if I want to test individual helper methods I cant set them to private
-		- next time write/test testWriteMultiple()
+		- next time write/test writeMultiple()
+
+November 2:
+	- changed money representation to int [x]
+	- now writeMultiple() [x] and test it [ ]

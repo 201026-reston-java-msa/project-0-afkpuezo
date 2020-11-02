@@ -7,7 +7,16 @@
  */
 package com.revature.bankDataObjects;
 
+import java.security.PublicKey;
+
 public abstract class BankData {
+	
+	public enum BankDataType {
+		BANK_ACCOUNT, USER_PROFILE, TRANSACTION_RECORD, NONE
+	}
+	
+	// class variables
+	public static final BankDataType DATA_TYPE = BankDataType.NONE;
 	
 	// instance variables
 	private int id;
@@ -21,4 +30,10 @@ public abstract class BankData {
 	public void setId(int id) {
 		this.id = id;
 	}
+	
+	/**
+	 * clumsy way of having each class update its type
+	 * @return
+	 */
+	public abstract BankDataType getBankDataType();
 }

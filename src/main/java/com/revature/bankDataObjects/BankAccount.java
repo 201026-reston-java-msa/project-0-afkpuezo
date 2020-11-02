@@ -9,6 +9,8 @@ package com.revature.bankDataObjects;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.revature.bankDataObjects.BankData.BankDataType;
+
 public class BankAccount extends BankData {
 	
 	// enums
@@ -16,7 +18,12 @@ public class BankAccount extends BankData {
 		NONE, OPEN, CLOSED, PENDING
 	}
 	
-	// might have a 'Type' enum here eventually
+	// might have a 'AccountType' enum here eventually
+	
+	
+	// class variables
+	public static final BankData.BankDataType DATA_TYPE = BankDataType.BANK_ACCOUNT;
+	
 	
 	// instance variables
 	// id in super
@@ -39,6 +46,15 @@ public class BankAccount extends BankData {
 		owners = new ArrayList<Integer>();
 		// status = BankAccountStatus.NONE;
 		funds = 0;
+	}
+	
+	
+	// virtual methods
+	
+	
+	@Override
+	public BankDataType getBankDataType() {
+		return BankAccount.DATA_TYPE;
 	}
 	
 	// util methods

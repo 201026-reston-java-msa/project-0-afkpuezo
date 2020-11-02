@@ -24,11 +24,30 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import com.revature.bankDataObjects.BankAccount;
+import com.revature.bankDataObjects.BankData;
+
 import dao.BankDAO;
 import dao.BankDAOException;
 import dao.TextFileDAO;
 
 public class BankTest {
+	
+	/**
+	 * -----------------------------------------------------------------------
+	 * BankData class and child classes
+	 * -----------------------------------------------------------------------
+	 */
+	
+	
+	@Test
+	public void testDataTypeEnum() {
+		assertEquals(BankData.DATA_TYPE, BankData.BankDataType.NONE);
+		assertEquals(BankAccount.DATA_TYPE, BankData.BankDataType.BANK_ACCOUNT);
+		
+		BankAccount acc = new BankAccount();
+		assertEquals(acc.getBankDataType(), BankData.BankDataType.BANK_ACCOUNT);
+	}
 	
 	/**
 	 * -----------------------------------------------------------------------
@@ -262,6 +281,7 @@ public class BankTest {
 		
 		hasPassed = expected.equals(fileData);
 		
+		/**
 		System.out.println("expected:");
 		for (String s : expected) {
 			System.out.println("    " + s);
@@ -270,6 +290,7 @@ public class BankTest {
 		for (String s : fileData) {
 			System.out.println("    " + s);
 		}
+		*/
 		
 		assertTrue(hasPassed);
 	}

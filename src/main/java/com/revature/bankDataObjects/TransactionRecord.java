@@ -6,6 +6,8 @@ package com.revature.bankDataObjects;
 
 import java.sql.Timestamp;
 
+import com.revature.bankDataObjects.BankData.BankDataType;
+
 public class TransactionRecord extends BankData {
 	
 	
@@ -16,6 +18,9 @@ public class TransactionRecord extends BankData {
 		ACCOUNT_OWNER_REMOVED, NONE
 	}
 	
+	
+	// class variables
+	public static final BankData.BankDataType DATA_TYPE = BankDataType.TRANSACTION_RECORD;
 	
 	// instance variables
 	// id in super
@@ -38,6 +43,14 @@ public class TransactionRecord extends BankData {
 		super.setId(id);
 	}
 	
+	
+	// virtual methods
+	
+	
+	@Override
+	public BankDataType getBankDataType() {
+		return TransactionRecord.DATA_TYPE;
+	}
 	
 	// util methods
 	

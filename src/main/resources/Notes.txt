@@ -67,3 +67,11 @@ October 30:
 		- Let's unit test these search methods before moving on [x]
 		- oh yeah if I want to test individual helper methods I cant set them to private
 		- next time write/test testWriteMultiple()
+		
+November 2:
+
+	- I thought of two changes to make to the design over the weekend:
+		- change money representation from double to int (in cents, so $45.11 becomes 4511) [x]
+		- reduce the number of methods in the BankDAO interface by using enums (EG, instead of 
+			readUserProfile(id) and readBankAccount(id), have readBankData(type, id)) [ ]
+		

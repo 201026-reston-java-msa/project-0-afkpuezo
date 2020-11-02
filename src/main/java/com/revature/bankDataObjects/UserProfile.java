@@ -9,6 +9,8 @@ package com.revature.bankDataObjects;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.revature.bankDataObjects.BankData.BankDataType;
+
 public class UserProfile extends BankData {
 	
 	// enum(s)
@@ -16,12 +18,15 @@ public class UserProfile extends BankData {
 		NONE, CUSTOMER, EMLOYEE, ADMIN
 	}
 	
+	// class variables
+	public static final BankData.BankDataType DATA_TYPE = BankDataType.USER_PROFILE;
+	
 	
 	// instance variables
 	// ID is in super
 	private String username;
 	private String password; // not encrypted
-	private UserProfileType type;
+	private UserProfileType userProfileType;
 	private List<Integer> ownedAccounts; // referenced by ID number (should this be a set?)
 	
 	// constructor(s)
@@ -34,6 +39,15 @@ public class UserProfile extends BankData {
 		super(); // will this when extending an abstract class?
 		super.setId(id);
 		ownedAccounts = new ArrayList<Integer>();
+	}
+	
+	
+	// virtual methods
+	
+	
+	@Override
+	public BankDataType getBankDataType() {
+		return UserProfile.DATA_TYPE;
 	}
 	
 	
@@ -69,13 +83,13 @@ public class UserProfile extends BankData {
 	}
 	
 	
-	public UserProfileType getType() {
-		return type;
+	public UserProfileType getUserProfileType() {
+		return userProfileType;
 	}
 	
 	
-	public void setType(UserProfileType type) {
-		this.type = type;
+	public void setType(UserProfileType userProfileType) {
+		this.userProfileType = userProfileType;
 	}
 	
 	

@@ -24,7 +24,8 @@ public interface BankDAO {
 	
 	/**
 	 * Fetches the bank account with the given ID number from the data storage.
-	 * If no such account exists, the resulting BankAccount object will have type NONE.
+	 * If no such account exists, the resulting BankAccount object will have status
+	 *  NONE and -1 in other fields
 	 * @param accID
 	 * @return BankAccount object
 	 */

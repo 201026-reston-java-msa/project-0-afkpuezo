@@ -21,13 +21,24 @@ import com.revature.bankDataObjects.BankAccount;
 import com.revature.bankDataObjects.BankData;
 import com.revature.bankDataObjects.TransactionRecord;
 import com.revature.bankDataObjects.UserProfile;
+import com.revature.bankDataObjects.BankAccount.BankAccountStatus;
+import com.revature.bankDataObjects.BankAccount.BankAccountType;
 
 public class TextFileDAO implements BankDAO {
 	
 	// class/static variables
-	private final String USER_PROFILE_PREFIX = "PRF";
-	private final String BANK_ACCOUNT_PREFIX = "ACC";
-	private final String TRANSACTION_RECORD_PREFIX = "TRR";
+	private static final String USER_PROFILE_PREFIX = "PRF";
+	private static final String BANK_ACCOUNT_PREFIX = "ACC";
+	private static final String TRANSACTION_RECORD_PREFIX = "TRR";
+	
+	private static final String ACCOUNT_STATUS_OPEN = "OPN";
+	private static final String ACCOUNT_STATUS_CLOSED = "CLS";
+	private static final String ACCOUNT_STATUS_PENDING = "PND";
+	private static final String ACCOUNT_STATUS_NONE = "NON"; // shouldn't be used?
+	
+	private static final String ACCOUNT_TYPE_NONE = "NON"; // shouldn't be used?
+	private static final String ACCOUNT_TYPE_SINGLE = "SNG";
+	private static final String ACCOUNT_TYPE_JOINT = "JNT";
 	
 	// instance variables
 	private String filename;
@@ -49,7 +60,7 @@ public class TextFileDAO implements BankDAO {
 		closeFile(reader);
 	}
 	
-	// methods from BankDAO interfacea
+	// methods from BankDAO interface
 	
 	@Override
 	public String getResourceName() {
@@ -57,15 +68,36 @@ public class TextFileDAO implements BankDAO {
 	}
 
 	@Override
+	/**
+	 * Fetches the bank account with the given ID number from the data storage.
+	 * If no such account exists, the resulting BankAccount object will have status
+	 *  NONE and id of -1
+	 * @param accID
+	 * @return BankAccount object
+	 */
 	public BankAccount readBankAccount(int accID) throws BankDAOException {
-		// TODO Auto-generated method stub
-		return null;
+		
+		String entry = searchFile(BANK_ACCOUNT_PREFIX + " " + accID);
+		BankAccount ba = buildAccountFromEntry(entry);
+		
+		return ba;
 	}
 
+	/**
+	 * Fetches all bank accounts in the data storage.
+	 * @return
+	 */
 	@Override
 	public List<BankAccount> readAllBankAccounts() throws BankDAOException {
-		// TODO Auto-generated method stub
-		return null;
+		
+		List<BankAccount> accounts = new ArrayList<>();
+		List<String> entries = searchFileMultiple(BANK_ACCOUNT_PREFIX);
+		
+		for (String e : entries) {
+			accounts.add(buildAccountFromEntry(e));
+		}
+		
+		return accounts;
 	}
 
 	@Override
@@ -302,5 +334,67 @@ public class TextFileDAO implements BankDAO {
 		}
 		
 	} // end writeMultipleEntries method
+	
+	/**
+	 * Returns a BankAccount object based on the given entry. If the entry is the empty string,
+	 * an account with type NONE and id -1 will be returned.
+	 * @param entry
+	 * @return
+	 */
+	private BankAccount buildAccountFromEntry(String entry) {
+		
+		BankAccount ba = new BankAccount();
+		
+		if (entry.equals("")){ // if not found
+			ba.setId(-1);
+			ba.setStatus(BankAccountStatus.NONE);
+		}
+		else { // if found
+			// sample entry for format: "ACC 444 OPN SNG 78923 101"
+			String[] tokens = entry.split(" ");
+			ba.setId(Integer.parseInt(tokens[1]));
+			
+			
+			switch(tokens[2]) { // set the status
+				case ACCOUNT_STATUS_OPEN:
+					ba.setStatus(BankAccountStatus.OPEN);
+					break;
+				case ACCOUNT_STATUS_CLOSED:
+					ba.setStatus(BankAccountStatus.CLOSED);
+					break;
+				case ACCOUNT_STATUS_PENDING:
+					ba.setStatus(BankAccountStatus.PENDING);
+					break;
+				case ACCOUNT_STATUS_NONE:
+					ba.setStatus(BankAccountStatus.NONE);
+					break;
+			}
+			
+			switch(tokens[3]) { // set the account type
+				case ACCOUNT_TYPE_JOINT:
+					ba.setType(BankAccountType.JOINT);
+					break;
+				case ACCOUNT_TYPE_SINGLE:
+					ba.setType(BankAccountType.SINGLE);
+					break;
+				case ACCOUNT_TYPE_NONE:
+					ba.setType(BankAccountType.NONE);
+					break;
+			}
+			
+			ba.setFunds(Integer.parseInt(tokens[4]));
+			
+			// the rest of the tokens are the ID numbers of the owner(s) of this account
+			List<Integer> owners = new ArrayList<>();
+			
+			for (int i = 5; i < tokens.length; i++) {
+				owners.add(Integer.parseInt(tokens[i]));
+			}
+			
+			ba.setOwners(owners);
+		}
+		
+		return ba;
+	}
 
 }

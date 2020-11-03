@@ -338,7 +338,6 @@ public class BankTest {
 			}
 		}
 		
-		
 		hasPassed = hasPassed && actual.isEmpty();
 		assertTrue(hasPassed);
 	}

@@ -70,7 +70,10 @@ October 30:
 
 November 2:
 	- changed money representation to int [x]
-	- now writeMultiple() [x] and test it [ ]
+	- now writeMultiple() [x] and test it [~]
 	
 November 3:
 	- continue testing writeMultiple [x]
+	- now start filling out the actual DAO interface methods that make use of these helpers
+		I made [ ]
+		- I need more helpers lol

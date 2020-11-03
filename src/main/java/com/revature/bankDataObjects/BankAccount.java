@@ -12,16 +12,19 @@ import java.util.List;
 public class BankAccount extends BankData {
 	
 	// enums
-	enum BankAccountStatus{
+	public enum BankAccountStatus{
 		NONE, OPEN, CLOSED, PENDING
 	}
 	
-	// might have a 'Type' enum here eventually
+	public enum BankAccountType{
+		NONE, SINGLE, JOINT
+	}
 	
 	// instance variables
 	// id in super
 	List<Integer> owners; // could be a single or joint account
 	private BankAccountStatus status;
+	private BankAccountType type;
 	private int funds; // could be a special Money class or something
 	
 	
@@ -29,7 +32,6 @@ public class BankAccount extends BankData {
 	public BankAccount() {
 		super();
 		owners = new ArrayList<Integer>();
-		// status = BankAccountStatus.NONE;
 		funds = 0;
 	}
 	
@@ -37,13 +39,12 @@ public class BankAccount extends BankData {
 		super();
 		super.setId(id);
 		owners = new ArrayList<Integer>();
-		// status = BankAccountStatus.NONE;
 		funds = 0;
 	}
 	
 	// util methods
-	
-	
+
+
 	@Override
 	public String toString() {
 		return "ACCOUNT " + super.getId(); 
@@ -96,5 +97,13 @@ public class BankAccount extends BankData {
 
 	public void setFunds(int funds) {
 		this.funds = funds;
+	}
+	
+	public BankAccountType getType() {
+		return type;
+	}
+
+	public void setType(BankAccountType type) {
+		this.type = type;
 	}
 }

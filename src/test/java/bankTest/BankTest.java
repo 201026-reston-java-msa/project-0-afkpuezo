@@ -24,6 +24,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import com.revature.bankDataObjects.BankAccount;
+import com.revature.bankDataObjects.BankAccount.BankAccountStatus;
+import com.revature.bankDataObjects.BankAccount.BankAccountType;
+
 import dao.BankDAO;
 import dao.BankDAOException;
 import dao.TextFileDAO;
@@ -217,6 +221,7 @@ public class BankTest {
 		BufferedWriter writer = new BufferedWriter(new FileWriter(writetest));
 		tdao = new TextFileDAO(writetest);
 		tdao.writeEntry("PRF 101 user pass CST 444");
+		writer.close();
 		
 		// now check the file
 		BufferedReader reader = new BufferedReader(new FileReader(writetest));
@@ -224,6 +229,7 @@ public class BankTest {
 		while (reader.ready()) {
 			fileData.add(reader.readLine());
 		}
+		reader.close();
 		
 		hasPassed = hasPassed && 
 				((fileData.size() == 1) 
@@ -340,5 +346,60 @@ public class BankTest {
 		
 		hasPassed = hasPassed && actual.isEmpty();
 		assertTrue(hasPassed);
+	}
+	
+	@Test
+	public void testReadBankAccount() throws BankDAOException {
+		
+		prepareTextFile();
+		prepareTextFileDAO();
+		
+		// this is the entry we're looking for "ACC 444 OPN SNG 78923 101"
+		BankAccount expected = new BankAccount();
+		expected.setId(444);
+		expected.setStatus(BankAccountStatus.OPEN);
+		expected.setType(BankAccountType.SINGLE);
+		expected.setFunds(78923);
+		List<Integer> owners = new ArrayList<>();
+		owners.add(101);
+		expected.setOwners(owners);
+		
+		BankAccount actual = tdao.readBankAccount(444);
+		
+		boolean hasPassed = true;
+		hasPassed = hasPassed && actual.getId() == expected.getId();
+		hasPassed = hasPassed && actual.getStatus() == expected.getStatus();
+		hasPassed = hasPassed && actual.getType() == expected.getType();
+		hasPassed = hasPassed && actual.getFunds() == expected.getFunds();
+		hasPassed = hasPassed && actual.getOwners().equals(expected.getOwners());
+		
+		assertTrue(hasPassed);
+		
+	}
+	
+	@Test
+	public void testReadBankAccountNotFound() throws BankDAOException{
+		
+		prepareTextFile();
+		prepareTextFileDAO();
+		
+		BankAccount actual = tdao.readBankAccount(534843943);
+		
+		assertEquals(-1, actual.getId());
+	}
+	
+	/**
+	 * Assumes each bank account is correct
+	 * @throws BankDAOException
+	 */
+	@Test
+	public void testReadAllBankACcounts() throws BankDAOException{
+		
+		prepareTextFile();
+		prepareTextFileDAO();
+		
+		List<BankAccount> found = tdao.readAllBankAccounts();
+		
+		assertEquals(3, found.size());
 	}
 }

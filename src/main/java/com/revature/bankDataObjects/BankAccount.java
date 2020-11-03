@@ -44,12 +44,10 @@ public class BankAccount extends BankData {
 	
 	// util methods
 
-
 	@Override
 	public String toString() {
 		return "ACCOUNT " + super.getId(); 
 	}
-
 	
 	// getters and setters
 	

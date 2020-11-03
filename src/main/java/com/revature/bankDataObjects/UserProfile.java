@@ -12,7 +12,7 @@ import java.util.List;
 public class UserProfile extends BankData {
 	
 	// enum(s)
-	enum UserProfileType {
+	public enum UserProfileType {
 		NONE, CUSTOMER, EMLOYEE, ADMIN
 	}
 	

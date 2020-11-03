@@ -21,6 +21,7 @@ import com.revature.bankDataObjects.BankAccount;
 import com.revature.bankDataObjects.BankData;
 import com.revature.bankDataObjects.TransactionRecord;
 import com.revature.bankDataObjects.UserProfile;
+import com.revature.bankDataObjects.UserProfile.UserProfileType;
 import com.revature.bankDataObjects.BankAccount.BankAccountStatus;
 import com.revature.bankDataObjects.BankAccount.BankAccountType;
 
@@ -39,6 +40,11 @@ public class TextFileDAO implements BankDAO {
 	private static final String ACCOUNT_TYPE_NONE = "NON"; // shouldn't be used?
 	private static final String ACCOUNT_TYPE_SINGLE = "SNG";
 	private static final String ACCOUNT_TYPE_JOINT = "JNT";
+	
+	private static final String PROFILE_TYPE_NONE = "NON";
+	private static final String PROFILE_TYPE_CUSTOMER = "CST";
+	private static final String PROFILE_TYPE_EMPLOYEE = "EMP";
+	private static final String PROFILE_TYPE_ADMIN = "ADM";
 	
 	// instance variables
 	private String filename;
@@ -78,9 +84,7 @@ public class TextFileDAO implements BankDAO {
 	public BankAccount readBankAccount(int accID) throws BankDAOException {
 		
 		String entry = searchFile(BANK_ACCOUNT_PREFIX + " " + accID);
-		BankAccount ba = buildAccountFromEntry(entry);
-		
-		return ba;
+		return buildAccountFromEntry(entry);
 	}
 
 	/**
@@ -102,14 +106,22 @@ public class TextFileDAO implements BankDAO {
 
 	@Override
 	public UserProfile readUserProfile(int userID) throws BankDAOException {
-		// TODO Auto-generated method stub
-		return null;
+		
+		String entry = searchFile(USER_PROFILE_PREFIX + " " + userID);
+		return buildUserProfileFromEntry(entry);
 	}
 
 	@Override
 	public List<UserProfile> readAllUserProfiles() throws BankDAOException {
-		// TODO Auto-generated method stub
-		return null;
+		
+		List<UserProfile> profiles = new ArrayList<>();
+		List<String> entries = searchFileMultiple(USER_PROFILE_PREFIX);
+		
+		for (String e : entries) {
+			profiles.add(buildUserProfileFromEntry(e));
+		}
+		
+		return profiles;
 	}
 
 	@Override
@@ -395,6 +407,48 @@ public class TextFileDAO implements BankDAO {
 		}
 		
 		return ba;
+	}
+	
+	/**
+	 * Returns a UserProfile object based on the given entry. If the entry is the empty string,
+	 * returns a UserProfile with ID -1 and type NONE.
+	 * @param entry
+	 * @return
+	 */
+	private UserProfile buildUserProfileFromEntry(String entry) {
+		
+		UserProfile up = new UserProfile();
+		String[] tokens = entry.split(" ");
+		
+		// sample entry for format "PRF 101 user pass CST 444"
+		up.setId(Integer.parseInt(tokens[1]));
+		up.setUsername(tokens[2]);
+		up.setPassword(tokens[3]);
+		
+		switch(tokens[4]) { // set the type
+			case PROFILE_TYPE_ADMIN:
+				up.setType(UserProfileType.ADMIN);
+				break;
+			case PROFILE_TYPE_CUSTOMER:
+				up.setType(UserProfileType.CUSTOMER);
+				break;
+			case PROFILE_TYPE_EMPLOYEE:
+				up.setType(UserProfileType.EMLOYEE);
+				break;
+			case PROFILE_TYPE_NONE:
+				up.setType(UserProfileType.NONE);
+				break;
+		}
+		
+		// the rest of the tokens are ID numbers corresponding to owned accounts
+		List<Integer> ownedAccounts = new ArrayList<>();
+		
+		for (int i = 5; i < tokens.length; i++) {
+			ownedAccounts.add(Integer.parseInt(tokens[i]));
+		}
+		up.setOwnedAccounts(ownedAccounts);
+		
+		return up;
 	}
 
 }

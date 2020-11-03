@@ -262,6 +262,7 @@ public class BankTest {
 		
 		hasPassed = expected.equals(fileData);
 		
+		/*
 		System.out.println("expected:");
 		for (String s : expected) {
 			System.out.println("    " + s);
@@ -270,6 +271,7 @@ public class BankTest {
 		for (String s : fileData) {
 			System.out.println("    " + s);
 		}
+		*/
 		
 		assertTrue(hasPassed);
 	}
@@ -279,7 +281,6 @@ public class BankTest {
 		
 		prepareTextFile();
 		prepareTextFileDAO();
-		boolean hasPassed = true;
 		//System.out.println("Check");
 		
 		// cache file data before changing
@@ -289,5 +290,56 @@ public class BankTest {
 			expected.add(reader.readLine());
 		}
 		reader.close();
+		
+		// generate the entries to be added
+		List<String> entriesAdded = new ArrayList<String>();
+		entriesAdded.add("PRF 101 user newpass CST 444"); // update
+		entriesAdded.add("PRF 989 usertest testpass CST 89003"); // new
+		entriesAdded.add("ACC 317 OPN SNG 100 103"); // update
+		
+		// update the expected list
+		expected.remove("PRF 101 user pass CST 444");
+		expected.remove("ACC 317 OPN SNG 7892312 103");
+		for (String entry : entriesAdded) {
+			expected.add(entry);
+		}
+		
+		// do the writing and check the results
+		tdao.writeMultipleEntries(entriesAdded);
+		
+		reader = new BufferedReader(new FileReader(testFilename));
+		List<String> actual = new ArrayList<String>();
+		while (reader.ready()) {
+			actual.add(reader.readLine());
+		}
+		reader.close();
+		
+		/*
+		System.out.println("expected:");
+		for (String s : expected) {
+			System.out.println("    " + s);
+		}
+		System.out.println("actual:");
+		for (String s : actual) {
+			System.out.println("    " + s);
+		}
+		*/
+		
+		// writeMultipleEntries changes the order around, rather than try to
+		// duplicate it I've written some code here that shouldn't care about order
+		boolean hasPassed = true;
+		
+		for (String s : expected) {
+			if (actual.contains(s)){
+				actual.remove(s);
+			}
+			else {
+				hasPassed = false;
+			}
+		}
+		
+		
+		hasPassed = hasPassed && actual.isEmpty();
+		assertTrue(hasPassed);
 	}
 }

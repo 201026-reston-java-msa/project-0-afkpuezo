@@ -71,3 +71,6 @@ October 30:
 November 2:
 	- changed money representation to int [x]
 	- now writeMultiple() [x] and test it [ ]
+	
+November 3:
+	- continue testing writeMultiple [x]

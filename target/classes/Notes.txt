@@ -76,4 +76,5 @@ November 3:
 	- continue testing writeMultiple [x]
 	- now start filling out the actual DAO interface methods that make use of these helpers
 		I made [ ]
-		- I need more helpers lol
+		- I need more helpers
+		- time to actually work out a format for transactions, why didn't I do this earlier?

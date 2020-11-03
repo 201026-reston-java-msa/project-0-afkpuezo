@@ -359,7 +359,7 @@ public class TextFileDAO implements BankDAO {
 		
 		if (entry.equals("")){ // if not found
 			ba.setId(-1);
-			ba.setStatus(BankAccountStatus.NONE);
+			ba.setType(BankAccountType.NONE);
 		}
 		else { // if found
 			// sample entry for format: "ACC 444 OPN SNG 78923 101"
@@ -420,12 +420,17 @@ public class TextFileDAO implements BankDAO {
 		UserProfile up = new UserProfile();
 		String[] tokens = entry.split(" ");
 		
-		// sample entry for format "PRF 101 user pass CST 444"
-		up.setId(Integer.parseInt(tokens[1]));
-		up.setUsername(tokens[2]);
-		up.setPassword(tokens[3]);
-		
-		switch(tokens[4]) { // set the type
+		if (entry.equals("")){ // if not found
+			up.setId(-1);
+			up.setType(UserProfileType.NONE);
+		}
+		else {
+			// sample entry for format "PRF 101 user pass CST 444"
+			up.setId(Integer.parseInt(tokens[1]));
+			up.setUsername(tokens[2]);
+			up.setPassword(tokens[3]);
+			
+			switch(tokens[4]) { // set the type
 			case PROFILE_TYPE_ADMIN:
 				up.setType(UserProfileType.ADMIN);
 				break;
@@ -438,15 +443,16 @@ public class TextFileDAO implements BankDAO {
 			case PROFILE_TYPE_NONE:
 				up.setType(UserProfileType.NONE);
 				break;
+			}
+			
+			// the rest of the tokens are ID numbers corresponding to owned accounts
+			List<Integer> ownedAccounts = new ArrayList<>();
+			
+			for (int i = 5; i < tokens.length; i++) {
+				ownedAccounts.add(Integer.parseInt(tokens[i]));
+			}
+			up.setOwnedAccounts(ownedAccounts);
 		}
-		
-		// the rest of the tokens are ID numbers corresponding to owned accounts
-		List<Integer> ownedAccounts = new ArrayList<>();
-		
-		for (int i = 5; i < tokens.length; i++) {
-			ownedAccounts.add(Integer.parseInt(tokens[i]));
-		}
-		up.setOwnedAccounts(ownedAccounts);
 		
 		return up;
 	}

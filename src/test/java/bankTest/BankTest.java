@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.revature.bankDataObjects.BankAccount;
+import com.revature.bankDataObjects.UserProfile;
 import com.revature.bankDataObjects.BankAccount.BankAccountStatus;
 import com.revature.bankDataObjects.BankAccount.BankAccountType;
 
@@ -355,7 +356,8 @@ public class BankTest {
 		prepareTextFileDAO();
 		
 		// this is the entry we're looking for "ACC 444 OPN SNG 78923 101"
-		BankAccount expected = new BankAccount();
+		// this was clumsy, should have tested fields directly
+		BankAccount expected = new BankAccount(); 
 		expected.setId(444);
 		expected.setStatus(BankAccountStatus.OPEN);
 		expected.setType(BankAccountType.SINGLE);
@@ -393,13 +395,59 @@ public class BankTest {
 	 * @throws BankDAOException
 	 */
 	@Test
-	public void testReadAllBankACcounts() throws BankDAOException{
+	public void testReadAllBankAccounts() throws BankDAOException{
 		
 		prepareTextFile();
 		prepareTextFileDAO();
 		
 		List<BankAccount> found = tdao.readAllBankAccounts();
 		
-		assertEquals(3, found.size());
+		assertEquals(3, found.size()); // could change if I update the test file
+	}
+	
+	@Test
+	public void testReadUserProfile() throws BankDAOException{
+		
+		prepareTextFile();
+		prepareTextFileDAO();
+		
+		// heres the entry: "PRF 101 user pass CST 444"
+		UserProfile actual = tdao.readUserProfile(101);
+		
+		// try multiple asserts - I have a feeling this is how Junit is meant to work
+		assertEquals(101, actual.getId());
+		assertEquals("user", actual.getUsername());
+		assertEquals("pass", actual.getPassword());
+		assertEquals(UserProfile.UserProfileType.CUSTOMER, actual.getType());
+		List<Integer> ownedAccounts = new ArrayList<>();
+		ownedAccounts.add(444);
+		assertEquals(ownedAccounts, actual.getOwnedAccounts());
+		
+	}
+	
+	@Test
+	public void testReadUserProfileNotFound() throws BankDAOException{
+		
+		prepareTextFile();
+		prepareTextFileDAO();
+		
+		UserProfile actual = tdao.readUserProfile(534843943);
+		
+		assertEquals(-1, actual.getId());
+	}
+	
+	/**
+	 * Assumes each user profile is correct
+	 * @throws BankDAOException
+	 */
+	@Test
+	public void testReadAllUserProfiles() throws BankDAOException{
+		
+		prepareTextFile();
+		prepareTextFileDAO();
+		
+		List<UserProfile> found = tdao.readAllUserProfiles();
+		
+		assertEquals(3, found.size()); // could change if I update the test file
 	}
 }

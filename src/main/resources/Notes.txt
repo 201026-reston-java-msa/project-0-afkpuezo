@@ -75,6 +75,9 @@ November 2:
 November 3:
 	- continue testing writeMultiple [x]
 	- now start filling out the actual DAO interface methods that make use of these helpers
-		I made [ ]
+		I made [~]
 		- I need more helpers
-		- time to actually work out a format for transactions, why didn't I do this earlier?
+		- time to actually work out a format for transactions, why didn't I do this earlier? Oh right,
+			the timestamp. I'm going to change it to a String because that's more flexible [x]
+			- format will be "TRR <id> <time> <type> <actingUser> <sourceAcc> <destAcc> <moneyAmount>"
+	- I just finished the buildTransaction method, tomorrow work on read

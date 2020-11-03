@@ -47,7 +47,8 @@ public class BankTest {
 	static private TextFileDAO tdao;
 	static private final String[] FILELINES = {
 			"PRF 101 user pass CST 444", "ACC 444 OPN SNG 78923 101", "PRF 103 user2 pass CST 317 515",
-			"ACC 317 OPN SNG 7892312 103", "PRF 999 admin admin ADM", "ACC 515 OPN SNG 111111 103"
+			"ACC 317 OPN SNG 7892312 103", "PRF 999 admin admin ADM", "ACC 515 OPN SNG 111111 103",
+			"TRR 123 3:00 FDD 101 -1 444 87654"
 	};
 	
 	/**

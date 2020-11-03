@@ -4,13 +4,11 @@
  */
 package com.revature.bankDataObjects;
 
-import java.sql.Timestamp;
-
 public class TransactionRecord extends BankData {
 	
 	
 	// enums
-	enum TransactionType {
+	public enum TransactionType {
 		ACCOUNT_REGISTERED, ACCOUNT_APPROVED, ACCOUNT_CLOSED, FUNDS_TRANSFERED,
 		FUNDS_DEPOSITED, FUNDS_WITHDRAWN, USER_REGISTERED, ACCOUNT_OWNER_ADDED, 
 		ACCOUNT_OWNER_REMOVED, NONE
@@ -19,7 +17,7 @@ public class TransactionRecord extends BankData {
 	
 	// instance variables
 	// id in super
-	private Timestamp time;
+	private String time;
 	private TransactionType type;
 	private int actingUser; // who triggered it
 	private int sourceAccount; // might not be used in all transaction types
@@ -49,12 +47,12 @@ public class TransactionRecord extends BankData {
 
 
 	// getters and setters
-	public Timestamp getTime() {
+	public String getTime() {
 		return time;
 	}
 
 
-	public void setTime(Timestamp time) {
+	public void setTime(String time) {
 		this.time = time;
 	}
 

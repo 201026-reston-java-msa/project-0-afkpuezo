@@ -24,6 +24,7 @@ import com.revature.bankDataObjects.UserProfile;
 import com.revature.bankDataObjects.UserProfile.UserProfileType;
 import com.revature.bankDataObjects.BankAccount.BankAccountStatus;
 import com.revature.bankDataObjects.BankAccount.BankAccountType;
+import com.revature.bankDataObjects.TransactionRecord.TransactionType;
 
 public class TextFileDAO implements BankDAO {
 	
@@ -45,6 +46,17 @@ public class TextFileDAO implements BankDAO {
 	private static final String PROFILE_TYPE_CUSTOMER = "CST";
 	private static final String PROFILE_TYPE_EMPLOYEE = "EMP";
 	private static final String PROFILE_TYPE_ADMIN = "ADM";
+	
+	private static final String TRANSACTION_TYPE_ACCOUNT_REGISTERED = "ACR";
+	private static final String TRANSACTION_TYPE_ACCOUNT_APPROVED = "ACA";
+	private static final String TRANSACTION_TYPE_ACCOUNT_CLOSED = "ACC";
+	private static final String TRANSACTION_TYPE_ACCOUNT_OWNER_ADDED = "AOA";
+	private static final String TRANSACTION_TYPE_ACCOUNT_OWNER_REMOVED = "AOR";
+	private static final String TRANSACTION_TYPE_FUNDS_TRANSFERED = "FTR";
+	private static final String TRANSACTION_TYPE_FUNDS_DEPOSITED = "FDP";
+	private static final String TRANSACTION_TYPE_FUNDS_WITHDRAWN = "FWD";
+	private static final String TRANSACTION_TYPE_USER_REGISTERED = "URG";
+	private static final String TRANSACTION_TYPE_NONE = "NON";
 	
 	// instance variables
 	private String filename;
@@ -126,7 +138,8 @@ public class TextFileDAO implements BankDAO {
 
 	@Override
 	public TransactionRecord readTransactionRecord(int recID) throws BankDAOException {
-		// TODO Auto-generated method stub
+		
+		String entryString = searchFile(TRANSACTION_RECORD_PREFIX + " " + recID);
 		return null;
 	}
 
@@ -418,7 +431,6 @@ public class TextFileDAO implements BankDAO {
 	private UserProfile buildUserProfileFromEntry(String entry) {
 		
 		UserProfile up = new UserProfile();
-		String[] tokens = entry.split(" ");
 		
 		if (entry.equals("")){ // if not found
 			up.setId(-1);
@@ -426,6 +438,7 @@ public class TextFileDAO implements BankDAO {
 		}
 		else {
 			// sample entry for format "PRF 101 user pass CST 444"
+			String[] tokens = entry.split(" ");
 			up.setId(Integer.parseInt(tokens[1]));
 			up.setUsername(tokens[2]);
 			up.setPassword(tokens[3]);
@@ -455,6 +468,63 @@ public class TextFileDAO implements BankDAO {
 		}
 		
 		return up;
+	}
+	
+	/**
+	 * Returns a TransactionRecord object based on the given entry. If the entry is the empty string,
+	 * returns a TransactionRecord with ID -1 and type NONE.
+	 * @param entry
+	 * @return
+	 */
+	private TransactionRecord buildTransactionRecordFromEntry(String entry) {
+		
+		TransactionRecord tr = new TransactionRecord();
+		
+		if (entry.equals(" ")) { // if not found
+			tr.setId(-1);
+			tr.setType(TransactionType.NONE);
+		}
+		else { // if found
+			// sample entry for format: "TRR 123 3:00 FDD 101 -1 444 87654"
+			String[] tokens = entry.split(" ");
+			
+			tr.setId(Integer.parseInt(tokens[1]));
+			tr.setTime(tokens[2]);
+			
+			switch(tokens[3]) { // type
+				case TRANSACTION_TYPE_ACCOUNT_REGISTERED:
+					tr.setType(TransactionType.ACCOUNT_REGISTERED);
+					break;
+				case TRANSACTION_TYPE_ACCOUNT_APPROVED:
+					tr.setType(TransactionType.ACCOUNT_APPROVED);
+					break;
+				case TRANSACTION_TYPE_ACCOUNT_CLOSED:
+					tr.setType(TransactionType.ACCOUNT_CLOSED);
+					break;
+				case TRANSACTION_TYPE_FUNDS_DEPOSITED:
+					tr.setType(TransactionType.FUNDS_DEPOSITED);
+					break;
+				case TRANSACTION_TYPE_FUNDS_WITHDRAWN:
+					tr.setType(TransactionType.FUNDS_WITHDRAWN);
+					break;
+				case TRANSACTION_TYPE_FUNDS_TRANSFERED:
+					tr.setType(TransactionType.FUNDS_TRANSFERED);
+					break;
+				case TRANSACTION_TYPE_USER_REGISTERED:
+					tr.setType(TransactionType.USER_REGISTERED);
+					break;
+				case TRANSACTION_TYPE_NONE:
+					tr.setType(TransactionType.NONE);
+					break;
+			}
+			
+			tr.setActingUser(Integer.parseInt(tokens[4]));
+			tr.setSourceAccount(Integer.parseInt(tokens[5]));
+			tr.setDestinationAccount(Integer.parseInt(tokens[6]));
+			tr.setMoneyAmount(Integer.parseInt(tokens[7]));
+		}
+		
+		return tr;
 	}
 
 }

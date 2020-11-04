@@ -89,7 +89,7 @@ public class BankAccount extends BankData {
 		this.status = status;
 	}
 
-	public double getFunds() {
+	public int getFunds() {
 		return funds;
 	}
 

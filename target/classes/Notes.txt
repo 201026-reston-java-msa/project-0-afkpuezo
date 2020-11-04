@@ -89,4 +89,4 @@ November 4:
 	- I think I'm spending way too much time on the text DAO...I should be able to re-use some of this, though
 	- anyway, on to the reading transactions [x]
 	- now do write [x] and test it [ ] 
-		- oh no I had previously written a different way of doing write...time to change things
+		- oh no I had previously written a different way of doing write...time to fix this [ ] 

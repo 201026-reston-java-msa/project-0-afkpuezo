@@ -14,6 +14,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.colorchooser.AbstractColorChooserPanel;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
@@ -25,10 +28,13 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.revature.bankDataObjects.BankAccount;
+import com.revature.bankDataObjects.BankData;
 import com.revature.bankDataObjects.UserProfile;
+import com.revature.bankDataObjects.UserProfile.UserProfileType;
 import com.revature.bankDataObjects.BankAccount.BankAccountStatus;
 import com.revature.bankDataObjects.BankAccount.BankAccountType;
 import com.revature.bankDataObjects.TransactionRecord;
+import com.revature.bankDataObjects.TransactionRecord.TransactionType;
 
 import dao.BankDAO;
 import dao.BankDAOException;
@@ -359,4 +365,115 @@ public class BankTest {
 		
 		assertEquals(1, found.size()); // could change if I update the test file
 	}
-}
+	
+	@Test
+	public void testWriteOneNewEntry() throws BankDAOException, IOException {
+		
+		prepareTextFile();
+		prepareTextFileDAO();
+		
+		UserProfile up = new UserProfile(123456);
+		up.setUsername("writeuser");
+		up.setPassword("writepass");
+		up.setType(UserProfileType.CUSTOMER);
+		up.addAccount(54321);
+		
+		tdao.write(up);
+		
+		// now make sure it was added correctly
+		BufferedReader reader = new BufferedReader(new FileReader(testFilename));
+		List<String> data = new ArrayList<>();
+		while (reader.ready()) {
+			data.add(reader.readLine());
+		}
+		for (String line : FILELINES) {
+			data.remove(line);
+		}
+		
+		assertEquals(1, data.size());
+		assertEquals("PRF 123456 writeuser writepass CST 54321", data.get(0));
+	}
+	
+	@Test
+	public void testWriteOverwriteOneEntry() throws BankDAOException, IOException {
+		
+		prepareTextFile();
+		prepareTextFileDAO();
+		
+		// entry to overwrite: "ACC 444 OPN SNG 78923 101"
+		BankAccount ba = new BankAccount(444);
+		ba.setStatus(BankAccountStatus.OPEN);
+		ba.setType(BankAccountType.SINGLE);
+		ba.setFunds(99999); // this is what's been updated
+		ba.addOwner(101);
+		
+		tdao.write(ba);
+		
+		// now make sure it was added correctly
+		BufferedReader reader = new BufferedReader(new FileReader(testFilename));
+		List<String> data = new ArrayList<>();
+		while (reader.ready()) {
+			data.add(reader.readLine());
+		}
+		for (String line : FILELINES) {
+			if (!line.startsWith("ACC 444")) {
+				data.remove(line);				
+			}
+		}
+		
+		assertEquals(1, data.size());
+		assertEquals("ACC 444 OPN SNG 99999 101", data.get(0));
+	}
+	
+	@Test
+	public void testWriteMultiple() throws BankDAOException, IOException {
+		
+		prepareTextFile();
+		prepareTextFileDAO();
+		
+		UserProfile up = new UserProfile(123456);
+		up.setUsername("writeuser");
+		up.setPassword("writepass");
+		up.setType(UserProfileType.CUSTOMER);
+		up.addAccount(54321);
+		
+		BankAccount ba = new BankAccount(444);
+		ba.setStatus(BankAccountStatus.OPEN);
+		ba.setType(BankAccountType.SINGLE);
+		ba.setFunds(99999); // this is what's been updated
+		ba.addOwner(101);
+		
+		TransactionRecord tr = new TransactionRecord(76543); // new
+		tr.setTime("4:15");
+		tr.setType(TransactionType.FUNDS_DEPOSITED);
+		tr.setActingUser(456);
+		tr.setSourceAccount(12);
+		tr.setDestinationAccount(21);
+		tr.setMoneyAmount(1);
+		
+		List<BankData> toWrite = new ArrayList<>();
+		toWrite.add(up);
+		toWrite.add(ba);
+		toWrite.add(tr);
+		
+		tdao.write(toWrite);
+		
+		// now make sure they were added correctly
+		BufferedReader reader = new BufferedReader(new FileReader(testFilename));
+		List<String> data = new ArrayList<>();
+		while (reader.ready()) {
+			data.add(reader.readLine());
+		}
+		for (String line : FILELINES) {
+			if (!(line.startsWith("PRF 123456") || line.startsWith("ACC 444") || line.startsWith("TRR 76543"))) {
+				data.remove(line);				
+			}
+		}
+		
+		assertEquals(3, data.size());
+		assertTrue(data.contains("PRF 123456 writeuser writepass CST 54321"));
+		assertTrue(data.contains("ACC 444 OPN SNG 99999 101"));
+		assertTrue(data.contains("TRR 76543 4:15 FDP 456 12 21 1"));
+	}
+	
+} // end class

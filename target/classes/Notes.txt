@@ -34,7 +34,7 @@ October 29:
 		- request (represents user input/commands)
 			- type
 			- additional param(s)
-		- hub/main/primary/controller/teller (connects everything and actually does the work)
+		- hub/main/primary/controller/teller/driver (connects everything and actually does the work)
 			- currentUser (profile)
 			- handleRequest()
 			- interactionLoop()
@@ -90,4 +90,23 @@ November 4:
 	- anyway, on to the reading transactions [x]
 	- now do write [x] and test it [x] 
 		- oh no I had previously written a different way of doing write...time to fix this [x]
-	- almost done with the TextDAO (finally...), I think I need a way to get the highest/next ID for each type... 
+	- almost done with the TextDAO (finally...), I think I need a way to get the highest/next ID [x]
+	- what to do next? The controller or the requests? I think request because the controller will need them.
+	- What does a request need? Should there be different classes of request, or just a type enum?
+		- Let's list the types of request:
+			- register user (name, pass)
+			- log in (name, pass)
+			- apply to open account
+			- approve opening an account (accID)
+			- deny opening an account (accID)
+			- close an account (accID)
+			- add an owner to an account (accID, userID)
+			- remove an owner from an account (accID, userID)
+			- deposit money (accID, $)
+			- withdraw money (accID, $)
+			- transfer money (sourceAccID, destAccID, $)
+		- seeing this, I think I'll just make one Request class. It will have:
+			- a RequestType enum for each of the above
+			- a List<String> params 
+		- individual actions/methods will know how to parse these params and how to determine permissions.
+	- okay, write the Request class [ ]

@@ -13,7 +13,7 @@ public class UserProfile extends BankData {
 	
 	// enum(s)
 	public enum UserProfileType {
-		NONE, CUSTOMER, EMLOYEE, ADMIN
+		NONE, CUSTOMER, EMPLOYEE, ADMIN
 	}
 	
 	

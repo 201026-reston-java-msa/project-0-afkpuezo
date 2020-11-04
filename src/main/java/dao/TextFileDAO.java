@@ -13,6 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.invoke.LambdaConversionException;
 import java.security.KeyStore.Entry;
 import java.util.ArrayList;
 import java.util.List;
@@ -156,16 +157,57 @@ public class TextFileDAO implements BankDAO {
 		return transactions;
 	}
 
+	/**
+	 * Writes the given BankData object to the data storage. WILL overwrite if matching
+	 * data is already present.
+	 * @param bd
+	 */
 	@Override
-	public boolean write(BankData bd) throws BankDAOException {
-		// TODO Auto-generated method stub
-		return false;
+	public void write(BankData bd) throws BankDAOException {
+		List<BankData> toWrite = new ArrayList<BankData>();
+		toWrite.add(bd);
+		write(toWrite); // just use the list method
 	}
 
+	/**
+	 * Writes each of the BankData objects in the given List to the data storage. 
+	 * WILL overwrite if matching data is already present.
+	 * @param bd
+	 */
 	@Override
-	public boolean write(List<BankData> data) throws BankDAOException {
-		// TODO Auto-generated method stub
-		return false;
+	public void write(List<BankData> toWrite) throws BankDAOException {
+		
+		// get all of the data first so that we can look for duplicate/outdated entries
+		List<String> data = searchFileMultiple("");
+		
+		for (BankData bd : toWrite) {
+			
+			if (bd.getClass() == UserProfile.class) {
+				saveUserProfile((UserProfile)bd, data);
+			}
+			else if (bd.getClass() == BankAccount.class) {
+				saveBankAccount((BankAccount)bd, data);
+			}
+			else if (bd.getClass() == TransactionRecord.class) {
+				saveTransactionRecord((TransactionRecord)bd, data);
+			}
+			else {
+				throw new BankDAOException("BankData subclass not supported in write: " + bd.getClass());
+			}
+		}
+		
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
+			
+			for (String line : data) {
+				writer.write(line);
+			}
+			
+			writer.close();			
+		}
+		catch (IOException e){
+			throw new BankDAOException("IOException when writing to file");
+		}
 	}
 	
 	// helper / util methods for file IO
@@ -458,7 +500,7 @@ public class TextFileDAO implements BankDAO {
 				up.setType(UserProfileType.CUSTOMER);
 				break;
 			case PROFILE_TYPE_EMPLOYEE:
-				up.setType(UserProfileType.EMLOYEE);
+				up.setType(UserProfileType.EMPLOYEE);
 				break;
 			case PROFILE_TYPE_NONE:
 				up.setType(UserProfileType.NONE);
@@ -534,4 +576,84 @@ public class TextFileDAO implements BankDAO {
 		return tr;
 	}
 
+	/**
+	 * Properly updates the given data with the given user profile. Does NOT write to file
+	 * @param up
+	 * @param data
+	 */
+	private void saveUserProfile(UserProfile up, List<String> data) {
+		
+		String entry = USER_PROFILE_PREFIX + " " + up.getId();
+		removeStartingWith(entry, data);
+		
+		// example entry for format: "PRF 101 user pass CST 444"
+		entry = entry + " " + up.getUsername() + " " + up.getPassword();
+		
+		switch(up.getType()) {
+			case NONE:
+				entry = entry + " " + PROFILE_TYPE_NONE;
+				break;
+			case CUSTOMER:
+				entry = entry + " " + PROFILE_TYPE_CUSTOMER;
+				break;
+			case EMPLOYEE:
+				entry = entry + " " + PROFILE_TYPE_CUSTOMER;
+				break;
+			case ADMIN:
+				entry = entry + " " + PROFILE_TYPE_ADMIN;
+				break;
+		}
+		
+		// now do added accounts
+		for (Integer accID : up.getOwnedAccounts()) {
+			entry = entry + " " + accID;
+		}
+		
+		// we're done
+		data.add(entry);
+	}
+	
+	/**
+	 * Properly updates the given data with the given bank account. Does NOT write to file
+	 * @param up
+	 * @param data
+	 */
+	private void saveBankAccount(BankAccount ba, List<String> data) {
+		
+		String entry = BANK_ACCOUNT_PREFIX + " " + ba.getId();
+		removeStartingWith(entry, data);
+		
+		// example entry for format: "ACC 444 OPN SNG 78923 101"
+		switch (ba.getStatus()) {
+			case NONE:
+				break;
+		}
+	}
+	
+	/**
+	 * Properly updates the given data with the given transaction record. Does NOT write to file
+	 * @param up
+	 * @param data
+	 */
+	private void saveTransactionRecord(TransactionRecord tr, List<String> data) {
+		
+	}
+	
+	/**
+	 * (another) Helper method that searches the given list and removes the first entry discovered
+	 * that starts with the given tag string. (There should never be repeats, so it assumes there
+	 * is at most one old entry to be found)
+	 * If no matching entry is found, does nothing
+	 * @param tag
+	 * @param data
+	 */
+	private void removeStartingWith(String tag, List<String> data) {
+		
+		for (String s : data) {
+			if (s.startsWith(tag)) {
+				data.remove(s);
+				return;
+			}
+		}
+	}
 }

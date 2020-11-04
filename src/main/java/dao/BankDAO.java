@@ -70,16 +70,14 @@ public interface BankDAO {
 	 * Writes the given BankData object to the data storage. WILL overwrite if matching
 	 * data is already present.
 	 * @param bd
-	 * @return true if write successful, false otherwise.
 	 */
-	public boolean write(BankData bd) throws BankDAOException;
+	public void write(BankData bd) throws BankDAOException;
 	
 	/**
 	 * Writes each of the BankData objects in the given List to the data storage. 
 	 * WILL overwrite if matching data is already present.
 	 * @param bd
-	 * @return true if write successful, false otherwise.
 	 */
-	public boolean write(List<BankData> data) throws BankDAOException;
+	public void write(List<BankData> toWrite) throws BankDAOException;
 	
 }

@@ -80,4 +80,19 @@ public interface BankDAO {
 	 */
 	public void write(List<BankData> toWrite) throws BankDAOException;
 	
+	/** 
+	 * @return the highest ID currently assigned to a user profile
+	 */
+	public int getHighestUserProfileID() throws BankDAOException;
+	
+	/** 
+	 * @return the highest ID currently assigned to a bank account
+	 */
+	public int getHighestBankAccountID() throws BankDAOException;
+	
+	/** 
+	 * @return the highest ID currently assigned to a transaction record
+	 */
+	public int getHighestTransactionRecordID() throws BankDAOException;
+	
 }

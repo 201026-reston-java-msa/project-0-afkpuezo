@@ -237,7 +237,51 @@ public class TextFileDAO implements BankDAO {
 		}
 	}
 	
+	/** 
+	 * @return the highest ID currently assigned to a user profile
+	 */
+	@Override
+	public int getHighestUserProfileID() throws BankDAOException {
+		return getHighestIDHelper(searchFileMultiple("PRF"));
+	};
+	
+	/** 
+	 * @return the highest ID currently assigned to a bank account
+	 */
+	@Override
+	public int getHighestBankAccountID() throws BankDAOException {
+		return getHighestIDHelper(searchFileMultiple("ACC"));
+	};
+	
+	/** 
+	 * @return the highest ID currently assigned to a transaction record
+	 */
+	@Override
+	public int getHighestTransactionRecordID() throws BankDAOException {
+		return getHighestIDHelper(searchFileMultiple("TRR"));
+	};
+	
+	
 	// helper / util methods for file IO
+	
+	/**
+	 * Yet another helper method
+	 * @param entries
+	 * @return the single highest ID within the entries
+	 */
+	private int getHighestIDHelper(List<String> entries) {
+		int highest = -1;
+		
+		for (String e : entries) {
+			String[] tokens = e.split(" ", 3);
+			int id = Integer.parseInt(tokens[1]);
+			if (id > highest) {
+				highest = id;
+			}
+		}
+		
+		return highest;
+	}
 	
 	/**
 	 * Opens the file with a BufferedReader, handles the try/catch

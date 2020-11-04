@@ -88,5 +88,6 @@ November 4:
 
 	- I think I'm spending way too much time on the text DAO...I should be able to re-use some of this, though
 	- anyway, on to the reading transactions [x]
-	- now do write [x] and test it [ ] 
-		- oh no I had previously written a different way of doing write...time to fix this [ ] 
+	- now do write [x] and test it [x] 
+		- oh no I had previously written a different way of doing write...time to fix this [x]
+	- almost done with the TextDAO (finally...), I think I need a way to get the highest/next ID for each type... 

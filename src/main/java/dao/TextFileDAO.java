@@ -487,7 +487,7 @@ public class TextFileDAO implements BankDAO {
 		
 		TransactionRecord tr = new TransactionRecord();
 		
-		if (entry.equals(" ")) { // if not found
+		if (entry.equals("")) { // if not found
 			tr.setId(-1);
 			tr.setType(TransactionType.NONE);
 		}

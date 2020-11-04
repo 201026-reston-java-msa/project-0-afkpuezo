@@ -28,6 +28,7 @@ import com.revature.bankDataObjects.BankAccount;
 import com.revature.bankDataObjects.UserProfile;
 import com.revature.bankDataObjects.BankAccount.BankAccountStatus;
 import com.revature.bankDataObjects.BankAccount.BankAccountType;
+import com.revature.bankDataObjects.TransactionRecord;
 
 import dao.BankDAO;
 import dao.BankDAOException;
@@ -48,7 +49,7 @@ public class BankTest {
 	static private final String[] FILELINES = {
 			"PRF 101 user pass CST 444", "ACC 444 OPN SNG 78923 101", "PRF 103 user2 pass CST 317 515",
 			"ACC 317 OPN SNG 7892312 103", "PRF 999 admin admin ADM", "ACC 515 OPN SNG 111111 103",
-			"TRR 123 3:00 FDD 101 -1 444 87654"
+			"TRR 123 3:00 FDP 101 -1 444 87654"
 	};
 	
 	/**
@@ -450,5 +451,49 @@ public class BankTest {
 		List<UserProfile> found = tdao.readAllUserProfiles();
 		
 		assertEquals(3, found.size()); // could change if I update the test file
+	}
+	
+	@Test
+	public void testReadTransactionHistory() throws BankDAOException {
+		
+		prepareTextFile();
+		prepareTextFileDAO();
+		
+		TransactionRecord actual = tdao.readTransactionRecord(123);
+		
+		// here's the entry: "TRR 123 3:00 FDP 101 -1 444 87654"
+		assertEquals(123,  actual.getId());
+		assertEquals("3:00", actual.getTime());
+		assertEquals(TransactionRecord.TransactionType.FUNDS_DEPOSITED, actual.getType());
+		assertEquals(101, actual.getActingUser());
+		assertEquals(-1, actual.getSourceAccount());
+		assertEquals(444, actual.getDestinationAccount());
+		assertEquals(87654, actual.getMoneyAmount());
+	}
+	
+	@Test
+	public void testReadTransactionRecordNotFound() throws BankDAOException{
+		
+		prepareTextFile();
+		prepareTextFileDAO();
+		
+		TransactionRecord actual = tdao.readTransactionRecord(534843943);
+		
+		assertEquals(-1, actual.getId());
+	}
+	
+	/**
+	 * Assumes each TransactionRecord is correct
+	 * @throws BankDAOException
+	 */
+	@Test
+	public void testReadAllTransactionRecords() throws BankDAOException{
+		
+		prepareTextFile();
+		prepareTextFileDAO();
+		
+		List<TransactionRecord> found = tdao.readAllTransactionRecords();
+		
+		assertEquals(1, found.size()); // could change if I update the test file
 	}
 }

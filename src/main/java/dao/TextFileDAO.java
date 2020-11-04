@@ -177,36 +177,63 @@ public class TextFileDAO implements BankDAO {
 	@Override
 	public void write(List<BankData> toWrite) throws BankDAOException {
 		
-		// get all of the data first so that we can look for duplicate/outdated entries
-		List<String> data = searchFileMultiple("");
+		List<String> entries = new ArrayList<>();
 		
 		for (BankData bd : toWrite) {
+			String entry;
 			
 			if (bd.getClass() == UserProfile.class) {
-				saveUserProfile((UserProfile)bd, data);
+				entry = saveUserProfile((UserProfile)bd);
 			}
 			else if (bd.getClass() == BankAccount.class) {
-				saveBankAccount((BankAccount)bd, data);
+				entry = saveBankAccount((BankAccount)bd);
 			}
 			else if (bd.getClass() == TransactionRecord.class) {
-				saveTransactionRecord((TransactionRecord)bd, data);
+				entry = saveTransactionRecord((TransactionRecord)bd);
 			}
 			else {
 				throw new BankDAOException("BankData subclass not supported in write: " + bd.getClass());
 			}
+			
+			entries.add(entry);
 		}
 		
-		try {
-			BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
+		// get all of the data so that we can verify if entries already exist
+		List<String> fileData = searchFileMultiple("");
+		List<String> outputData = new ArrayList<>(entries); // copy the list
+		
+		// rather than just calling WriteEntry for each entry, going to optimize things a little
+		// (actually is this even better?)
+		for (String s : fileData) {
+			String[] tokens = s.split(" ", 3);
+			String tag = tokens[0] + " " + tokens[1];
+			boolean was_found = false;
 			
-			for (String line : data) {
-				writer.write(line);
+			for (String entry : outputData) {
+				if (entry.startsWith(tag)) {
+					was_found = true;
+					break; // don't add duplicates/outdated entries
+				}
+			} // end inner loop
+			
+			if (!was_found) {
+				outputData.add(s);
 			}
-			
-			writer.close();			
+		} // end outer loop
+		
+		writer = openFileWriter(filename);
+		
+		try {
+			for (String s : outputData) {
+				writer.write(s);
+				writer.write("\n");
+			}			
 		}
-		catch (IOException e){
-			throw new BankDAOException("IOException when writing to file");
+		catch (IOException e) {
+			throw (new BankDAOException("ALERT: write failed to write to file: " + filename));
+		}
+		finally {
+			closeFile(writer);
 		}
 	}
 	
@@ -319,95 +346,6 @@ public class TextFileDAO implements BankDAO {
 		
 		return results;
 	}
-	
-	/**
-	 * Writes the given string into the data file. The string should represent a BankData object.
-	 * If a matching entry (same type and id) already exists, it will be overwritten.
-	 * @param entry
-	 * @throws BankDAOException
-	 */
-	public void writeEntry(String entry) throws BankDAOException {
-		
-		// parse the entry for relevant data
-		String[] tokens = entry.split(" ", 3);
-		String tag = tokens[0] + " " + tokens[1];
-		
-		// get all of the data so that we can verify if the entry already exists
-		List<String> fileData = searchFileMultiple("");
-		
-		for (String s : fileData) {
-			if (s.startsWith(tag)) {
-				fileData.remove(s); // safe to do this while iterating?
-				break;
-			}
-		}
-		
-		// now add the entry and write the data back
-		fileData.add(entry);
-		
-		writer = openFileWriter(filename);
-		
-		try {
-			for (String s : fileData) {
-				writer.write(s);
-				writer.write("\n");
-			}			
-		}
-		catch (IOException e) {
-			throw (new BankDAOException("ALERT: writeEntry failed to write to file: " + filename));
-		}
-		finally {
-			closeFile(writer);
-		}
-	}
-	
-	/**
-	 * Writes each string in the given list into the data file. Each string should represent a BankData 
-	 * object. If a matching entry (same type and id) already exists, it will be overwritten.
-	 * @param entries
-	 * @throws BankDAOException
-	 */
-	public void writeMultipleEntries(List<String> entries) throws BankDAOException {
-		
-		// get all of the data so that we can verify if entries already exist
-		List<String> fileData = searchFileMultiple("");
-		List<String> outputData = new ArrayList<>(entries); // copy the list
-		
-		// rather than just calling WriteEntry for each entry, going to optimize things a little
-		// (actually is this even better?)
-		for (String s : fileData) {
-			String[] tokens = s.split(" ", 3);
-			String tag = tokens[0] + " " + tokens[1];
-			boolean was_found = false;
-			
-			for (String entry : outputData) {
-				if (entry.startsWith(tag)) {
-					was_found = true;
-					break; // don't add duplicates/outdated entries
-				}
-			}
-			
-			if (!was_found) {
-				outputData.add(s);
-			}
-		}
-		
-		writer = openFileWriter(filename);
-		
-		try {
-			for (String s : outputData) {
-				writer.write(s);
-				writer.write("\n");
-			}			
-		}
-		catch (IOException e) {
-			throw (new BankDAOException("ALERT: writeMultipleEntries failed to write to file: " + filename));
-		}
-		finally {
-			closeFile(writer);
-		}
-		
-	} // end writeMultipleEntries method
 	
 	/**
 	 * Returns a BankAccount object based on the given entry. If the entry is the empty string,
@@ -577,14 +515,12 @@ public class TextFileDAO implements BankDAO {
 	}
 
 	/**
-	 * Properly updates the given data with the given user profile. Does NOT write to file
+	 * Returns a string entry of the given UserProfile
 	 * @param up
-	 * @param data
 	 */
-	private void saveUserProfile(UserProfile up, List<String> data) {
+	private String saveUserProfile(UserProfile up) {
 		
 		String entry = USER_PROFILE_PREFIX + " " + up.getId();
-		removeStartingWith(entry, data);
 		
 		// example entry for format: "PRF 101 user pass CST 444"
 		entry = entry + " " + up.getUsername() + " " + up.getPassword();
@@ -610,18 +546,16 @@ public class TextFileDAO implements BankDAO {
 		}
 		
 		// we're done
-		data.add(entry);
+		return entry;
 	}
 	
 	/**
-	 * Properly updates the given data with the given bank account. Does NOT write to file
-	 * @param up
-	 * @param data
+	 * Returns a string entry of the given bank account.
+	 * @param ba
 	 */
-	private void saveBankAccount(BankAccount ba, List<String> data) {
+	private String saveBankAccount(BankAccount ba) {
 		
 		String entry = BANK_ACCOUNT_PREFIX + " " + ba.getId();
-		removeStartingWith(entry, data);
 		
 		// example entry for format: "ACC 444 OPN SNG 78923 101"
 		switch (ba.getStatus()) {
@@ -657,18 +591,16 @@ public class TextFileDAO implements BankDAO {
 			entry = entry + " " + ownerID;
 		}
 		
-		data.add(entry);
+		return entry;
 	}
 	
 	/**
-	 * Properly updates the given data with the given transaction record. Does NOT write to file
-	 * @param up
-	 * @param data
+	 * Returns a string entry of the given transaction record
+	 * @param tr
 	 */
-	private void saveTransactionRecord(TransactionRecord tr, List<String> data) {
+	private String saveTransactionRecord(TransactionRecord tr) {
 		
 		String entry = TRANSACTION_RECORD_PREFIX + " " + tr.getId();
-		removeStartingWith(entry, data);
 		
 		// example entry for format: "TRR 123 3:00 FDP 101 -1 444 87654"
 		entry = entry + " " + tr.getTime();
@@ -711,24 +643,6 @@ public class TextFileDAO implements BankDAO {
 				+ " " + tr.getDestinationAccount() 
 				+ " " + tr.getMoneyAmount();
 		
-		data.add(entry);
-	}
-	
-	/**
-	 * (another) Helper method that searches the given list and removes the first entry discovered
-	 * that starts with the given tag string. (There should never be repeats, so it assumes there
-	 * is at most one old entry to be found)
-	 * If no matching entry is found, does nothing
-	 * @param tag
-	 * @param data
-	 */
-	private void removeStartingWith(String tag, List<String> data) {
-		
-		for (String s : data) {
-			if (s.startsWith(tag)) {
-				data.remove(s);
-				return;
-			}
-		}
+		return entry;
 	}
 }

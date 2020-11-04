@@ -1,3 +1,4 @@
+package bankSystem;
 import java.util.List;
 
 /**
@@ -11,7 +12,8 @@ public class Request {
 	// enum(s)
 	public enum RequestType{
 		REGISTER_USER, 
-		LOG_IN, 
+		LOG_IN,
+		QUIT,
 		APPLY_OPEN_ACCOUNT, 
 		APPROVE_OPEN_ACCOUNT,
 		DENY_OPEN_ACCOUNT,

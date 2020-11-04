@@ -96,6 +96,7 @@ November 4:
 		- Let's list the types of request:
 			- register user (name, pass)
 			- log in (name, pass)
+			- quit
 			- apply to open account
 			- approve opening an account (accID)
 			- deny opening an account (accID)
@@ -109,4 +110,18 @@ November 4:
 			- a RequestType enum for each of the above
 			- a List<String> params 
 		- individual actions/methods will know how to parse these params and how to determine permissions.
-	- okay, write the Request class [ ]
+	- okay, write the Request class [x] I don't think I need to test it
+	
+	- next, the BankSystem (still can't think of a better name)
+	- what does it need?
+		- reference to the IO (so I'll need to write that interface) [ ]
+		- reference to the DAO
+		- current user
+		- interaction loop method (prompt IO, get request from IO, handle request)
+		- helper methods for each of the request types
+	- I think I will need an "InvalidPermission" exception, and maybe a "ImpossibleAction" exception
+		- maybe just the ImpossibleAction, and the message will clarify why
+		- the BankSystem will catch these and have the IO display the message to the user.
+		- okay, make that exception class [x] no need to test, it's too basic 
+		
+		

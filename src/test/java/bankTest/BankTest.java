@@ -476,4 +476,15 @@ public class BankTest {
 		assertTrue(data.contains("TRR 76543 4:15 FDP 456 12 21 1"));
 	}
 	
+	@Test
+	public void testHighestIDMethods() throws BankDAOException {
+		
+		prepareTextFile();
+		prepareTextFileDAO();
+		
+		assertEquals(999, tdao.getHighestUserProfileID());
+		assertEquals(515, tdao.getHighestBankAccountID());
+		assertEquals(123, tdao.getHighestTransactionRecordID());
+	}
+	
 } // end class

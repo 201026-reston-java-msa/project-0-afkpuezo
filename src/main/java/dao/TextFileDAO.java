@@ -626,8 +626,38 @@ public class TextFileDAO implements BankDAO {
 		// example entry for format: "ACC 444 OPN SNG 78923 101"
 		switch (ba.getStatus()) {
 			case NONE:
+				entry = entry + " " + ACCOUNT_STATUS_NONE;
+				break;
+			case OPEN:
+				entry = entry + " " + ACCOUNT_STATUS_OPEN;
+				break;
+			case CLOSED:
+				entry = entry + " " + ACCOUNT_STATUS_CLOSED;
+				break;
+			case PENDING:
+				entry = entry + " " + ACCOUNT_STATUS_PENDING;
 				break;
 		}
+		
+		switch (ba.getType()) {
+			case NONE:
+				entry = entry + " " + ACCOUNT_TYPE_NONE;
+				break;
+			case SINGLE:
+				entry = entry + " " + ACCOUNT_TYPE_SINGLE;
+				break;
+			case JOINT:
+				entry = entry + " " + ACCOUNT_TYPE_JOINT;
+				break;
+		}
+		
+		entry = entry + " " + ba.getFunds();
+		
+		for (Integer ownerID : ba.getOwners()) {
+			entry = entry + " " + ownerID;
+		}
+		
+		data.add(entry);
 	}
 	
 	/**
@@ -637,6 +667,51 @@ public class TextFileDAO implements BankDAO {
 	 */
 	private void saveTransactionRecord(TransactionRecord tr, List<String> data) {
 		
+		String entry = TRANSACTION_RECORD_PREFIX + " " + tr.getId();
+		removeStartingWith(entry, data);
+		
+		// example entry for format: "TRR 123 3:00 FDP 101 -1 444 87654"
+		entry = entry + " " + tr.getTime();
+		
+		switch (tr.getType()) { // big switch case
+			case ACCOUNT_REGISTERED:
+				entry = entry + " " + TRANSACTION_TYPE_ACCOUNT_REGISTERED;
+				break;
+			case ACCOUNT_APPROVED:
+				entry = entry + " " + TRANSACTION_TYPE_ACCOUNT_APPROVED;
+				break;
+			case ACCOUNT_CLOSED:
+				entry = entry + " " + TRANSACTION_TYPE_ACCOUNT_CLOSED;
+				break;
+			case FUNDS_TRANSFERED:
+				entry = entry + " " + TRANSACTION_TYPE_FUNDS_TRANSFERED;
+				break;
+			case FUNDS_DEPOSITED:
+				entry = entry + " " + TRANSACTION_TYPE_FUNDS_DEPOSITED;
+				break;
+			case FUNDS_WITHDRAWN:
+				entry = entry + " " + TRANSACTION_TYPE_FUNDS_WITHDRAWN;
+				break;
+			case USER_REGISTERED:
+				entry = entry + " " + TRANSACTION_TYPE_USER_REGISTERED;
+				break;
+			case ACCOUNT_OWNER_ADDED:
+				entry = entry + " " + TRANSACTION_TYPE_ACCOUNT_OWNER_ADDED;
+				break;
+			case ACCOUNT_OWNER_REMOVED:
+				entry = entry + " " + TRANSACTION_TYPE_ACCOUNT_OWNER_REMOVED;
+				break;
+			case NONE:
+				entry = entry + " " + TRANSACTION_TYPE_NONE;
+				break;
+		}
+		
+		entry = entry + " " + tr.getActingUser() 
+				+ " " + tr.getSourceAccount() 
+				+ " " + tr.getDestinationAccount() 
+				+ " " + tr.getMoneyAmount();
+		
+		data.add(entry);
 	}
 	
 	/**

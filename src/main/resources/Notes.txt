@@ -69,10 +69,12 @@ October 30:
 		- next time write/test writeMultiple()
 
 November 2:
+
 	- changed money representation to int [x]
 	- now writeMultiple() [x] and test it [~]
 	
 November 3:
+
 	- continue testing writeMultiple [x]
 	- now start filling out the actual DAO interface methods that make use of these helpers
 		I made [~]
@@ -81,3 +83,8 @@ November 3:
 			the timestamp. I'm going to change it to a String because that's more flexible [x]
 			- format will be "TRR <id> <time> <type> <actingUser> <sourceAcc> <destAcc> <moneyAmount>"
 	- I just finished the buildTransaction method, tomorrow work on read
+	
+November 4:
+
+	- I think I'm spending way too much time on the text DAO...I should be able to re-use some of this, though
+	- anyway, on to the reading transactions

@@ -139,14 +139,21 @@ public class TextFileDAO implements BankDAO {
 	@Override
 	public TransactionRecord readTransactionRecord(int recID) throws BankDAOException {
 		
-		String entryString = searchFile(TRANSACTION_RECORD_PREFIX + " " + recID);
-		return null;
+		String entry = searchFile(TRANSACTION_RECORD_PREFIX + " " + recID);
+		return buildTransactionRecordFromEntry(entry);
 	}
 
 	@Override
 	public List<TransactionRecord> readAllTransactionRecords() throws BankDAOException {
-		// TODO Auto-generated method stub
-		return null;
+		
+		List<TransactionRecord> transactions = new ArrayList<>();
+		List<String> entries = searchFileMultiple(TRANSACTION_RECORD_PREFIX);
+		
+		for (String e : entries) {
+			transactions.add(buildTransactionRecordFromEntry(e));
+		}
+		
+		return transactions;
 	}
 
 	@Override

@@ -509,4 +509,22 @@ public class TextFileDAOTest {
 		assertEquals(-1, up.getId());
 	}
 	
+	@Test
+	public void testReadTransactionsByID() throws BankDAOException {
+		
+		prepareTextFile();
+		prepareTextFileDAO();
+		
+		List<TransactionRecord> records = tdao.readTransactionRecordByAccountId(444);
+		assertEquals(123, records.get(0).getId());
+		assertEquals(1, records.size());
+		
+		records = tdao.readTransactionRecordByAccountId(523445234);
+		assertTrue(records.isEmpty());
+		
+		records = tdao.readTransactionRecordByActingUserId(101);
+		assertEquals(123, records.get(0).getId());
+		assertEquals(1, records.size());
+	}
+	
 } // end class

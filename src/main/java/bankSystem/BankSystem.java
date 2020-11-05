@@ -15,6 +15,8 @@ import java.util.List;
 import javax.xml.stream.events.StartDocument;
 
 import com.revature.bankDataObjects.BankAccount;
+import com.revature.bankDataObjects.TransactionRecord;
+import com.revature.bankDataObjects.TransactionRecord.TransactionType;
 import com.revature.bankDataObjects.UserProfile;
 import com.revature.bankDataObjects.BankAccount.BankAccountStatus;
 import com.revature.bankDataObjects.BankAccount.BankAccountType;
@@ -33,7 +35,7 @@ public class BankSystem {
 	private static final String USER_LOGGED_IN_PREFIX= "LOGGED IN AS: "; // should append username
 	private static final String USERNAME_IN_USE_MESSAGE = "Unable to proceed: That username is already in use.";
 	private static final String USER_DOES_NOT_EXIST_MESSAGE = "Unable to proceed: No user profile with that name exist.";
-	private static final String GENERIC_DAO_ERROR_MESSAGE = "Unable to proceed: Could not connect with database.";
+	private static final String GENERIC_DAO_ERROR_MESSAGE = "ALERT: There were issues communicating with the database. Contact your system administrator.";
 	private static final String LOGIN_USER_NOT_FOUND_PREFIX = "Unable to proceed: No profile found matching username: ";
 	private static final String LOGIN_INVALID_PASSWORD_MESSAGE = "Unable to proceed: Incorrect password.";
 	private static final String LOGOUT_MESSAGE = "Logging out.";
@@ -246,6 +248,11 @@ public class BankSystem {
 				user.setPassword(params.get(1));
 				dao.write(user);
 				changeLoggedInUser(user);
+				
+				TransactionRecord tr = new TransactionRecord();
+				tr.setType(TransactionType.USER_REGISTERED);
+				tr.setActingUser(user.getId());
+				saveTransactionRecord(tr);
 			}
 			else { // username is taken
 				throw new ImpossibleActionException(USERNAME_IN_USE_MESSAGE);
@@ -282,6 +289,8 @@ public class BankSystem {
 					throw new ImpossibleActionException(LOGIN_INVALID_PASSWORD_MESSAGE);
 				}
 			}
+			
+			// no transaction
 		}
 		catch(BankDAOException e){
 			throw new ImpossibleActionException(GENERIC_DAO_ERROR_MESSAGE);
@@ -298,6 +307,7 @@ public class BankSystem {
 		
 		io.displayText(LOGOUT_MESSAGE);;
 		changeLoggedInUser(getEmptyUser());
+		// no transaction
 	}
 	
 	/**
@@ -309,6 +319,7 @@ public class BankSystem {
 		
 		io.displayText(QUIT_MESSAGE);
 		stopRunning();
+		// no transaction
 	}
 	
 	/**
@@ -331,6 +342,12 @@ public class BankSystem {
 			ba.addOwner(currentUser.getId());
 			dao.write(ba);
 			io.displayText(APPLY_OPEN_ACCOUNT_MESSAGE);
+			
+			TransactionRecord tr = new TransactionRecord();
+			tr.setType(TransactionType.ACCOUNT_REGISTERED);
+			tr.setActingUser(currentUser.getId());
+			tr.setDestinationAccount(ba.getId());
+			saveTransactionRecord(tr);
 		}
 		catch(BankDAOException e) {
 			throw new ImpossibleActionException(GENERIC_DAO_ERROR_MESSAGE);
@@ -367,6 +384,11 @@ public class BankSystem {
 			dao.write(ba);
 			io.displayText(ACCOUNT_APPROVED_MESSAGE);
 			
+			TransactionRecord tr = new TransactionRecord();
+			tr.setType(TransactionType.ACCOUNT_APPROVED);
+			tr.setActingUser(currentUser.getId());
+			tr.setDestinationAccount(ba.getId());
+			saveTransactionRecord(tr);
 		}
 		catch(BankDAOException e) {
 			throw new ImpossibleActionException(GENERIC_DAO_ERROR_MESSAGE);
@@ -403,6 +425,11 @@ public class BankSystem {
 			dao.write(ba);
 			io.displayText(ACCOUNT_DENIED_MESSAGE);
 			
+			TransactionRecord tr = new TransactionRecord();
+			tr.setType(TransactionType.ACCOUNT_CLOSED);
+			tr.setActingUser(currentUser.getId());
+			tr.setDestinationAccount(ba.getId());
+			saveTransactionRecord(tr);
 		}
 		catch(BankDAOException e) {
 			throw new ImpossibleActionException(GENERIC_DAO_ERROR_MESSAGE);
@@ -439,6 +466,12 @@ public class BankSystem {
 			ba.setStatus(BankAccountStatus.CLOSED);
 			dao.write(ba);
 			io.displayText(CLOSE_ACCOUNT_PREFIX + funds);
+			
+			TransactionRecord tr = new TransactionRecord();
+			tr.setType(TransactionType.ACCOUNT_CLOSED);
+			tr.setActingUser(currentUser.getId());
+			tr.setDestinationAccount(ba.getId());
+			saveTransactionRecord(tr);
 		}
 		catch(BankDAOException e) {
 			throw new ImpossibleActionException(GENERIC_DAO_ERROR_MESSAGE);
@@ -568,10 +601,24 @@ public class BankSystem {
 	}
 	
 	/**
-	 * 
+	 * Sets the running variable to false, ending the loop.
 	 */
 	private void stopRunning() {
 		
 		running = false;
 	}
+	
+	/**
+	 * Writes the given TR to the database.
+	 * This method will take care of finding the ID and creating the timestamp (eventually)
+	 * @param tr
+	 */
+	private void saveTransactionRecord(TransactionRecord tr) throws BankDAOException{
+		
+		tr.setId(dao.getHighestTransactionRecordID() + 1);
+		tr.setTime("PLACEHOLDER"); // TODO fix this
+		dao.write(tr);
+	}
+	
+	
 }

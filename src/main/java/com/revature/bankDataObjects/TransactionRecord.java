@@ -34,6 +34,10 @@ public class TransactionRecord extends BankData {
 	public TransactionRecord(int id) {
 		super();
 		super.setId(id);
+		actingUser = -1;
+		sourceAccount = -1;
+		destinationAccount = -1;
+		moneyAmount = -1;
 	}
 	
 	

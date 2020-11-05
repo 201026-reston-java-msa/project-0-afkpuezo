@@ -110,8 +110,49 @@ public class BankSystem {
 			}
 			
 			currentRequest = io.prompt(permittedRequestTypes);
+			
+			// now handle the request
+			try {
+				switch(currentRequest.getType()) {
+				
+				case REGISTER_USER:
+					handleRegisterUser(currentRequest);
+					break;
+				case LOG_IN:
+					handleLogIn(currentRequest);
+					break; // TODO continue from here
+				}				
+			}
+			catch (ImpossibleActionException e) {
+				io.displayText(e.getMessage());
+			}
+			
 		} // end while (running) loop
 	} // end interactionLoop() method
+
+	
+	// methods for handling specific request types --------------
+	
+
+	/**
+	 * TODO doc
+	 * @param currentRequest
+	 * @throws ImpossibleActionException
+	 */
+	private void handleRegisterUser(Request currentRequest) throws ImpossibleActionException {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/**
+	 * TODO doc
+	 * @param currentRequest
+	 * @throws ImpossibleActionException
+	 */
+	private void handleLogIn(Request currentRequest) throws ImpossibleActionException {
+		// TODO Auto-generated method stub
+		
+	}
 
 	// util methods
 

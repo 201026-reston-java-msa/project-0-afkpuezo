@@ -1,5 +1,7 @@
 /**
  * This interface defines what is needed for input/output for the banking program.
+ * 
+ * @author Andrew Curry
  */
 package BankIO;
 
@@ -19,6 +21,13 @@ public interface BankIO {
 	 * @param text
 	 */
 	public void displayText(String text);
+	
+	/**
+	 * Displays the given text to the user.
+	 * @param text
+	 * @param frame : if true, frame the text with a box
+	 */
+	public void displayText(String text, boolean frame);
 	
 	/**
 	 * Displays information about the given user profile to the user.

@@ -132,7 +132,9 @@ November 4:
 November 5:
 
 	- I need to add 4 more types of requests: log out, view transactions, view user, and view account(s) [x]
-	- Make the BankIO interface so that the BankSystem class (and interface) can make use of it [ ]
+	- Make the BankIO interface so that the BankSystem class (and/or interface) can make use of it [x]
 		- display() (string, or user, or List<Account>, or List<Transaction>)
 		- prompt() (string)
+	- now write the BankSystem class; I don't think I need an interface [ ]
+	- big problem: how will the IO understand the prompt enough to create the right request? I have to rethink this
 		

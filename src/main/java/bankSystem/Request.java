@@ -33,15 +33,12 @@ public class Request {
 	private RequestType type;
 	private List<String> params; // order WILl matter for this
 	
-	
 	// constructor(s)
-	
 	
 	public Request (RequestType type, List<String> params) {
 		this.type = type;
 		this.params = params;
 	}
-	
 	
 	// getters
 	

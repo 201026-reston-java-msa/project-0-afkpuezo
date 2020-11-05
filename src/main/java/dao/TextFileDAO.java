@@ -302,6 +302,47 @@ public class TextFileDAO implements BankDAO {
 		return true; // if we got to the end, we didn't find it
 	}
 	
+	/**
+	 * Fetches all TransactionRecords that were carried out by the given user.
+	 * @param actingUserId
+	 * @return
+	 * @throws BankDAOException
+	 */
+	@Override
+	public List<TransactionRecord> readTransactionRecordByActingUserId(int actingUserID) throws BankDAOException{
+		
+		List<TransactionRecord> allRecords = readAllTransactionRecords(); // is it more efficient to work with the strings?
+		List<TransactionRecord> matchingRecords = new ArrayList<>();
+		
+		for (TransactionRecord tr : allRecords) {
+			if (tr.getActingUser() == actingUserID) {
+				matchingRecords.add(tr);
+			}
+		}
+		
+		return matchingRecords;
+	}
+	
+	/**
+	 * Fetches all TransactionRecords that involved the given account (as source or destination)
+	 * @param accID
+	 * @return
+	 * @throws BankDAOException
+	 */
+	@Override
+	public List<TransactionRecord> readTransactionRecordByAccountId(int accID) throws BankDAOException{
+		
+		List<TransactionRecord> allRecords = readAllTransactionRecords(); // is it more efficient to work with the strings?
+		List<TransactionRecord> matchingRecords = new ArrayList<>();
+		
+		for (TransactionRecord tr : allRecords) {
+			if (tr.getSourceAccount() == accID || tr.getDestinationAccount() == accID) {
+				matchingRecords.add(tr);
+			}
+		}
+		
+		return matchingRecords;
+	}
 	
 	// helper / util methods for file IO
 	

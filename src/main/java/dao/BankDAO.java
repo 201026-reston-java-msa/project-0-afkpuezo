@@ -75,6 +75,24 @@ public interface BankDAO {
 	public List<TransactionRecord> readAllTransactionRecords() throws BankDAOException;
 	
 	/**
+	 * Fetches all TransactionRecords that were carried out by the given user.
+	 * Returns an empty list if there are no matches.
+	 * @param actingUserId
+	 * @return
+	 * @throws BankDAOException
+	 */
+	public List<TransactionRecord> readTransactionRecordByActingUserId(int actingUserID) throws BankDAOException;
+	
+	/**
+	 * Fetches all TransactionRecords that involved the given account (as source or destination)
+	 * Returns an empty list if there are no matches.
+	 * @param accID
+	 * @return
+	 * @throws BankDAOException
+	 */
+	public List<TransactionRecord> readTransactionRecordByAccountId(int accID) throws BankDAOException;
+	
+	/**
 	 * Writes the given BankData object to the data storage. WILL overwrite if matching
 	 * data is already present.
 	 * @param bd

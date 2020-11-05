@@ -152,4 +152,6 @@ November 5:
 		this to the DAO [x]
 	- oh right I need a way to retrive user accounts by username [x]
 	- oh yeah I need to allow for the creation of employee and admin accounts [x]
-	- oh right I need to be recording transactions, which will need timestamping...for now I'll have a placeholder
+	- oh right I need to be recording transactions [ ], which will need timestamping...
+		for now I'll have a placeholder
+		- I will also need new methods in the DAO interface to search for transactions by user or account ID [ ]

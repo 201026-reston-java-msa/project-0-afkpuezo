@@ -261,6 +261,26 @@ public class TextFileDAO implements BankDAO {
 		return getHighestIDHelper(searchFileMultiple("TRR"));
 	};
 	
+	/**
+	 * Determines whether or not the given username is free to use. Used during registration, to make sure that usernames are unique.
+	 * @param username
+	 * @return
+	 */
+	@Override
+	public boolean isUsernameFree(String username) throws BankDAOException {
+		
+		List<String> userEntries = searchFileMultiple(USER_PROFILE_PREFIX);
+		
+		for (String e : userEntries) {
+			String[] tokens = e.split(" ", 4);
+			if (tokens[3].equals(username)) {
+				return false;
+			}
+		}
+		
+		return true; // if we got to the end, we didn't find it
+	}
+	
 	
 	// helper / util methods for file IO
 	

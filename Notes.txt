@@ -142,3 +142,9 @@ November 5:
 		- This system prevents many (but not all) of the ways someone could do something outside
 			of their permissions
 		- i made VIEW_USER plural
+		- now that I made all of these method skeletons, I'm wondering if I should have made currentUser a
+			parameter and if I should have made them return a value controlling whether or not the loop
+			keeps running. That's more of a style thing than it is about functionality, and I can see advantages
+			to both ways, so I'm just going to keep doing it this way.
+	- i immediately realize that usernames should be unique, and that I need a way to check that. Time to add
+		this to the DAO [ ]

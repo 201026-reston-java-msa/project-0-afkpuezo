@@ -95,4 +95,11 @@ public interface BankDAO {
 	 */
 	public int getHighestTransactionRecordID() throws BankDAOException;
 	
+	/**
+	 * Determines whether or not the given username is free to use. Used during registration, to make sure that usernames are unique.
+	 * @param username
+	 * @return
+	 */
+	public boolean isUsernameFree(String username) throws BankDAOException;
+	
 }

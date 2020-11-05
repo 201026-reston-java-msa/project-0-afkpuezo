@@ -39,11 +39,11 @@ public class BankSystem {
 			RequestType.APPLY_OPEN_ACCOUNT, RequestType.LOG_OUT, RequestType.QUIT};
 	
 	private static final RequestType[] EMPLOYEE_CHOICES = 
-			{RequestType.VIEW_ACCOUNTS, RequestType.VIEW_USER, RequestType.APPROVE_OPEN_ACCOUNT, 
+			{RequestType.VIEW_ACCOUNTS, RequestType.VIEW_USERS, RequestType.APPROVE_OPEN_ACCOUNT, 
 			RequestType.DENY_OPEN_ACCOUNT, RequestType.LOG_OUT, RequestType.QUIT};
 	
 	private static final RequestType[] ADMIN_CHOICES =
-			{RequestType.VIEW_ACCOUNTS, RequestType.VIEW_USER, RequestType.APPROVE_OPEN_ACCOUNT,
+			{RequestType.VIEW_ACCOUNTS, RequestType.VIEW_USERS, RequestType.APPROVE_OPEN_ACCOUNT,
 			RequestType.DENY_OPEN_ACCOUNT, RequestType.WITHDRAW, RequestType.DEPOSIT, RequestType.TRANSFER,
 			RequestType.CLOSE_ACCOUNT, RequestType.LOG_OUT, RequestType.QUIT};
 	

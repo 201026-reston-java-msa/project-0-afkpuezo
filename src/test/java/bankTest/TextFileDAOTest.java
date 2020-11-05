@@ -40,7 +40,7 @@ import dao.BankDAO;
 import dao.BankDAOException;
 import dao.TextFileDAO;
 
-public class BankTest {
+public class TextFileDAOTest {
 	
 	/**
 	 * -----------------------------------------------------------------------
@@ -485,6 +485,16 @@ public class BankTest {
 		assertEquals(999, tdao.getHighestUserProfileID());
 		assertEquals(515, tdao.getHighestBankAccountID());
 		assertEquals(123, tdao.getHighestTransactionRecordID());
+	}
+	
+	@Test
+	public void testIsUsernameFree() throws BankDAOException {
+		
+		prepareTextFile();
+		prepareTextFileDAO();
+		
+		assertTrue(tdao.isUsernameFree("this_username_is_not_in_use"));
+		assertFalse(tdao.isUsernameFree("user"));
 	}
 	
 } // end class

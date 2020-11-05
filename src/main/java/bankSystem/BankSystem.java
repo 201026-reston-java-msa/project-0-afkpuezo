@@ -14,7 +14,10 @@ import java.util.List;
 
 import javax.xml.stream.events.StartDocument;
 
+import com.revature.bankDataObjects.BankAccount;
 import com.revature.bankDataObjects.UserProfile;
+import com.revature.bankDataObjects.BankAccount.BankAccountStatus;
+import com.revature.bankDataObjects.BankAccount.BankAccountType;
 import com.revature.bankDataObjects.UserProfile.UserProfileType;
 
 import BankIO.BankIO;
@@ -33,7 +36,34 @@ public class BankSystem {
 	private static final String GENERIC_DAO_ERROR_MESSAGE = "Unable to proceed: Could not connect with database.";
 	private static final String LOGIN_USER_NOT_FOUND_PREFIX = "Unable to proceed: No profile found matching username: ";
 	private static final String LOGIN_INVALID_PASSWORD_MESSAGE = "Unable to proceed: Incorrect password.";
+	private static final String LOGOUT_MESSAGE = "Logging out.";
+	private static final String QUIT_MESSAGE = "Quitting.";
 	
+	private static final String APPLY_OPEN_ACCOUNT_NOT_CUSTOMER_MESSAGE 
+			= "Unable to proceed: Only customers can apply to open accounts";
+	private static final String APPLY_OPEN_ACCOUNT_MESSAGE
+			= "Account created, pending approval.";
+	private static final String APPROVE_OPEN_ACCOUNT_NO_PERMISSION_MESSAGE
+			= "Unable to proceed: Only employees and administrators can approve accounts.";
+	private static final String APPROVE_OPEN_ACCOUNT_MESSAGE
+			= "Account created, pending approval.";
+	private static final String BANK_ACCOUNT_DOES_NOT_EXIST_PREFIX
+			= "Unable to proceed: No account exists with ID: ";
+	private static final String BANK_ACCOUNT_NOT_PENDING_MESSAGE
+			= "Unable to proceed: That account is not pending approval.";
+	private static final String ACCOUNT_APPROVED_MESSAGE
+			= "Account approved.";
+	private static final String ACCOUNT_DENIED_MESSAGE
+			= "Account denied.";
+	
+	private static final String CLOSE_ACCOUNT_NO_PERMISSION_MESSAGE
+			= "Unable to proceed: Only an administrator can close an account.";
+	private static final String CLOSE_ACCOUNT_NOT_OPEN_MESSAGE
+			= "Unable to proceed: That account cannot be closed because it is not open.";
+	private static final String CLOSE_ACCOUNT_PREFIX
+			= "Account closed. All funds withdrawn and returned to account owner(s). Funds amount: $";
+	
+	// arrays of permitted request types
 	private static final RequestType[] NO_USER_CHOICES = 
 			{RequestType.LOG_IN, RequestType.REGISTER_USER, RequestType.QUIT};
 	
@@ -181,6 +211,12 @@ public class BankSystem {
 				case VIEW_TRANSACTIONS:
 					handleViewTransactions(currentRequest);
 					break;
+				case CREATE_EMPLOYEE:
+					handleCreateEmployee(currentRequest);
+					break;
+				case CREATE_ADMIN:
+					handleCreateAdmin(currentRequest);
+					break;
 				}				
 			}
 			catch (ImpossibleActionException e) {
@@ -195,7 +231,7 @@ public class BankSystem {
 	
 
 	/**
-	 * TODO doc
+	 * Creates a new user profile, if the username is not a duplicate.
 	 * @param currentRequest
 	 * @throws ImpossibleActionException
 	 */
@@ -221,7 +257,8 @@ public class BankSystem {
 	}
 
 	/**
-	 * TODO doc
+	 * Logs in to the user account with the matching username, provided it exists
+	 * and the password is valid.
 	 * @param currentRequest
 	 * @throws ImpossibleActionException
 	 */
@@ -253,63 +290,159 @@ public class BankSystem {
 	}
 	
 	/**
-	 * TODO doc
+	 * Logs out of the current user.
 	 * @param currentRequest
 	 * @throws ImpossibleActionException
 	 */
 	private void handleLogOut(Request currentRequest) throws ImpossibleActionException {
-		// TODO Auto-generated method stub
 		
+		io.displayText(LOGOUT_MESSAGE);;
+		changeLoggedInUser(getEmptyUser());
 	}
 	
 	/**
-	 * TODO doc
+	 * Triggers the end of execution.
 	 * @param currentRequest
 	 * @throws ImpossibleActionException
 	 */
 	private void handleQuit(Request currentRequest) throws ImpossibleActionException {
-		// TODO Auto-generated method stub
 		
+		io.displayText(QUIT_MESSAGE);
+		stopRunning();
 	}
 	
 	/**
-	 * TODO doc
+	 * Allows a customer to apply to open a new account.
 	 * @param currentRequest
 	 * @throws ImpossibleActionException
 	 */
 	private void handleApplyToOpenAccount(Request currentRequest) throws ImpossibleActionException {
-		// TODO Auto-generated method stub
 		
+		// check permissions - only a customer can apply to open an account
+		if (currentUser.getType() != UserProfileType.CUSTOMER) {
+			throw new ImpossibleActionException(APPLY_OPEN_ACCOUNT_NOT_CUSTOMER_MESSAGE);
+		}
+		
+		try {
+			BankAccount ba = new BankAccount(dao.getHighestBankAccountID() + 1);
+			ba.setStatus(BankAccountStatus.PENDING);
+			ba.setType(BankAccountType.SINGLE);
+			ba.setFunds(0);
+			ba.addOwner(currentUser.getId());
+			dao.write(ba);
+			io.displayText(APPLY_OPEN_ACCOUNT_MESSAGE);
+		}
+		catch(BankDAOException e) {
+			throw new ImpossibleActionException(GENERIC_DAO_ERROR_MESSAGE);
+		}
 	}
 	
 	/**
-	 * TODO doc
+	 * Allows an employee or admin to approve an account that is pending approval.
 	 * @param currentRequest
 	 * @throws ImpossibleActionException
 	 */
 	private void handleApproveOpenAccount(Request currentRequest) throws ImpossibleActionException {
-		// TODO Auto-generated method stub
 		
+		// check permissions - only employees and admins can approve an account
+		if (currentUser.getType() != UserProfileType.EMPLOYEE 
+				&& currentUser.getType() != UserProfileType.ADMIN) {
+			io.displayText(APPROVE_OPEN_ACCOUNT_NO_PERMISSION_MESSAGE);
+		}
+		
+		try {
+			List<String> params = currentRequest.getParams();
+			int id = Integer.parseInt(params.get(0));
+			
+			BankAccount ba = dao.readBankAccount(id);
+			
+			if (ba.getType() == BankAccountType.NONE) {
+				throw new ImpossibleActionException(BANK_ACCOUNT_DOES_NOT_EXIST_PREFIX + id);
+			}
+			if (ba.getStatus() != BankAccountStatus.PENDING) {
+				throw new ImpossibleActionException(BANK_ACCOUNT_NOT_PENDING_MESSAGE);
+			}
+			
+			ba.setStatus(BankAccountStatus.OPEN);
+			dao.write(ba);
+			io.displayText(ACCOUNT_APPROVED_MESSAGE);
+			
+		}
+		catch(BankDAOException e) {
+			throw new ImpossibleActionException(GENERIC_DAO_ERROR_MESSAGE);
+		}
 	}
 	
 	/**
-	 * TODO doc
+	 * Allows an employee or admin to deny an account that is pending approval.
 	 * @param currentRequest
 	 * @throws ImpossibleActionException
 	 */
 	private void handleDenyOpenAccount(Request currentRequest) throws ImpossibleActionException {
-		// TODO Auto-generated method stub
 		
+		// check permissions - only employees and admins can approve an account
+		if (currentUser.getType() != UserProfileType.EMPLOYEE 
+				&& currentUser.getType() != UserProfileType.ADMIN) {
+			io.displayText(APPROVE_OPEN_ACCOUNT_NO_PERMISSION_MESSAGE);
+		}
+		
+		try {
+			List<String> params = currentRequest.getParams();
+			int id = Integer.parseInt(params.get(0));
+			
+			BankAccount ba = dao.readBankAccount(id);
+			
+			if (ba.getType() == BankAccountType.NONE) {
+				throw new ImpossibleActionException(BANK_ACCOUNT_DOES_NOT_EXIST_PREFIX + id);
+			}
+			if (ba.getStatus() != BankAccountStatus.PENDING) {
+				throw new ImpossibleActionException(BANK_ACCOUNT_NOT_PENDING_MESSAGE);
+			}
+			
+			ba.setStatus(BankAccountStatus.CLOSED);
+			dao.write(ba);
+			io.displayText(ACCOUNT_DENIED_MESSAGE);
+			
+		}
+		catch(BankDAOException e) {
+			throw new ImpossibleActionException(GENERIC_DAO_ERROR_MESSAGE);
+		}
 	}
 	
 	/**
-	 * TODO doc
+	 * Allows an admin to close an account.
+	 * NOTE: only works on open accounts.
 	 * @param currentRequest
 	 * @throws ImpossibleActionException
 	 */
 	private void handleCloseAccount(Request currentRequest) throws ImpossibleActionException {
-		// TODO Auto-generated method stub
 		
+		if (currentUser.getType() != UserProfileType.ADMIN) {
+			io.displayText(CLOSE_ACCOUNT_NO_PERMISSION_MESSAGE);
+		}
+		
+		try {
+			List<String> params = currentRequest.getParams();
+			int id = Integer.parseInt(params.get(0));
+			
+			BankAccount ba = dao.readBankAccount(id);
+			
+			if (ba.getType() == BankAccountType.NONE) {
+				throw new ImpossibleActionException(BANK_ACCOUNT_DOES_NOT_EXIST_PREFIX + id);
+			}
+			if (ba.getStatus() != BankAccountStatus.OPEN) {
+				throw new ImpossibleActionException(CLOSE_ACCOUNT_NOT_OPEN_MESSAGE);
+			}
+			
+			int funds = ba.getFunds();
+			ba.setFunds(0);
+			ba.setStatus(BankAccountStatus.CLOSED);
+			dao.write(ba);
+			io.displayText(CLOSE_ACCOUNT_PREFIX + funds);
+		}
+		catch(BankDAOException e) {
+			throw new ImpossibleActionException(GENERIC_DAO_ERROR_MESSAGE);
+		}
 	}
 	
 	/**
@@ -391,6 +524,26 @@ public class BankSystem {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	/**
+	 * TODO doc
+	 * @param currentRequest
+	 * @throws ImpossibleActionException
+	 */
+	private void handleCreateEmployee(Request currentRequest) throws ImpossibleActionException {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/**
+	 * TODO doc
+	 * @param currentRequest
+	 * @throws ImpossibleActionException
+	 */
+	private void handleCreateAdmin(Request currentRequest) throws ImpossibleActionException {
+		// TODO Auto-generated method stub
+		
+	}
 
 	// util methods
 
@@ -412,5 +565,13 @@ public class BankSystem {
 	private void changeLoggedInUser(UserProfile user) {
 
 		currentUser = user;
+	}
+	
+	/**
+	 * 
+	 */
+	private void stopRunning() {
+		
+		running = false;
 	}
 }

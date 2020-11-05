@@ -27,6 +27,8 @@ public class Request {
 		VIEW_ACCOUNTS,
 		VIEW_USERS,
 		VIEW_TRANSACTIONS,
+		CREATE_EMPLOYEE,
+		CREATE_ADMIN,
 	}
 	
 	// instance variables

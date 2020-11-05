@@ -110,6 +110,8 @@ November 4:
 			- view account(s) (accIDs, OR ownerUserID)
 			- view user (userID)
 			- view transactions (trrID, OR userID, OR accID)
+			- create employee user (name, pass)
+			- create admin user (name, pass)
 		- seeing this, I think I'll just make one Request class. It will have:
 			- a RequestType enum for each of the above
 			- a List<String> params 
@@ -148,5 +150,6 @@ November 5:
 			to both ways, so I'm just going to keep doing it this way.
 	- i immediately realize that usernames should be unique, and that I need a way to check that. Time to add
 		this to the DAO [x]
+	- oh right I need a way to retrive user accounts by username [x]
+	- oh yeah I need to allow for the creation of employee and admin accounts [x]
 	- oh right I need to be recording transactions, which will need timestamping...for now I'll have a placeholder
-	- oh right I need a way to retrive user accounts by username [ ]

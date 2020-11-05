@@ -13,6 +13,7 @@ public class Request {
 	public enum RequestType{
 		REGISTER_USER, 
 		LOG_IN,
+		LOG_OUT,
 		QUIT,
 		APPLY_OPEN_ACCOUNT, 
 		APPROVE_OPEN_ACCOUNT,
@@ -22,7 +23,10 @@ public class Request {
 		REMOVE_ACCOUNT_OWNER,
 		DEPOSIT,
 		WITHDRAW,
-		TRANSFER
+		TRANSFER,
+		VIEW_ACCOUNTS,
+		VIEW_USER,
+		VIEW_TRANSACTIONS,
 	}
 	
 	// instance variables

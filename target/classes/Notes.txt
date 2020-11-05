@@ -122,6 +122,7 @@ November 4:
 	- I think I will need an "InvalidPermission" exception, and maybe a "ImpossibleAction" exception
 		- maybe just the ImpossibleAction, and the message will clarify why
 		- the BankSystem will catch these and have the IO display the message to the user.
-		- okay, make that exception class [x] no need to test, it's too basic 
+		- okay, make that exception class [x] no need to test, it's too basic
+	- now I can start working on BankSystem [ ] 
 		
 		

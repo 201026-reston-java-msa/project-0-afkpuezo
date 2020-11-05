@@ -96,6 +96,7 @@ November 4:
 		- Let's list the types of request:
 			- register user (name, pass)
 			- log in (name, pass)
+			- log out
 			- quit
 			- apply to open account
 			- approve opening an account (accID)
@@ -106,6 +107,9 @@ November 4:
 			- deposit money (accID, $)
 			- withdraw money (accID, $)
 			- transfer money (sourceAccID, destAccID, $)
+			- view account(s) (accIDs, OR ownerUserID)
+			- view user (userID)
+			- view transactions (trrID, OR userID, OR accID)
 		- seeing this, I think I'll just make one Request class. It will have:
 			- a RequestType enum for each of the above
 			- a List<String> params 
@@ -122,6 +126,13 @@ November 4:
 	- I think I will need an "InvalidPermission" exception, and maybe a "ImpossibleAction" exception
 		- maybe just the ImpossibleAction, and the message will clarify why
 		- the BankSystem will catch these and have the IO display the message to the user.
-		- okay, make that exception class [x] no need to test, it's too basic 
-		
+		- okay, make that exception class [x] no need to test, it's too basic
+	- now I can start working on BankSystem [ ] 
+
+November 5:
+
+	- I need to add 4 more types of requests: log out, view transactions, view user, and view account(s) [x]
+	- Make the BankIO interface so that the BankSystem class (and interface) can make use of it [ ]
+		- display() (string, or user, or List<Account>, or List<Transaction>)
+		- prompt() (string)
 		

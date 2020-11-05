@@ -141,4 +141,4 @@ November 5:
 			This way the IO will know what it can do. [x]
 		- This system prevents many (but not all) of the ways someone could do something outside
 			of their permissions
-		
+		- i made VIEW_USER plural

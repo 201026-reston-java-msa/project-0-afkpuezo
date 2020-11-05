@@ -52,6 +52,7 @@ public class BankSystem {
 	private BankDAO dao;
 	
 	private UserProfile currentUser; // who is logged in?
+	private boolean running; // controls interaction loop
 	
 	// constructor(s)
 	
@@ -66,6 +67,7 @@ public class BankSystem {
 		this.dao = dao;
 		
 		currentUser = getEmptyUser();
+		running = false;
 	}
 	
 	// 'operation' methods
@@ -76,6 +78,7 @@ public class BankSystem {
 	public void start() {
 		
 		io.displayText(START_MESSAGE, true);
+		running = true;
 		interactionLoop();
 	}
 	
@@ -84,7 +87,7 @@ public class BankSystem {
 	 */
 	private void interactionLoop() {
 		
-		boolean running = true;
+		//boolean running = true;
 		String outputText = "";
 		RequestType[] permittedRequestTypes; // = new RequestType[0]; // should get replaced in loop
 		Request currentRequest;
@@ -120,7 +123,49 @@ public class BankSystem {
 					break;
 				case LOG_IN:
 					handleLogIn(currentRequest);
-					break; // TODO continue from here
+					break;
+				case LOG_OUT:
+					handleLogOut(currentRequest);
+					break;
+				case QUIT:
+					handleQuit(currentRequest);
+					break;
+				case APPLY_OPEN_ACCOUNT:
+					handleApplyToOpenAccount(currentRequest);
+					break;
+				case APPROVE_OPEN_ACCOUNT:
+					handleApproveOpenAccount(currentRequest);
+					break;
+				case DENY_OPEN_ACCOUNT:
+					handleDenyOpenAccount(currentRequest);
+					break;
+				case CLOSE_ACCOUNT:
+					handleCloseAccount(currentRequest);
+					break;
+				case ADD_ACCOUNT_OWNER:
+					handleAddAccountOwner(currentRequest);
+					break;
+				case REMOVE_ACCOUNT_OWNER:
+					handleRemoveAccountOwner(currentRequest);
+					break;
+				case DEPOSIT:
+					handleDeposit(currentRequest);
+					break;
+				case WITHDRAW:
+					handleWithdraw(currentRequest);
+					break;
+				case TRANSFER:
+					handleTransfer(currentRequest);
+					break;
+				case VIEW_ACCOUNTS:
+					handleViewAccounts(currentRequest);
+					break;
+				case VIEW_USERS:
+					handleViewUsers(currentRequest);
+					break;
+				case VIEW_TRANSACTIONS:
+					handleViewTransactions(currentRequest);
+					break;
 				}				
 			}
 			catch (ImpossibleActionException e) {
@@ -150,6 +195,146 @@ public class BankSystem {
 	 * @throws ImpossibleActionException
 	 */
 	private void handleLogIn(Request currentRequest) throws ImpossibleActionException {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/**
+	 * TODO doc
+	 * @param currentRequest
+	 * @throws ImpossibleActionException
+	 */
+	private void handleLogOut(Request currentRequest) throws ImpossibleActionException {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/**
+	 * TODO doc
+	 * @param currentRequest
+	 * @throws ImpossibleActionException
+	 */
+	private void handleQuit(Request currentRequest) throws ImpossibleActionException {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/**
+	 * TODO doc
+	 * @param currentRequest
+	 * @throws ImpossibleActionException
+	 */
+	private void handleApplyToOpenAccount(Request currentRequest) throws ImpossibleActionException {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/**
+	 * TODO doc
+	 * @param currentRequest
+	 * @throws ImpossibleActionException
+	 */
+	private void handleApproveOpenAccount(Request currentRequest) throws ImpossibleActionException {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/**
+	 * TODO doc
+	 * @param currentRequest
+	 * @throws ImpossibleActionException
+	 */
+	private void handleDenyOpenAccount(Request currentRequest) throws ImpossibleActionException {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/**
+	 * TODO doc
+	 * @param currentRequest
+	 * @throws ImpossibleActionException
+	 */
+	private void handleCloseAccount(Request currentRequest) throws ImpossibleActionException {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/**
+	 * TODO doc
+	 * @param currentRequest
+	 * @throws ImpossibleActionException
+	 */
+	private void handleAddAccountOwner(Request currentRequest) throws ImpossibleActionException {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/**
+	 * TODO doc
+	 * @param currentRequest
+	 * @throws ImpossibleActionException
+	 */
+	private void handleRemoveAccountOwner(Request currentRequest) throws ImpossibleActionException {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/**
+	 * TODO doc
+	 * @param currentRequest
+	 * @throws ImpossibleActionException
+	 */
+	private void handleDeposit(Request currentRequest) throws ImpossibleActionException {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/**
+	 * TODO doc
+	 * @param currentRequest
+	 * @throws ImpossibleActionException
+	 */
+	private void handleWithdraw(Request currentRequest) throws ImpossibleActionException {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/**
+	 * TODO doc
+	 * @param currentRequest
+	 * @throws ImpossibleActionException
+	 */
+	private void handleTransfer(Request currentRequest) throws ImpossibleActionException {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/**
+	 * TODO doc
+	 * @param currentRequest
+	 * @throws ImpossibleActionException
+	 */
+	private void handleViewAccounts(Request currentRequest) throws ImpossibleActionException {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/**
+	 * TODO doc
+	 * @param currentRequest
+	 * @throws ImpossibleActionException
+	 */
+	private void handleViewUsers(Request currentRequest) throws ImpossibleActionException {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/**
+	 * TODO doc
+	 * @param currentRequest
+	 * @throws ImpossibleActionException
+	 */
+	private void handleViewTransactions(Request currentRequest) throws ImpossibleActionException {
 		// TODO Auto-generated method stub
 		
 	}

@@ -25,7 +25,7 @@ public class Request {
 		WITHDRAW,
 		TRANSFER,
 		VIEW_ACCOUNTS,
-		VIEW_USER,
+		VIEW_USERS,
 		VIEW_TRANSACTIONS,
 	}
 	

@@ -9,20 +9,24 @@
  */
 package bankSystem;
 
+import java.io.LineNumberInputStream;
+import java.util.List;
+
 import javax.xml.stream.events.StartDocument;
 
 import com.revature.bankDataObjects.UserProfile;
 import com.revature.bankDataObjects.UserProfile.UserProfileType;
 
 import BankIO.BankIO;
+import bankSystem.Request.RequestType;
 import dao.BankDAO;
 
 public class BankSystem {
 
 	// class variables
 	private static final String START_MESSAGE = "Welcome to the bank!";
-	private static final String NO_USER_PROMPT = "(1) Log in\n(2) Register new user\n(3) Quit";
-	private static final String CUSTOMER_PROMPT = "";
+	//private static final String NO_USER_PROMPT = "(1) Log in\n(2) Register new user\n(3) Quit";
+	//private static final String CUSTOMER_PROMPT = "";
 	
 	// instance variables (fields)
 	private BankIO io;
@@ -63,12 +67,13 @@ public class BankSystem {
 		
 		boolean running = true;
 		String outputText = "";
+		RequestType[] permittedRequestTypes = new RequestType[0]; // should get replaced in loop
 		Request currentRequest;
 		
 		while (running) {
 			// first, determine what to prompt the user with
 			if (currentUser.getType() == UserProfileType.NONE) { // if no one is logged in
-				outputText = NO_USER_PROMPT;
+				
 			}
 			else if (currentUser.getType() == UserProfileType.CUSTOMER) {
 				
@@ -76,11 +81,11 @@ public class BankSystem {
 			else if (currentUser.getType() == UserProfileType.EMPLOYEE) {
 				
 			}
-			else if (currentUser.getType() == UserProfileType.ADMIN) {
+			else { //if (currentUser.getType() == UserProfileType.ADMIN)
 				
 			}
 			
-			currentRequest = io.prompt(outputText);
+			currentRequest = io.prompt(outputText, permittedRequestTypes);
 		} // end while (running) loop
 	} // end interactionLoop() method
 

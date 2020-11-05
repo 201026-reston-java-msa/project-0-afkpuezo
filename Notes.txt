@@ -137,4 +137,6 @@ November 5:
 		- prompt() (string)
 	- now write the BankSystem class; I don't think I need an interface [ ]
 	- big problem: how will the IO understand the prompt enough to create the right request? I have to rethink this
+		- I think what I can do is have prompt() take a list/array of permitted RequestTypes in addition to any text.
+			This way the IO will know what it can do. [x]
 		

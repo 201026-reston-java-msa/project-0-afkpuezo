@@ -13,6 +13,7 @@ import com.revature.bankDataObjects.TransactionRecord;
 import com.revature.bankDataObjects.UserProfile;
 
 import bankSystem.Request;
+import bankSystem.Request.RequestType;
 
 public interface BankIO {
 
@@ -51,7 +52,8 @@ public interface BankIO {
 	 * Displays the given text to the user, and returns a Request object based on
 	 * the user's responding input.
 	 * @param text
+	 * @param permittedRequestTypes : the user chooses one of these
 	 * @return Request
 	 */
-	public Request prompt(String text);
+	public Request prompt(String text, RequestType[] permittedRequestTypes);
 }

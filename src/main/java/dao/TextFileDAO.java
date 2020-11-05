@@ -137,7 +137,7 @@ public class TextFileDAO implements BankDAO {
 		
 		for (String e : entries) {
 			String[] tokens = e.split(" ", 4);
-			if (tokens[2] == username) {
+			if (tokens[2].equals(username)) {
 				return buildUserProfileFromEntry(e);
 			}
 		}

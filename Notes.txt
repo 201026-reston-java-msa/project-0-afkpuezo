@@ -149,3 +149,4 @@ November 5:
 	- i immediately realize that usernames should be unique, and that I need a way to check that. Time to add
 		this to the DAO [x]
 	- oh right I need to be recording transactions, which will need timestamping...for now I'll have a placeholder
+	- oh right I need a way to retrive user accounts by username [ ]

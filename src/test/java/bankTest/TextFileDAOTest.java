@@ -497,4 +497,16 @@ public class TextFileDAOTest {
 		assertFalse(tdao.isUsernameFree("user"));
 	}
 	
+	@Test
+	public void testReadProfileByUsername() throws BankDAOException{
+		
+		prepareTextFile();
+		prepareTextFileDAO();
+		
+		UserProfile up = tdao.readUserProfile("user");
+		assertEquals(101, up.getId());
+		up = tdao.readUserProfile("doesn't_exist");
+		assertEquals(-1, up.getId());
+	}
+	
 } // end class

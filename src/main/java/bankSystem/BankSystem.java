@@ -20,13 +20,16 @@ import com.revature.bankDataObjects.UserProfile.UserProfileType;
 import BankIO.BankIO;
 import bankSystem.Request.RequestType;
 import dao.BankDAO;
+import dao.BankDAOException;
 
 public class BankSystem {
 
 	// class variables
 	private static final String START_MESSAGE = "Welcome to the bank!";
-	//private static final String NO_USER_PROMPT = "(1) Log in\n(2) Register new user\n(3) Quit";
-	//private static final String CUSTOMER_PROMPT = "";
+	private static final String NO_USER_LOGGED_IN_MESSAGE = "LOGGED IN AS: N/A";
+	private static final String USER_LOGGED_IN_PREFIX= "LOGGED IN AS: "; // should append username
+	private static final String USERNAME_IN_USE_MESSAGE = "Unable to proceed: That username is already in use.";
+	private static final String GENERIC_DAO_ERROR_MESSAGE = "Unable to proceed: Could not connect with database.";
 	
 	private static final RequestType[] NO_USER_CHOICES = 
 			{RequestType.LOG_IN, RequestType.REGISTER_USER, RequestType.QUIT};
@@ -93,7 +96,16 @@ public class BankSystem {
 		Request currentRequest;
 		
 		while (running) {
-			// first, determine what to prompt the user with
+			
+			// display a header with the current user
+			if (currentUser.getType() == UserProfileType.NONE) {
+				io.displayText(NO_USER_LOGGED_IN_MESSAGE);
+			}
+			else {
+				io.displayText(USER_LOGGED_IN_PREFIX + currentUser.getUsername() + " ID: " + currentUser.getId());
+			}
+			
+			//determine what to prompt the user with
 			if (currentUser.getType() == UserProfileType.NONE) { // if no one is logged in
 				permittedRequestTypes = NO_USER_CHOICES;
 			}
@@ -185,17 +197,34 @@ public class BankSystem {
 	 * @throws ImpossibleActionException
 	 */
 	private void handleRegisterUser(Request currentRequest) throws ImpossibleActionException {
-		// TODO Auto-generated method stub
 		
+		List<String> params = currentRequest.getParams();
+		
+		try {
+			if (dao.isUsernameFree(params.get(0))) {
+				UserProfile user = new UserProfile(dao.getHighestUserProfileID() + 1);
+				user.setUsername(params.get(0));
+				user.setPassword(params.get(1));
+				dao.write(user);
+				changeLoggedInUser(user);
+			}
+			else { // username is taken
+				throw new ImpossibleActionException(USERNAME_IN_USE_MESSAGE);
+			}			
+		}
+		catch (BankDAOException e) {
+			throw new ImpossibleActionException(GENERIC_DAO_ERROR_MESSAGE);
+		}
 	}
-	
+
 	/**
 	 * TODO doc
 	 * @param currentRequest
 	 * @throws ImpossibleActionException
 	 */
 	private void handleLogIn(Request currentRequest) throws ImpossibleActionException {
-		// TODO Auto-generated method stub
+		
+		//UserProfi
 		
 	}
 	
@@ -350,5 +379,14 @@ public class BankSystem {
 		UserProfile empty = new UserProfile(-1);
 		empty.setType(UserProfileType.NONE);
 		return empty;
+	}
+	
+	/**
+	 * Changes the current user to the given user.
+	 * @param user
+	 */
+	private void changeLoggedInUser(UserProfile user) {
+
+		currentUser = user;
 	}
 }

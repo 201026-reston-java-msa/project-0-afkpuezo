@@ -47,6 +47,14 @@ public interface BankDAO {
 	public UserProfile readUserProfile(int userID) throws BankDAOException;
 	
 	/**
+	 * Fetches the user profile with the given username from the data storage.
+	 * If no such account exists, the resulting UserProfile object will have type NONE.
+	 * @param userID
+	 * @return UserProfile object
+	 */
+	public UserProfile readUserProfile(String username) throws BankDAOException;
+	
+	/**
 	 * Fetches all user profiles in the data storage.
 	 * @return
 	 */

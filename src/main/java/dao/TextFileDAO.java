@@ -123,6 +123,27 @@ public class TextFileDAO implements BankDAO {
 		String entry = searchFile(USER_PROFILE_PREFIX + " " + userID);
 		return buildUserProfileFromEntry(entry);
 	}
+	
+	/**
+	 * Fetches the user profile with the given username from the data storage.
+	 * If no such account exists, the resulting UserProfile object will have type NONE.
+	 * @param userID
+	 * @return UserProfile object
+	 */
+	@Override
+	public UserProfile readUserProfile(String username) throws BankDAOException{
+		
+		List<String> entries = searchFileMultiple(USER_PROFILE_PREFIX);
+		
+		for (String e : entries) {
+			String[] tokens = e.split(" ", 4);
+			if (tokens[2] == username) {
+				return buildUserProfileFromEntry(e);
+			}
+		}
+		
+		return buildUserProfileFromEntry(""); // didn't find it
+	}
 
 	@Override
 	public List<UserProfile> readAllUserProfiles() throws BankDAOException {

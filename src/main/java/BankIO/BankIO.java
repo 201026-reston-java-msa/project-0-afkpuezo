@@ -49,11 +49,18 @@ public interface BankIO {
 	public void displayTransactionRecords(List<TransactionRecord> transactions);
 	
 	/**
-	 * Displays the given text to the user, and returns a Request object based on
-	 * the user's responding input.
-	 * @param text
+	 * Returns a Request object based on the user's responding input.
 	 * @param permittedRequestTypes : the user chooses one of these
 	 * @return Request
 	 */
-	public Request prompt(String text, RequestType[] permittedRequestTypes);
+	public Request prompt(RequestType[] permittedRequestTypes);
+	
+	/**
+	 * Displays the given text to the user, and returns a Request object based on
+	 * the user's responding input.
+	 * @param permittedRequestTypes : the user chooses one of these
+	 * @param text
+	 * @return Request
+	 */
+	public Request prompt(RequestType[] permittedRequestTypes, String text);
 }

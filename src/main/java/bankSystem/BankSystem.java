@@ -28,6 +28,25 @@ public class BankSystem {
 	//private static final String NO_USER_PROMPT = "(1) Log in\n(2) Register new user\n(3) Quit";
 	//private static final String CUSTOMER_PROMPT = "";
 	
+	private static final RequestType[] NO_USER_CHOICES = 
+			{RequestType.LOG_IN, RequestType.REGISTER_USER, RequestType.QUIT};
+	
+	private static final RequestType[] CUSTOMER_CHOICES_NO_ACCOUNTS = 
+			{RequestType.APPLY_OPEN_ACCOUNT, RequestType.LOG_OUT, RequestType.QUIT};
+	private static final RequestType[] CUSTOMER_CHOICES_HAS_ACCOUNT =
+			{RequestType.VIEW_ACCOUNTS, RequestType.DEPOSIT, RequestType.WITHDRAW, RequestType.TRANSFER, 
+			RequestType.VIEW_TRANSACTIONS, RequestType.ADD_ACCOUNT_OWNER, RequestType.REMOVE_ACCOUNT_OWNER,
+			RequestType.APPLY_OPEN_ACCOUNT, RequestType.LOG_OUT, RequestType.QUIT};
+	
+	private static final RequestType[] EMPLOYEE_CHOICES = 
+			{RequestType.VIEW_ACCOUNTS, RequestType.VIEW_USER, RequestType.APPROVE_OPEN_ACCOUNT, 
+			RequestType.DENY_OPEN_ACCOUNT, RequestType.LOG_OUT, RequestType.QUIT};
+	
+	private static final RequestType[] ADMIN_CHOICES =
+			{RequestType.VIEW_ACCOUNTS, RequestType.VIEW_USER, RequestType.APPROVE_OPEN_ACCOUNT,
+			RequestType.DENY_OPEN_ACCOUNT, RequestType.WITHDRAW, RequestType.DEPOSIT, RequestType.TRANSFER,
+			RequestType.CLOSE_ACCOUNT, RequestType.LOG_OUT, RequestType.QUIT};
+	
 	// instance variables (fields)
 	private BankIO io;
 	private BankDAO dao;
@@ -67,25 +86,30 @@ public class BankSystem {
 		
 		boolean running = true;
 		String outputText = "";
-		RequestType[] permittedRequestTypes = new RequestType[0]; // should get replaced in loop
+		RequestType[] permittedRequestTypes; // = new RequestType[0]; // should get replaced in loop
 		Request currentRequest;
 		
 		while (running) {
 			// first, determine what to prompt the user with
 			if (currentUser.getType() == UserProfileType.NONE) { // if no one is logged in
-				
+				permittedRequestTypes = NO_USER_CHOICES;
 			}
 			else if (currentUser.getType() == UserProfileType.CUSTOMER) {
-				
+				if( currentUser.getOwnedAccounts().isEmpty()) {
+					permittedRequestTypes = CUSTOMER_CHOICES_NO_ACCOUNTS;
+				}
+				else {
+					permittedRequestTypes = CUSTOMER_CHOICES_HAS_ACCOUNT;
+				}
 			}
 			else if (currentUser.getType() == UserProfileType.EMPLOYEE) {
-				
+				permittedRequestTypes = EMPLOYEE_CHOICES;
 			}
-			else { //if (currentUser.getType() == UserProfileType.ADMIN)
-				
+			else { //if (currentUser.getType() == UserProfileType.ADMIN) // assume admin
+				permittedRequestTypes = ADMIN_CHOICES;
 			}
 			
-			currentRequest = io.prompt(outputText, permittedRequestTypes);
+			currentRequest = io.prompt(permittedRequestTypes);
 		} // end while (running) loop
 	} // end interactionLoop() method
 

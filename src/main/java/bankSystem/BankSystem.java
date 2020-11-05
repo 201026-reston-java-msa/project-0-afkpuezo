@@ -29,7 +29,10 @@ public class BankSystem {
 	private static final String NO_USER_LOGGED_IN_MESSAGE = "LOGGED IN AS: N/A";
 	private static final String USER_LOGGED_IN_PREFIX= "LOGGED IN AS: "; // should append username
 	private static final String USERNAME_IN_USE_MESSAGE = "Unable to proceed: That username is already in use.";
+	private static final String USER_DOES_NOT_EXIST_MESSAGE = "Unable to proceed: No user profile with that name exist.";
 	private static final String GENERIC_DAO_ERROR_MESSAGE = "Unable to proceed: Could not connect with database.";
+	private static final String LOGIN_USER_NOT_FOUND_PREFIX = "Unable to proceed: No profile found matching username: ";
+	private static final String LOGIN_INVALID_PASSWORD_MESSAGE = "Unable to proceed: Incorrect password.";
 	
 	private static final RequestType[] NO_USER_CHOICES = 
 			{RequestType.LOG_IN, RequestType.REGISTER_USER, RequestType.QUIT};
@@ -224,7 +227,28 @@ public class BankSystem {
 	 */
 	private void handleLogIn(Request currentRequest) throws ImpossibleActionException {
 		
-		//UserProfi
+		List<String> params = currentRequest.getParams();
+		String username = params.get(0);
+		String password = params.get(1);
+		
+		try {
+			UserProfile up = dao.readUserProfile(params.get(0));
+			
+			if (up.getType() == UserProfileType.NONE) { // if no matching account
+				throw new ImpossibleActionException(LOGIN_USER_NOT_FOUND_PREFIX + username);
+			}
+			else { // account found
+				if (up.getPassword().equals(password)) {
+					changeLoggedInUser(up);
+				}
+				else { // invalid pass
+					throw new ImpossibleActionException(LOGIN_INVALID_PASSWORD_MESSAGE);
+				}
+			}
+		}
+		catch(BankDAOException e){
+			throw new ImpossibleActionException(GENERIC_DAO_ERROR_MESSAGE);
+		}
 		
 	}
 	

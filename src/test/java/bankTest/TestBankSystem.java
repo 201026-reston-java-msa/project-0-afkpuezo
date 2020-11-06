@@ -436,4 +436,59 @@ public class TestBankSystem {
 				BankSystem.BANK_ACCOUNT_NOT_PENDING_MESSAGE, 
 				output.get(output.size() - 1));
 	}
+	
+	@Test
+	public void handleCloseAccount() throws BankDAOException {
+		
+		logInHelp("admin", "admin");
+		List<String> params = new ArrayList<String>();
+		params.add("444");
+		Request request = new Request(
+				RequestType.CLOSE_ACCOUNT,
+				params);
+		mio.setNextRequest(request);
+		bank.testLoop();
+		
+		List<Object> output = mio.getCachedOutput();
+		assertEquals(
+				BankSystem.CLOSE_ACCOUNT_PREFIX + "78923", 
+				output.get(output.size() - 1));
+		
+		BankAccount ba = tdao.readBankAccount(444);
+		assertEquals(BankAccountStatus.CLOSED, ba.getStatus());
+		assertEquals(0, ba.getFunds());
+	}
+	
+	@Test
+	public void handleCloseBadAccount() throws BankDAOException {
+		
+		logInHelp("admin", "admin");
+		List<String> params = new ArrayList<String>();
+		params.add("3234259");
+		Request request = new Request(
+				RequestType.CLOSE_ACCOUNT,
+				params);
+		mio.setNextRequest(request);
+		bank.testLoop();
+		
+		List<Object> output = mio.getCachedOutput();
+		assertEquals(
+				BankSystem.BANK_ACCOUNT_DOES_NOT_EXIST_PREFIX + "3234259", 
+				output.get(output.size() - 1));
+		
+		// try to close an account that's already closed
+		params = new ArrayList<String>();
+		params.add("444");
+		request = new Request(
+				RequestType.CLOSE_ACCOUNT,
+				params);
+		mio.setNextRequest(request);
+		bank.testLoop();
+		bank.testLoop();
+		
+		output = mio.getCachedOutput();
+		assertEquals(
+				BankSystem.CLOSE_ACCOUNT_NOT_OPEN_MESSAGE, 
+				output.get(output.size() - 1));
+	}
 }

@@ -166,3 +166,4 @@ November 6:
 		- I could use this mockito thing to do the dao, but I don't want to take the time to learn it.
 	- I will need to modify the BS slightly to make it only loop once if it's in a "test" mode. [x]
 	- now write the MockIO class [x]
+	- now try some tests

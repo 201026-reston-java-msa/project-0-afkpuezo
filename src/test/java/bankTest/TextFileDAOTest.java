@@ -1,21 +1,16 @@
 /**
- * This file contains Junit tests 
+ * This file contains Junit tests for the TextFileDAO class.
  * 
  * Andrew Curry, Project 0
  */
 package bankTest;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.colorchooser.AbstractColorChooserPanel;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -50,8 +45,8 @@ public class TextFileDAOTest {
 	
 	// some helper methods/variables
 	
-	static private final String testFilename = "testfile.bdf"; // 'bank data file'
 	static private TextFileDAO tdao;
+	static private final String testFilename = "testfile.bdf"; // 'bank data file'
 	static private final String[] FILELINES = {
 			"PRF 101 user pass CST 444", "ACC 444 OPN SNG 78923 101", "PRF 103 user2 pass CST 317 515",
 			"ACC 317 OPN SNG 7892312 103", "PRF 999 admin admin ADM", "ACC 515 OPN SNG 111111 103",

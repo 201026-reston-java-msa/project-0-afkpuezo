@@ -32,62 +32,68 @@ import dao.BankDAOException;
 public class BankSystem {
 
 	// class variables
-	private static final String START_MESSAGE 
+	// these Strings are public for the purpose of testing.
+	// since they are final, I figure there is minimal risk of damage
+	public static final String START_MESSAGE 
 			= "Welcome to the bank!";
-	private static final String NO_USER_LOGGED_IN_MESSAGE 
+	public static final String NO_USER_LOGGED_IN_MESSAGE 
 			= "LOGGED IN AS: N/A";
-	private static final String USER_LOGGED_IN_PREFIX
+	public static final String USER_LOGGED_IN_PREFIX
 			= "LOGGED IN AS: "; // should append username
-	private static final String USERNAME_IN_USE_MESSAGE 
+	public static final String USERNAME_IN_USE_MESSAGE 
 			= "Unable to proceed: That username is already in use.";
-	private static final String USER_DOES_NOT_EXIST_MESSAGE 
+	public static final String USER_DOES_NOT_EXIST_MESSAGE 
 			= "Unable to proceed: No user profile with that name exists.";
-	private static final String GENERIC_DAO_ERROR_MESSAGE 
+	public static final String GENERIC_DAO_ERROR_MESSAGE 
 			= "ALERT: There were issues communicating with the database. Contact your system administrator.";
-	private static final String LOGIN_USER_NOT_FOUND_PREFIX 
+	public static final String LOGIN_USER_NOT_FOUND_PREFIX 
 			= "Unable to proceed: No profile found matching username: ";
-	private static final String LOGIN_INVALID_PASSWORD_MESSAGE 
+	public static final String LOGIN_INVALID_PASSWORD_MESSAGE 
 			= "Unable to proceed: Incorrect password.";
-	private static final String LOGOUT_MESSAGE = "Logging out.";
-	private static final String QUIT_MESSAGE = "Quitting.";
-	private static final String LOST_CONNECTION_UNRECOVERABLE_MESSAGE 
+	public static final String LOGOUT_MESSAGE = "Logging out.";
+	public static final String QUIT_MESSAGE = "Quitting.";
+	public static final String LOST_CONNECTION_UNRECOVERABLE_MESSAGE 
 			= "Connection to database lost; quitting application.";
-	private static final String ACCOUNT_DOES_NOT_EXIST_PREFIX 
+	public static final String ACCOUNT_DOES_NOT_EXIST_PREFIX 
 			= "Unable to proceed: No account exists with ID: ";
-	private static final String USER_ID_NOT_FOUND_PREFIX // there's like 3 of these 
+	public static final String USER_ID_NOT_FOUND_PREFIX // there's like 3 of these 
 			= "Unable to proceed: No user exists with ID: ";
-	private static final String TRANSACTION_RECORD_NOT_SAVED_MESSAGE
+	public static final String TRANSACTION_RECORD_NOT_SAVED_MESSAGE
 			= "ALERT: The transaction was carried out, but there was a problem adding it to the log";
+	public static final String GENERIC_NO_PERMISSION_MESSAGE
+			= "Unable to proceed: You do not have permission to take that action.";
+	public static final String USER_REGISTERED_MESSAGED
+			= "New user profile registered.";
 	
-	private static final String APPLY_OPEN_ACCOUNT_NOT_CUSTOMER_MESSAGE 
+	public static final String APPLY_OPEN_ACCOUNT_NOT_CUSTOMER_MESSAGE 
 			= "Unable to proceed: Only customers can apply to open accounts";
-	private static final String APPLY_OPEN_ACCOUNT_MESSAGE
+	public static final String APPLY_OPEN_ACCOUNT_MESSAGE
 			= "Account created, pending approval.";
-	private static final String APPROVE_OPEN_ACCOUNT_NO_PERMISSION_MESSAGE
+	public static final String APPROVE_OPEN_ACCOUNT_NO_PERMISSION_MESSAGE
 			= "Unable to proceed: Only employees and administrators can approve accounts.";
-	private static final String APPROVE_OPEN_ACCOUNT_MESSAGE
+	public static final String APPROVE_OPEN_ACCOUNT_MESSAGE
 			= "Account created, pending approval.";
-	private static final String BANK_ACCOUNT_DOES_NOT_EXIST_PREFIX
+	public static final String BANK_ACCOUNT_DOES_NOT_EXIST_PREFIX
 			= "Unable to proceed: No account exists with ID: ";
-	private static final String BANK_ACCOUNT_NOT_PENDING_MESSAGE
+	public static final String BANK_ACCOUNT_NOT_PENDING_MESSAGE
 			= "Unable to proceed: That account is not pending approval.";
-	private static final String ACCOUNT_APPROVED_MESSAGE
+	public static final String ACCOUNT_APPROVED_MESSAGE
 			= "Account approved.";
-	private static final String ACCOUNT_DENIED_MESSAGE
+	public static final String ACCOUNT_DENIED_MESSAGE
 			= "Account denied.";
 	
-	private static final String CLOSE_ACCOUNT_NO_PERMISSION_MESSAGE
+	public static final String CLOSE_ACCOUNT_NO_PERMISSION_MESSAGE
 			= "Unable to proceed: Only an administrator can close an account.";
-	private static final String CLOSE_ACCOUNT_NOT_OPEN_MESSAGE
+	public static final String CLOSE_ACCOUNT_NOT_OPEN_MESSAGE
 			= "Unable to proceed: That account cannot be closed because it is not open.";
-	private static final String CLOSE_ACCOUNT_PREFIX
+	public static final String CLOSE_ACCOUNT_PREFIX
 			= "Account closed. All funds withdrawn and returned to account owner(s). Funds amount: $";
 	
-	private static final String ADD_OWNER_CUSTOMER_NOT_OWN_ACCOUNT_MESSAGE
+	public static final String ADD_OWNER_CUSTOMER_NOT_OWN_ACCOUNT_MESSAGE
 			= "Unable to proceed: You do not have permission to add users to an account you do not own.";
-	private static final String ADD_OWNER_NEW_USER_NOT_CUSTOMER_MESSAGE
+	public static final String ADD_OWNER_NEW_USER_NOT_CUSTOMER_MESSAGE
 			= "Unable to proceed: That user cannot be added to this account because they are not a customer."; 
-	private static final String ADD_OWNER_ALREADY_OWNED_MESSAGE
+	public static final String ADD_OWNER_ALREADY_OWNED_MESSAGE
 			= "Unable to proceed: That user cannot be added to this account because they are already an owner of the account.";
 			
 	// arrays of permitted request types
@@ -165,7 +171,7 @@ public class BankSystem {
 		RequestType[] permittedRequestTypes; // = new RequestType[0]; // should get replaced in loop
 		Request currentRequest;
 		
-		while (running) {
+		do {
 			
 			// display a header with the current user
 			if (currentUser.getType() == UserProfileType.NONE) {
@@ -198,62 +204,74 @@ public class BankSystem {
 			
 			// now handle the request
 			try {
+				boolean permitted = false;
+				for (RequestType rt : permittedRequestTypes) {
+					if (rt == currentRequest.getType()) {
+						permitted = true;
+						break;
+					}
+				}
+				
+				if (!permitted) {
+					throw new ImpossibleActionException(GENERIC_NO_PERMISSION_MESSAGE);
+				}
+				
 				switch(currentRequest.getType()) {
 				
-				case REGISTER_USER:
-					handleRegisterUser(currentRequest);
-					break;
-				case LOG_IN:
-					handleLogIn(currentRequest);
-					break;
-				case LOG_OUT:
-					handleLogOut(currentRequest);
-					break;
-				case QUIT:
-					handleQuit(currentRequest);
-					break;
-				case APPLY_OPEN_ACCOUNT:
-					handleApplyToOpenAccount(currentRequest);
-					break;
-				case APPROVE_OPEN_ACCOUNT:
-					handleApproveOpenAccount(currentRequest);
-					break;
-				case DENY_OPEN_ACCOUNT:
-					handleDenyOpenAccount(currentRequest);
-					break;
-				case CLOSE_ACCOUNT:
-					handleCloseAccount(currentRequest);
-					break;
-				case ADD_ACCOUNT_OWNER:
-					handleAddAccountOwner(currentRequest);
-					break;
-				case REMOVE_ACCOUNT_OWNER:
-					handleRemoveAccountOwner(currentRequest);
-					break;
-				case DEPOSIT:
-					handleDeposit(currentRequest);
-					break;
-				case WITHDRAW:
-					handleWithdraw(currentRequest);
-					break;
-				case TRANSFER:
-					handleTransfer(currentRequest);
-					break;
-				case VIEW_ACCOUNTS:
-					handleViewAccounts(currentRequest);
-					break;
-				case VIEW_USERS:
-					handleViewUsers(currentRequest);
-					break;
-				case VIEW_TRANSACTIONS:
-					handleViewTransactions(currentRequest);
-					break;
-				case CREATE_EMPLOYEE:
-					handleCreateEmployee(currentRequest);
-					break;
-				case CREATE_ADMIN:
-					handleCreateAdmin(currentRequest);
-					break;
+					case REGISTER_USER:
+						handleRegisterUser(currentRequest);
+						break;
+					case LOG_IN:
+						handleLogIn(currentRequest);
+						break;
+					case LOG_OUT:
+						handleLogOut(currentRequest);
+						break;
+					case QUIT:
+						handleQuit(currentRequest);
+						break;
+					case APPLY_OPEN_ACCOUNT:
+						handleApplyToOpenAccount(currentRequest);
+						break;
+					case APPROVE_OPEN_ACCOUNT:
+						handleApproveOpenAccount(currentRequest);
+						break;
+					case DENY_OPEN_ACCOUNT:
+						handleDenyOpenAccount(currentRequest);
+						break;
+					case CLOSE_ACCOUNT:
+						handleCloseAccount(currentRequest);
+						break;
+					case ADD_ACCOUNT_OWNER:
+						handleAddAccountOwner(currentRequest);
+						break;
+					case REMOVE_ACCOUNT_OWNER:
+						handleRemoveAccountOwner(currentRequest);
+						break;
+					case DEPOSIT:
+						handleDeposit(currentRequest);
+						break;
+					case WITHDRAW:
+						handleWithdraw(currentRequest);
+						break;
+					case TRANSFER:
+						handleTransfer(currentRequest);
+						break;
+					case VIEW_ACCOUNTS:
+						handleViewAccounts(currentRequest);
+						break;
+					case VIEW_USERS:
+						handleViewUsers(currentRequest);
+						break;
+					case VIEW_TRANSACTIONS:
+						handleViewTransactions(currentRequest);
+						break;
+					case CREATE_EMPLOYEE:
+						handleCreateEmployee(currentRequest);
+						break;
+					case CREATE_ADMIN:
+						handleCreateAdmin(currentRequest);
+						break;
 				}
 				
 				// in case something about the current user has been updated, refresh it
@@ -267,7 +285,7 @@ public class BankSystem {
 				stopRunning();
 			}
 			
-		} // end while (running) loop
+		} while(running); // end of do-while loop
 	} // end interactionLoop() method
 
 	
@@ -282,13 +300,18 @@ public class BankSystem {
 	private void handleRegisterUser(Request currentRequest) throws ImpossibleActionException {
 		
 		List<String> params = currentRequest.getParams();
+		String username = params.get(0);
+		String password = params.get(1);
 		
 		try {
-			if (dao.isUsernameFree(params.get(0))) {
+			if (dao.isUsernameFree(username)) {
 				UserProfile user = new UserProfile(dao.getHighestUserProfileID() + 1);
-				user.setUsername(params.get(0));
-				user.setPassword(params.get(1));
+				user.setUsername(username);
+				user.setPassword(password);
+				user.setType(UserProfileType.CUSTOMER);
 				dao.write(user);
+				//System.out.println("DEBUG: new user was just written");
+				io.displayText(USER_REGISTERED_MESSAGED);
 				changeLoggedInUser(user);
 				
 				TransactionRecord tr = new TransactionRecord();

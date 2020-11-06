@@ -10,6 +10,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import java.io.BufferedReader;
@@ -30,6 +31,8 @@ import com.revature.bankDataObjects.UserProfile.UserProfileType;
 
 import BankIO.MockIO;
 import bankSystem.BankSystem;
+import bankSystem.Request;
+import bankSystem.Request.RequestType;
 
 import com.revature.bankDataObjects.BankAccount.BankAccountStatus;
 import com.revature.bankDataObjects.BankAccount.BankAccountType;
@@ -117,5 +120,26 @@ public class TestBankSystem {
 		assertNotEquals(null, tdao);
 		assertNotEquals(null, mio);
 		assertEquals(testFilename, tdao.getResourceName());
+	}
+	
+	@Test
+	public void testRegisterUser() throws BankDAOException{
+		
+		List<String> params = new ArrayList<String>();
+		params.add("newuser");
+		params.add("newpass");
+		Request register = new Request(
+				RequestType.REGISTER_USER, 
+				params);
+		mio.setNextRequest(register);
+		bank.testLoop();
+		
+		List<Object> output = mio.getCachedOutput();
+		assertEquals(2, output.size());
+		assertEquals(output.get(1), BankSystem.USER_REGISTERED_MESSAGED);
+		
+		UserProfile up = tdao.readUserProfile("newuser");
+		assertEquals(UserProfileType.CUSTOMER, up.getType());
+		assertEquals("newpass", up.getPassword());
 	}
 }

@@ -46,6 +46,7 @@ public class MockIO implements BankIO {
 	@Override
 	public void displayText(String text, boolean frame) {
 		
+		//System.out.println("DEBUG: displayText called");
 		cachedOutput.add(text);
 	}
 

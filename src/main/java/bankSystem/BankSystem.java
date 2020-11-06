@@ -285,10 +285,10 @@ public class BankSystem {
 				tr.setType(TransactionType.USER_REGISTERED);
 				tr.setActingUser(user.getId());
 				saveTransactionRecord(tr);
-				else { // username is taken
 			}
+			else { // username is taken
 				throw new ImpossibleActionException(USERNAME_IN_USE_MESSAGE);
-			}			
+			}		
 		}
 		catch (BankDAOException e) {
 			throw new ImpossibleActionException(GENERIC_DAO_ERROR_MESSAGE);

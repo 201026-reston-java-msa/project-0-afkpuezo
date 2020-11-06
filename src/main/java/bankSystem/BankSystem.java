@@ -10,6 +10,7 @@
 package bankSystem;
 
 import java.io.LineNumberInputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.stream.events.StartDocument;
@@ -20,6 +21,7 @@ import com.revature.bankDataObjects.TransactionRecord.TransactionType;
 import com.revature.bankDataObjects.UserProfile;
 import com.revature.bankDataObjects.BankAccount.BankAccountStatus;
 import com.revature.bankDataObjects.BankAccount.BankAccountType;
+import com.revature.bankDataObjects.BankData;
 import com.revature.bankDataObjects.UserProfile.UserProfileType;
 
 import BankIO.BankIO;
@@ -30,16 +32,32 @@ import dao.BankDAOException;
 public class BankSystem {
 
 	// class variables
-	private static final String START_MESSAGE = "Welcome to the bank!";
-	private static final String NO_USER_LOGGED_IN_MESSAGE = "LOGGED IN AS: N/A";
-	private static final String USER_LOGGED_IN_PREFIX= "LOGGED IN AS: "; // should append username
-	private static final String USERNAME_IN_USE_MESSAGE = "Unable to proceed: That username is already in use.";
-	private static final String USER_DOES_NOT_EXIST_MESSAGE = "Unable to proceed: No user profile with that name exist.";
-	private static final String GENERIC_DAO_ERROR_MESSAGE = "ALERT: There were issues communicating with the database. Contact your system administrator.";
-	private static final String LOGIN_USER_NOT_FOUND_PREFIX = "Unable to proceed: No profile found matching username: ";
-	private static final String LOGIN_INVALID_PASSWORD_MESSAGE = "Unable to proceed: Incorrect password.";
+	private static final String START_MESSAGE 
+			= "Welcome to the bank!";
+	private static final String NO_USER_LOGGED_IN_MESSAGE 
+			= "LOGGED IN AS: N/A";
+	private static final String USER_LOGGED_IN_PREFIX
+			= "LOGGED IN AS: "; // should append username
+	private static final String USERNAME_IN_USE_MESSAGE 
+			= "Unable to proceed: That username is already in use.";
+	private static final String USER_DOES_NOT_EXIST_MESSAGE 
+			= "Unable to proceed: No user profile with that name exists.";
+	private static final String GENERIC_DAO_ERROR_MESSAGE 
+			= "ALERT: There were issues communicating with the database. Contact your system administrator.";
+	private static final String LOGIN_USER_NOT_FOUND_PREFIX 
+			= "Unable to proceed: No profile found matching username: ";
+	private static final String LOGIN_INVALID_PASSWORD_MESSAGE 
+			= "Unable to proceed: Incorrect password.";
 	private static final String LOGOUT_MESSAGE = "Logging out.";
 	private static final String QUIT_MESSAGE = "Quitting.";
+	private static final String LOST_CONNECTION_UNRECOVERABLE_MESSAGE 
+			= "Connection to database lost; quitting application.";
+	private static final String ACCOUNT_DOES_NOT_EXIST_PREFIX 
+			= "Unable to proceed: No account exists with ID: ";
+	private static final String USER_ID_NOT_FOUND_PREFIX // there's like 3 of these 
+			= "Unable to proceed: No user exists with ID: ";
+	private static final String TRANSACTION_RECORD_NOT_SAVED_MESSAGE
+			= "ALERT: The transaction was carried out, but there was a problem adding it to the log";
 	
 	private static final String APPLY_OPEN_ACCOUNT_NOT_CUSTOMER_MESSAGE 
 			= "Unable to proceed: Only customers can apply to open accounts";
@@ -65,6 +83,13 @@ public class BankSystem {
 	private static final String CLOSE_ACCOUNT_PREFIX
 			= "Account closed. All funds withdrawn and returned to account owner(s). Funds amount: $";
 	
+	private static final String ADD_OWNER_CUSTOMER_NOT_OWN_ACCOUNT_MESSAGE
+			= "Unable to proceed: You do not have permission to add users to an account you do not own.";
+	private static final String ADD_OWNER_NEW_USER_NOT_CUSTOMER_MESSAGE
+			= "Unable to proceed: That user cannot be added to this account because they are not a customer."; 
+	private static final String ADD_OWNER_ALREADY_OWNED_MESSAGE
+			= "Unable to proceed: That user cannot be added to this account because they are already an owner of the account.";
+			
 	// arrays of permitted request types
 	private static final RequestType[] NO_USER_CHOICES = 
 			{RequestType.LOG_IN, RequestType.REGISTER_USER, RequestType.QUIT};
@@ -219,10 +244,17 @@ public class BankSystem {
 				case CREATE_ADMIN:
 					handleCreateAdmin(currentRequest);
 					break;
-				}				
+				}
+				
+				// in case something about the current user has been updated, refresh it
+				currentUser = dao.readUserProfile(currentUser.getId());
 			}
 			catch (ImpossibleActionException e) {
 				io.displayText(e.getMessage());
+			}
+			catch (BankDAOException e) {
+				io.displayText(LOST_CONNECTION_UNRECOVERABLE_MESSAGE);
+				stopRunning();
 			}
 			
 		} // end while (running) loop
@@ -253,8 +285,8 @@ public class BankSystem {
 				tr.setType(TransactionType.USER_REGISTERED);
 				tr.setActingUser(user.getId());
 				saveTransactionRecord(tr);
+				else { // username is taken
 			}
-			else { // username is taken
 				throw new ImpossibleActionException(USERNAME_IN_USE_MESSAGE);
 			}			
 		}
@@ -479,17 +511,67 @@ public class BankSystem {
 	}
 	
 	/**
-	 * TODO doc
+	 * Allows the user to add a new user owner to a bank account.
+	 * The account must be open, and the current user must either be a customer who owns
+	 * the account, or an employee/admin. The user being added must be a customer.
 	 * @param currentRequest
 	 * @throws ImpossibleActionException
 	 */
 	private void handleAddAccountOwner(Request currentRequest) throws ImpossibleActionException {
-		// TODO Auto-generated method stub
 		
+		List<String> params = currentRequest.getParams();
+		int accID = Integer.parseInt(params.get(0));
+		int userToAddID = Integer.parseInt(params.get(1));
+		
+		if (currentUser.getType() == UserProfileType.CUSTOMER && !currentUser.getOwnedAccounts().contains(accID)) {
+			throw new ImpossibleActionException(ADD_OWNER_CUSTOMER_NOT_OWN_ACCOUNT_MESSAGE);
+		}
+		// assume its an employee or admin
+		
+		try {
+			BankAccount ba = dao.readBankAccount(accID);
+			
+			if (ba.getType() == BankAccountType.NONE) {
+				throw new ImpossibleActionException(ACCOUNT_DOES_NOT_EXIST_PREFIX + accID);
+			}
+			
+			UserProfile up = dao.readUserProfile(userToAddID);
+			
+			if (up.getType() == UserProfileType.NONE) {
+				throw new ImpossibleActionException(USER_ID_NOT_FOUND_PREFIX + accID);
+			}
+			
+			if (up.getType() != UserProfileType.CUSTOMER) {
+				throw new ImpossibleActionException(ADD_OWNER_NEW_USER_NOT_CUSTOMER_MESSAGE);
+			}
+			
+			if (up.getOwnedAccounts().contains(accID)) {
+				throw new ImpossibleActionException(ADD_OWNER_ALREADY_OWNED_MESSAGE);
+			}
+			
+			// should finally be valid
+			ba.setType(BankAccountType.JOINT);
+			ba.addOwner(userToAddID);
+			up.addAccount(accID);
+			
+			List<BankData> toWrite = new ArrayList<>();
+			toWrite.add(up);
+			toWrite.add(ba);
+			dao.write(toWrite);
+			
+			TransactionRecord tr = new TransactionRecord();
+			tr.setActingUser(currentUser.getId());
+			tr.setSourceAccount(userToAddID);
+			tr.setDestinationAccount(accID);
+			saveTransactionRecord(tr);
+		}
+		catch(BankDAOException e) {
+			throw new ImpossibleActionException(GENERIC_DAO_ERROR_MESSAGE);
+		}
 	}
 	
 	/**
-	 * TODO doc
+	 * TODO doc COME BACK HERE
 	 * @param currentRequest
 	 * @throws ImpossibleActionException
 	 */
@@ -613,11 +695,16 @@ public class BankSystem {
 	 * This method will take care of finding the ID and creating the timestamp (eventually)
 	 * @param tr
 	 */
-	private void saveTransactionRecord(TransactionRecord tr) throws BankDAOException{
+	private void saveTransactionRecord(TransactionRecord tr){
 		
-		tr.setId(dao.getHighestTransactionRecordID() + 1);
-		tr.setTime("PLACEHOLDER"); // TODO fix this
-		dao.write(tr);
+		try {
+			tr.setId(dao.getHighestTransactionRecordID() + 1);
+			tr.setTime("PLACEHOLDER"); // TODO fix this
+			dao.write(tr);			
+		}
+		catch(BankDAOException e) {
+			io.displayText(TRANSACTION_RECORD_NOT_SAVED_MESSAGE);
+		}
 	}
 	
 	

@@ -528,7 +528,7 @@ public class TestBankSystem {
 	@Test
 	public void testRemoveOwner() throws BankDAOException{
 		
-		// first we have to add a user to create a joint account in the first place
+		// first we have to adsd a user to create a joint account in the first place
 		logInHelp("user", "pass");
 		List<String> params = new ArrayList<String>();
 		params.add("444"); // the account

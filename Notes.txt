@@ -170,4 +170,5 @@ November 6:
 	- now try some tests [x] okay I'm caught up, now I can do one method at a time
 		- I'm leaning towards just testing that these methods do the right thing once the user has
 			permission, otherwise I feel like I'm just testing java's if statements
-	
+	- in a few tests, I forgot to make sure that the users/accounts in question actually exist. I think I fixed them all.
+	- tomorrow, continue working on depositing money 

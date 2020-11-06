@@ -97,6 +97,9 @@ public class BankSystem {
 			= "Unable to proceed: That user cannot be added to this account because they are not a customer."; 
 	public static final String ADD_OWNER_ALREADY_OWNED_MESSAGE
 			= "Unable to proceed: That user cannot be added to this account because they are already an owner of the account.";
+	public static final String ADD_OWNER_ACCOUNT_NOT_OPEN_MESSAGE
+			= "Unable to proceed: You cannot add an owner to that account because that account is not open.";
+	
 	
 	public static final String REMOVE_OWNER_SUCCESSFUL_MESSAGE
 			= "User has successfuly been removed from that account.";
@@ -109,6 +112,8 @@ public class BankSystem {
 	public static final String REMOVE_OWNER_CUSTOMER_CAN_ONLY_REMOVE_THEMSELF_MESSAGE
 			= "Unable to proceed: A customer cannot remove another customer. Have the other customer remove themselves,"
 			+ "or contact support for assistance.";
+	public static final String REMOVE_OWNER_ACCOUNT_NOT_OPEN_MESSAGE
+	= "Unable to proceed: You cannot remove an owner from that account because that account is not open.";
 	
 	// arrays of permitted request types
 	private static final RequestType[] NO_USER_CHOICES = 
@@ -588,6 +593,9 @@ public class BankSystem {
 			if (ba.getType() == BankAccountType.NONE) {
 				throw new ImpossibleActionException(ACCOUNT_DOES_NOT_EXIST_PREFIX + accID);
 			}
+			if (ba.getStatus() != BankAccountStatus.OPEN) {
+				throw new ImpossibleActionException(ADD_OWNER_ACCOUNT_NOT_OPEN_MESSAGE);
+			}
 			
 			UserProfile up = dao.readUserProfile(userToAddID);
 			
@@ -648,17 +656,27 @@ public class BankSystem {
 		// assume its not a NONE account
 		try {
 			UserProfile userToRemove = dao.readUserProfile(userToRemoveID);
+			BankAccount ba = dao.readBankAccount(accID);
+			
+			if (userToRemove.getType() == UserProfileType.NONE) {
+				throw new ImpossibleActionException(USER_ID_NOT_FOUND_PREFIX + userToRemoveID);
+			}
+			
+			if (ba.getType() == BankAccountType.NONE) {
+				throw new ImpossibleActionException(BANK_ACCOUNT_DOES_NOT_EXIST_PREFIX + id);
+			}
+			if (ba.getStatus() != BankAccountStatus.OPEN) {
+				throw new ImpossibleActionException(REMOVE_OWNER_ACCOUNT_NOT_OPEN_MESSAGE);
+			}
 			
 			if (!userToRemove.getOwnedAccounts().contains(accID)) {
 				throw new ImpossibleActionException(REMOVE_OWNER_TARGET_NOT_OWNER);
 			}
 			
-			BankAccount ba = dao.readBankAccount(accID);
 			
 			if (ba.getOwners().size() == 1 && ba.getStatus() == BankAccountStatus.OPEN) {
 				throw new ImpossibleActionException(REMOVE_OWNER_OPEN_ONLY_ONE_OWNER);
 			}
-			
 			if (currentUser.getType() == UserProfileType.CUSTOMER 
 					&& currentUser.getId() != userToRemoveID) {
 				throw new ImpossibleActionException(REMOVE_OWNER_CUSTOMER_CAN_ONLY_REMOVE_THEMSELF_MESSAGE);
@@ -689,13 +707,28 @@ public class BankSystem {
 	}
 	
 	/**
-	 * TODO doc
+	 * Increases the funds in an account.
+	 * A customer can only deposit to an account they own (use transfer instead).
+	 * An employee or admin can deposit to any account.
+	 * Assumes the amount is positive (should be sanitized by IO).
 	 * @param currentRequest
 	 * @throws ImpossibleActionException
 	 */
 	private void handleDeposit(Request currentRequest) throws ImpossibleActionException {
-		// TODO Auto-generated method stub
 		
+		List<String> params = currentRequest.getParams();
+		int accID = Integer.parseInt(params.get(0));
+		int moneyAmount = Integer.parseInt(params.get(1));
+		
+		try {
+			BankAccount ba = dao.readBankAccount(accID);
+			
+			// TODO continue here
+			//if ()
+		}
+		catch(BankDAOException e) {
+			
+		}
 	}
 	
 	/**

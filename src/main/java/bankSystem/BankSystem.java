@@ -146,6 +146,16 @@ public class BankSystem {
 	}
 	
 	/**
+	 * Should only be called during unit testing.
+	 * Calls the interactionLoop method, but does not set running to true.
+	 * Thus, the loop only happens once.
+	 */
+	public void testLoop() {
+		
+		interactionLoop();
+	}
+	
+	/**
 	 * Prompts the user for input, and handles the resulting request.
 	 */
 	private void interactionLoop() {

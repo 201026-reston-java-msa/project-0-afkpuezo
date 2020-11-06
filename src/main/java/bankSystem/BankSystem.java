@@ -97,7 +97,16 @@ public class BankSystem {
 			= "Unable to proceed: That user cannot be added to this account because they are not a customer."; 
 	public static final String ADD_OWNER_ALREADY_OWNED_MESSAGE
 			= "Unable to proceed: That user cannot be added to this account because they are already an owner of the account.";
-			
+	
+	public static final String REMOVE_OWNER_SUCCESSFUL_MESSAGE
+	= "User has successfuly been removed from that account.";
+	public static final String REMOVE_OWNER_CUSTOMER_NOT_OWN_ACCOUNT_MESSAGE
+			= "Unable to proceed: You do not have permission to remove users from an account you do not own.";
+	public static final String REMOVE_OWNER_TARGET_NOT_OWNER
+	= "Unable to proceed: The user you are trying to remove is not an owner of that account.";
+	public static final String REMOVE_OWNER_OPEN_ONLY_ONE_OWNER
+	= "Unable to proceed: You cannot remove the last owner of an open account. Contact support and have the account closed first.";
+	
 	// arrays of permitted request types
 	private static final RequestType[] NO_USER_CHOICES = 
 			{RequestType.LOG_IN, RequestType.REGISTER_USER, RequestType.QUIT};
@@ -568,7 +577,7 @@ public class BankSystem {
 		if (currentUser.getType() == UserProfileType.CUSTOMER && !currentUser.getOwnedAccounts().contains(accID)) {
 			throw new ImpossibleActionException(ADD_OWNER_CUSTOMER_NOT_OWN_ACCOUNT_MESSAGE);
 		}
-		// assume its an employee or admin
+		// assume its not a NONE account
 		
 		try {
 			BankAccount ba = dao.readBankAccount(accID);
@@ -616,12 +625,58 @@ public class BankSystem {
 	}
 	
 	/**
-	 * TODO doc COME BACK HERE
+	 * Allows the user to remove a user owner a bank account.
+	 * The account must be open, and the current user must either be the customer who 
+	 * is being removed from the account, or an employee/admin. The user being 
+	 * removed must be a customer.
+	 * Can't remove the last owner of an open account.
 	 * @param currentRequest
 	 * @throws ImpossibleActionException
 	 */
 	private void handleRemoveAccountOwner(Request currentRequest) throws ImpossibleActionException {
-		// TODO Auto-generated method stub
+		
+		List<String> params = currentRequest.getParams();
+		int accID = Integer.parseInt(params.get(0));
+		int userToRemoveID = Integer.parseInt(params.get(1));
+		
+		if (currentUser.getType() == UserProfileType.CUSTOMER && !currentUser.getOwnedAccounts().contains(accID)) {
+			throw new ImpossibleActionException(REMOVE_OWNER_CUSTOMER_NOT_OWN_ACCOUNT_MESSAGE);
+		}
+		// assume its not a NONE account
+		try {
+			UserProfile userToRemove = dao.readUserProfile(userToRemoveID);
+			
+			if (!userToRemove.getOwnedAccounts().contains(accID)) {
+				throw new ImpossibleActionException(REMOVE_OWNER_TARGET_NOT_OWNER);
+			}
+			
+			BankAccount ba = dao.readBankAccount(accID);
+			
+			if (ba.getOwners().size() == 1 && ba.getStatus() == BankAccountStatus.OPEN) {
+				throw new ImpossibleActionException(REMOVE_OWNER_OPEN_ONLY_ONE_OWNER);
+			}
+			
+			// now we can actually do it
+			userToRemove.removeAccount(accID);
+			dao.write(userToRemove);
+			ba.removeOwner(userToRemoveID);
+			if (ba.getOwners().size() == 1) {
+				ba.setType(BankAccountType.SINGLE);
+			}
+			dao.write(ba);
+			
+			io.displayText(REMOVE_OWNER_SUCCESSFUL_MESSAGE);
+			
+			TransactionRecord tr = new TransactionRecord();
+			tr.setType(TransactionType.ACCOUNT_OWNER_REMOVED);
+			tr.setActingUser(currentUser.getId());
+			tr.setSourceAccount(userToRemoveID); // iffy on the formatting
+			tr.setDestinationAccount(accID);
+			saveTransactionRecord(tr);
+		}
+		catch (BankDAOException e) {
+			throw new ImpossibleActionException(GENERIC_DAO_ERROR_MESSAGE);
+		}
 		
 	}
 	

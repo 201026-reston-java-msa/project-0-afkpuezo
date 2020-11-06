@@ -512,6 +512,7 @@ public class TestBankSystem {
 		
 		// now check to see if it was actually done
 		BankAccount ba = tdao.readBankAccount(444);
+		assertEquals(BankAccountType.JOINT, ba.getType());
 		List<Integer> owners = ba.getOwners();
 		assertEquals(2, owners.size());
 		//assertEquals(103, owners.get(1)); // no idea why this won't work

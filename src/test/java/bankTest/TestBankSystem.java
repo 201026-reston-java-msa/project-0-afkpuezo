@@ -460,7 +460,7 @@ public class TestBankSystem {
 	}
 	
 	@Test
-	public void handleCloseBadAccount() throws BankDAOException {
+	public void handleCloseBadAccount() {
 		
 		logInHelp("admin", "admin");
 		List<String> params = new ArrayList<String>();
@@ -490,5 +490,37 @@ public class TestBankSystem {
 		assertEquals(
 				BankSystem.CLOSE_ACCOUNT_NOT_OPEN_MESSAGE, 
 				output.get(output.size() - 1));
+	}
+	
+	@Test
+	public void handleAddOwner() throws BankDAOException {
+		
+		logInHelp("user", "pass");
+		List<String> params = new ArrayList<String>();
+		params.add("444"); // the account
+		params.add("103"); // the user to add
+		Request request = new Request(
+				RequestType.ADD_ACCOUNT_OWNER,
+				params);
+		mio.setNextRequest(request);
+		bank.testLoop();
+		
+		List<Object> output = mio.getCachedOutput();
+		assertEquals(
+				BankSystem.ADD_OWNER_TO_ACCOUNT_MESSAGE, 
+				output.get(output.size() - 1));
+		
+		// now check to see if it was actually done
+		BankAccount ba = tdao.readBankAccount(444);
+		List<Integer> owners = ba.getOwners();
+		assertEquals(2, owners.size());
+		//assertEquals(103, owners.get(1)); // no idea why this won't work
+		assertTrue(103 == owners.get(1));
+		
+		UserProfile up = tdao.readUserProfile(103);
+		List<Integer> accounts = up.getOwnedAccounts();
+		assertEquals(3, accounts.size()); // already owns 2, before this
+		//assertEquals(444, owners.get(2));
+		assertTrue(444 == accounts.get(2));
 	}
 }

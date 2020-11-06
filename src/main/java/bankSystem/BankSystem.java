@@ -89,6 +89,8 @@ public class BankSystem {
 	public static final String CLOSE_ACCOUNT_PREFIX
 			= "Account closed. All funds withdrawn and returned to account owner(s). Funds amount: $";
 	
+	public static final String ADD_OWNER_TO_ACCOUNT_MESSAGE
+			= "New owner successfully added to account";
 	public static final String ADD_OWNER_CUSTOMER_NOT_OWN_ACCOUNT_MESSAGE
 			= "Unable to proceed: You do not have permission to add users to an account you do not own.";
 	public static final String ADD_OWNER_NEW_USER_NOT_CUSTOMER_MESSAGE
@@ -599,7 +601,10 @@ public class BankSystem {
 			toWrite.add(ba);
 			dao.write(toWrite);
 			
+			io.displayText(ADD_OWNER_TO_ACCOUNT_MESSAGE);
+			
 			TransactionRecord tr = new TransactionRecord();
+			tr.setType(TransactionType.ACCOUNT_OWNER_ADDED);
 			tr.setActingUser(currentUser.getId());
 			tr.setSourceAccount(userToAddID);
 			tr.setDestinationAccount(accID);

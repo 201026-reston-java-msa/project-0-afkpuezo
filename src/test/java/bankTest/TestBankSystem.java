@@ -280,7 +280,7 @@ public class TestBankSystem {
 	}
 	
 	@Test
-	public void handleApply() throws BankDAOException{
+	public void testApply() throws BankDAOException{
 		
 		logInHelp("user", "pass");
 		
@@ -304,7 +304,7 @@ public class TestBankSystem {
 	}
 	
 	@Test
-	public void handleApproveAccount() throws BankDAOException{
+	public void testApproveAccount() throws BankDAOException{
 		
 		logInHelp("user", "pass");
 		
@@ -340,7 +340,7 @@ public class TestBankSystem {
 	}
 	
 	@Test
-	public void handleApproveBadAccount() throws BankDAOException {
+	public void testApproveBadAccount() throws BankDAOException {
 		
 		logInHelp("admin", "admin");
 		List<String> params = new ArrayList<String>();
@@ -371,7 +371,7 @@ public class TestBankSystem {
 	}
 	
 	@Test
-	public void handleDenyAccount() throws BankDAOException {
+	public void testDenyAccount() throws BankDAOException {
 		
 		logInHelp("user", "pass");
 		
@@ -407,7 +407,7 @@ public class TestBankSystem {
 	}
 	
 	@Test
-	public void handleDenyBadAccount() throws BankDAOException {
+	public void testDenyBadAccount() throws BankDAOException {
 		
 		logInHelp("admin", "admin");
 		List<String> params = new ArrayList<String>();
@@ -438,7 +438,7 @@ public class TestBankSystem {
 	}
 	
 	@Test
-	public void handleCloseAccount() throws BankDAOException {
+	public void testCloseAccount() throws BankDAOException {
 		
 		logInHelp("admin", "admin");
 		List<String> params = new ArrayList<String>();
@@ -451,7 +451,7 @@ public class TestBankSystem {
 		
 		List<Object> output = mio.getCachedOutput();
 		assertEquals(
-				BankSystem.CLOSE_ACCOUNT_PREFIX + "78923", 
+				BankSystem.CLOSE_ACCOUNT_MESSAGE, 
 				output.get(output.size() - 1));
 		
 		BankAccount ba = tdao.readBankAccount(444);
@@ -460,7 +460,7 @@ public class TestBankSystem {
 	}
 	
 	@Test
-	public void handleCloseBadAccount() {
+	public void testCloseBadAccount() {
 		
 		logInHelp("admin", "admin");
 		List<String> params = new ArrayList<String>();
@@ -493,7 +493,7 @@ public class TestBankSystem {
 	}
 	
 	@Test
-	public void handleAddOwner() throws BankDAOException {
+	public void testAddOwner() throws BankDAOException {
 		
 		logInHelp("user", "pass");
 		List<String> params = new ArrayList<String>();
@@ -523,5 +523,38 @@ public class TestBankSystem {
 		assertEquals(3, accounts.size()); // already owns 2, before this
 		//assertEquals(444, owners.get(2));
 		assertTrue(444 == accounts.get(2));
+	}
+	
+	@Test
+	public void testRemoveOwner() throws BankDAOException{
+		
+		// first we have to add a user to create a joint account in the first place
+		logInHelp("user", "pass");
+		List<String> params = new ArrayList<String>();
+		params.add("444"); // the account
+		params.add("103"); // the user to add
+		Request request = new Request(
+				RequestType.ADD_ACCOUNT_OWNER,
+				params);
+		mio.setNextRequest(request);
+		bank.testLoop();
+		
+		params.set(1, "101"); // have the user remove themselves
+		request = new Request(
+				RequestType.REMOVE_ACCOUNT_OWNER,
+				params);
+		mio.setNextRequest(request);
+		bank.testLoop();
+		
+		List<Object> output = mio.getCachedOutput();
+		assertEquals(
+				BankSystem.REMOVE_OWNER_SUCCESSFUL_MESSAGE, 
+				output.get(output.size() - 1));
+		
+		// check the data
+		BankAccount ba = tdao.readBankAccount(444);
+		assertFalse(ba.getOwners().contains(101));
+		UserProfile up = tdao.readUserProfile(101);
+		assertFalse(up.getOwnedAccounts().contains(444));
 	}
 }

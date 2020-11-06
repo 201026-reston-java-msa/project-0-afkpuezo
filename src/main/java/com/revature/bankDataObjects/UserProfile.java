@@ -105,7 +105,7 @@ public class UserProfile extends BankData {
 	
 	
 	public void removeAccount(int accID) {
-		ownedAccounts.remove(accID);
+		ownedAccounts.remove(ownedAccounts.indexOf(accID));
 	}
 	
 	

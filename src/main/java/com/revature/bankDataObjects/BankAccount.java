@@ -76,7 +76,7 @@ public class BankAccount extends BankData {
 	
 	
 	public void removeOwner(int ownerID) {
-		owners.remove(ownerID);
+		owners.remove(owners.indexOf(ownerID));
 	}
 
 	

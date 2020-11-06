@@ -86,8 +86,8 @@ public class BankSystem {
 			= "Unable to proceed: Only an administrator can close an account.";
 	public static final String CLOSE_ACCOUNT_NOT_OPEN_MESSAGE
 			= "Unable to proceed: That account cannot be closed because it is not open.";
-	public static final String CLOSE_ACCOUNT_PREFIX
-			= "Account closed. All funds withdrawn and returned to account owner(s). Funds amount: $";
+	public static final String CLOSE_ACCOUNT_MESSAGE
+			= "Account closed. All funds withdrawn and returned to account owner(s).";
 	
 	public static final String ADD_OWNER_TO_ACCOUNT_MESSAGE
 			= "New owner successfully added to account";
@@ -99,13 +99,16 @@ public class BankSystem {
 			= "Unable to proceed: That user cannot be added to this account because they are already an owner of the account.";
 	
 	public static final String REMOVE_OWNER_SUCCESSFUL_MESSAGE
-	= "User has successfuly been removed from that account.";
+			= "User has successfuly been removed from that account.";
 	public static final String REMOVE_OWNER_CUSTOMER_NOT_OWN_ACCOUNT_MESSAGE
 			= "Unable to proceed: You do not have permission to remove users from an account you do not own.";
 	public static final String REMOVE_OWNER_TARGET_NOT_OWNER
-	= "Unable to proceed: The user you are trying to remove is not an owner of that account.";
+			= "Unable to proceed: The user you are trying to remove is not an owner of that account.";
 	public static final String REMOVE_OWNER_OPEN_ONLY_ONE_OWNER
-	= "Unable to proceed: You cannot remove the last owner of an open account. Contact support and have the account closed first.";
+			= "Unable to proceed: You cannot remove the last owner of an open account. Contact support and have the account closed first.";
+	public static final String REMOVE_OWNER_CUSTOMER_CAN_ONLY_REMOVE_THEMSELF_MESSAGE
+			= "Unable to proceed: A customer cannot remove another customer. Have the other customer remove themselves,"
+			+ "or contact support for assistance.";
 	
 	// arrays of permitted request types
 	private static final RequestType[] NO_USER_CHOICES = 
@@ -548,7 +551,7 @@ public class BankSystem {
 			ba.setFunds(0);
 			ba.setStatus(BankAccountStatus.CLOSED);
 			dao.write(ba);
-			io.displayText(CLOSE_ACCOUNT_PREFIX + funds);
+			io.displayText(CLOSE_ACCOUNT_MESSAGE);
 			
 			TransactionRecord tr = new TransactionRecord();
 			tr.setType(TransactionType.ACCOUNT_CLOSED);
@@ -654,6 +657,11 @@ public class BankSystem {
 			
 			if (ba.getOwners().size() == 1 && ba.getStatus() == BankAccountStatus.OPEN) {
 				throw new ImpossibleActionException(REMOVE_OWNER_OPEN_ONLY_ONE_OWNER);
+			}
+			
+			if (currentUser.getType() == UserProfileType.CUSTOMER 
+					&& currentUser.getId() != userToRemoveID) {
+				throw new ImpossibleActionException(REMOVE_OWNER_CUSTOMER_CAN_ONLY_REMOVE_THEMSELF_MESSAGE);
 			}
 			
 			// now we can actually do it

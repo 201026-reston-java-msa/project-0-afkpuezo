@@ -432,10 +432,12 @@ public class BankSystem {
 	private void handleApproveOpenAccount(Request currentRequest) throws ImpossibleActionException {
 		
 		// check permissions - only employees and admins can approve an account
+		/*
 		if (currentUser.getType() != UserProfileType.EMPLOYEE 
 				&& currentUser.getType() != UserProfileType.ADMIN) {
 			io.displayText(APPROVE_OPEN_ACCOUNT_NO_PERMISSION_MESSAGE);
 		}
+		*/
 		
 		try {
 			List<String> params = currentRequest.getParams();

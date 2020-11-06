@@ -302,4 +302,71 @@ public class TestBankSystem {
 		assertTrue(ba.getOwners().contains(up.getId()));
 		assertEquals(BankAccount.BankAccountStatus.PENDING, ba.getStatus());
 	}
+	
+	@Test
+	public void handleApprove() throws BankDAOException{
+		
+		logInHelp("user", "pass");
+		
+		Request request = new Request(RequestType.APPLY_OPEN_ACCOUNT);
+		mio.setNextRequest(request);
+		bank.testLoop();
+		
+		request = new Request(
+				RequestType.LOG_OUT,
+				new ArrayList<>());
+		mio.setNextRequest(request);
+		bank.testLoop();
+		
+		UserProfile up = tdao.readUserProfile("user");
+		int accID = up.getOwnedAccounts().get(1); // new one should be last
+		
+		logInHelp("admin", "admin");
+		List<String> params = new ArrayList<String>();
+		params.add("" + accID);
+		request = new Request(
+				RequestType.APPROVE_OPEN_ACCOUNT,
+				params);
+		mio.setNextRequest(request);
+		bank.testLoop();
+		
+		// is the account actually approved?
+		List<Object> output = mio.getCachedOutput();
+		assertEquals(
+				BankSystem.ACCOUNT_APPROVED_MESSAGE, 
+				output.get(output.size() - 1));
+		BankAccount ba = tdao.readBankAccount(accID);
+		assertEquals(BankAccountStatus.OPEN, ba.getStatus());
+	}
+	
+	@Test
+	public void handleApproveBadAccount() throws BankDAOException {
+		
+		logInHelp("admin", "admin");
+		List<String> params = new ArrayList<String>();
+		params.add("3234259");
+		Request request = new Request(
+				RequestType.APPROVE_OPEN_ACCOUNT,
+				params);
+		mio.setNextRequest(request);
+		bank.testLoop();
+		
+		List<Object> output = mio.getCachedOutput();
+		assertEquals(
+				BankSystem.BANK_ACCOUNT_DOES_NOT_EXIST_PREFIX + "3234259", 
+				output.get(output.size() - 1));
+		
+		params = new ArrayList<String>();
+		params.add("444");
+		request = new Request(
+				RequestType.APPROVE_OPEN_ACCOUNT,
+				params);
+		mio.setNextRequest(request);
+		bank.testLoop();
+		
+		output = mio.getCachedOutput();
+		assertEquals(
+				BankSystem.BANK_ACCOUNT_NOT_PENDING_MESSAGE, 
+				output.get(output.size() - 1));
+	}
 }

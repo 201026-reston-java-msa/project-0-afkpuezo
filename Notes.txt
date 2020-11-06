@@ -167,4 +167,4 @@ November 6:
 	- I will need to modify the BS slightly to make it only loop once if it's in a "test" mode. [x]
 	- now write the MockIO class [x]
 	- now try some tests [ ]
-	- just realized I can add an easy universal permission check before hitting the big switch case
+	- just realized I can add an easy universal permission check before hitting the big switch case [ ]

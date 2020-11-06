@@ -57,6 +57,8 @@ public class TestBankSystem {
 			"TRR 123 3:00 FDP 101 -1 444 87654"
 	};
 	
+	// utility methods ----------
+	
 	/**
 	 * Sets up a text file for use in tests.
 	 * @return true if the file could be set up, false otherwise
@@ -111,6 +113,24 @@ public class TestBankSystem {
 	}
 	
 	/**
+	 * Logs into the given user. Used to avoid repitition.
+	 * @param user
+	 * @param pass
+	 */
+	public void logInHelp(String user, String pass) {
+		List<String> params = new ArrayList<String>();
+		params.add(user);
+		params.add(pass);
+		Request request = new Request(
+				RequestType.LOG_IN, 
+				params);
+		mio.setNextRequest(request);
+		bank.testLoop();
+	}
+	
+	// tests -------------------------
+	
+	/**
 	 * For my own sanity, makes sure that the @Before method setup works
 	 */
 	@Test
@@ -128,10 +148,10 @@ public class TestBankSystem {
 		List<String> params = new ArrayList<String>();
 		params.add("newuser");
 		params.add("newpass");
-		Request register = new Request(
+		Request request = new Request(
 				RequestType.REGISTER_USER, 
 				params);
-		mio.setNextRequest(register);
+		mio.setNextRequest(request);
 		bank.testLoop();
 		
 		List<Object> output = mio.getCachedOutput();
@@ -141,5 +161,104 @@ public class TestBankSystem {
 		UserProfile up = tdao.readUserProfile("newuser");
 		assertEquals(UserProfileType.CUSTOMER, up.getType());
 		assertEquals("newpass", up.getPassword());
+	}
+	
+	@Test
+	public void testRegisterUserWithUsernameTaken() throws BankDAOException{
+		
+		List<String> params = new ArrayList<String>();
+		params.add("user");
+		params.add("newpass");
+		Request request = new Request(
+				RequestType.REGISTER_USER, 
+				params);
+		mio.setNextRequest(request);
+		bank.testLoop();
+		
+		List<Object> output = mio.getCachedOutput();
+		assertEquals(2, output.size());
+		assertEquals(output.get(1), BankSystem.USERNAME_IN_USE_MESSAGE);
+		
+		List<UserProfile> users = tdao.readAllUserProfiles();
+		// any new users? could change if i change the test file
+		assertEquals(3, users.size()); 
+	}
+	
+	@Test
+	public void testLogIn(){
+		
+		logInHelp("user", "pass");
+		
+		List<Object> output = mio.getCachedOutput();
+		assertEquals(2, output.size());
+		assertEquals(output.get(1), BankSystem.USER_LOGGED_IN_PREFIX + "user");
+	}
+	
+	@Test
+	public void testLogInBadPass(){
+		
+		logInHelp("user", "badpass");
+		
+		List<Object> output = mio.getCachedOutput();
+		assertEquals(2, output.size());
+		assertEquals(output.get(1), BankSystem.LOGIN_INVALID_PASSWORD_MESSAGE);
+	}
+	
+	@Test
+	public void testLogInUserNotFound(){
+		
+		logInHelp("baduser", "badpass");
+		
+		List<Object> output = mio.getCachedOutput();
+		assertEquals(2, output.size());
+		assertEquals(
+				output.get(1), 
+				BankSystem.LOGIN_USER_NOT_FOUND_PREFIX + "baduser");
+	}
+	
+	/**
+	 * Tests the generic catch-all permissions check before the big switch case
+	 */
+	@Test
+	public void testActOutsidePermissions() {
+		
+		Request request = new Request(
+				RequestType.LOG_OUT, // can't log out if you aren't logged in
+				new ArrayList<>());
+		mio.setNextRequest(request);
+		bank.testLoop();
+		
+		List<Object> output = mio.getCachedOutput();
+		assertEquals(2, output.size());
+		assertEquals(
+				output.get(1), 
+				BankSystem.GENERIC_NO_PERMISSION_MESSAGE);
+	}
+	
+	@Test
+	public void testLogOut() {
+		
+		logInHelp("user", "pass");
+		
+		Request request = new Request(
+				RequestType.LOG_OUT,
+				new ArrayList<>());
+		mio.setNextRequest(request);
+		bank.testLoop();
+		
+		List<Object> output = mio.getCachedOutput();
+		assertEquals(4, output.size());
+		assertEquals(
+				output.get(3), 
+				BankSystem.LOGOUT_MESSAGE);
+		
+		mio.setNextRequest(request);
+		bank.testLoop();
+		
+		output = mio.getCachedOutput();
+		assertEquals(6, output.size());
+		assertEquals(
+				output.get(5), 
+				BankSystem.GENERIC_NO_PERMISSION_MESSAGE);
 	}
 }

@@ -348,6 +348,7 @@ public class BankSystem {
 			}
 			else { // account found
 				if (up.getPassword().equals(password)) {
+					io.displayText(USER_LOGGED_IN_PREFIX + username);
 					changeLoggedInUser(up);
 				}
 				else { // invalid pass

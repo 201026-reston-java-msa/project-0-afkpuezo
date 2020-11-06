@@ -28,12 +28,14 @@ public class UserProfile extends BankData {
 	public UserProfile() {
 		super(); // will this when extending an abstract class?
 		ownedAccounts = new ArrayList<Integer>();
+		type = UserProfileType.NONE;
 	}
 	
 	public UserProfile(int id) {
 		super(); // will this when extending an abstract class?
 		super.setId(id);
 		ownedAccounts = new ArrayList<Integer>();
+		type = UserProfileType.NONE;
 	}
 	
 	

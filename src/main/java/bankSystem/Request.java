@@ -1,4 +1,5 @@
 package bankSystem;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -40,6 +41,11 @@ public class Request {
 	public Request (RequestType type, List<String> params) {
 		this.type = type;
 		this.params = params;
+	}
+	
+	public Request (RequestType type) {
+		this.type = type;
+		this.params = new ArrayList<>();
 	}
 	
 	// getters

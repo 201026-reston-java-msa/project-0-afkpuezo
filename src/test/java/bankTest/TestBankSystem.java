@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.validator.PublicClassValidator;
 
 import com.revature.bankDataObjects.BankAccount;
 import com.revature.bankDataObjects.BankData;
@@ -260,5 +261,45 @@ public class TestBankSystem {
 		assertEquals(
 				output.get(5), 
 				BankSystem.GENERIC_NO_PERMISSION_MESSAGE);
+	}
+	
+	@Test
+	public void testQuit() {
+		
+		Request request = new Request(
+				RequestType.QUIT,
+				new ArrayList<>());
+		mio.setNextRequest(request);
+		bank.testLoop();
+		
+		List<Object> output = mio.getCachedOutput();
+		assertEquals(2, output.size());
+		assertEquals(
+				output.get(1), 
+				BankSystem.QUIT_MESSAGE);
+	}
+	
+	@Test
+	public void handleApply() throws BankDAOException{
+		
+		logInHelp("user", "pass");
+		
+		Request request = new Request(RequestType.APPLY_OPEN_ACCOUNT);
+		mio.setNextRequest(request);
+		bank.testLoop();
+		
+		List<Object> output = mio.getCachedOutput();
+		assertEquals(4, output.size());
+		assertEquals(
+				BankSystem.APPLY_OPEN_ACCOUNT_MESSAGE,
+				output.get(3));
+		
+		UserProfile up = tdao.readUserProfile("user");
+		assertEquals(2, up.getOwnedAccounts().size());
+		
+		int accID = up.getOwnedAccounts().get(1); // new one should be last
+		BankAccount ba = tdao.readBankAccount(accID);
+		assertTrue(ba.getOwners().contains(up.getId()));
+		assertEquals(BankAccount.BankAccountStatus.PENDING, ba.getStatus());
 	}
 }

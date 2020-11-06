@@ -395,10 +395,12 @@ public class BankSystem {
 	 */
 	private void handleApplyToOpenAccount(Request currentRequest) throws ImpossibleActionException {
 		
-		// check permissions - only a customer can apply to open an account
+		// unnecessary due to generic catchall
+		/*
 		if (currentUser.getType() != UserProfileType.CUSTOMER) {
 			throw new ImpossibleActionException(APPLY_OPEN_ACCOUNT_NOT_CUSTOMER_MESSAGE);
 		}
+		*/
 		
 		try {
 			BankAccount ba = new BankAccount(dao.getHighestBankAccountID() + 1);
@@ -407,6 +409,8 @@ public class BankSystem {
 			ba.setFunds(0);
 			ba.addOwner(currentUser.getId());
 			dao.write(ba);
+			currentUser.addAccount(ba.getId());
+			dao.write(currentUser);
 			io.displayText(APPLY_OPEN_ACCOUNT_MESSAGE);
 			
 			TransactionRecord tr = new TransactionRecord();

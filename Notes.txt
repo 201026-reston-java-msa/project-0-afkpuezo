@@ -108,6 +108,7 @@ November 4:
 			- withdraw money (accID, $)
 			- transfer money (sourceAccID, destAccID, $)
 			- view account(s) (accIDs, OR ownerUserID) (lead with a tag string saying what kind of ID)
+			- view own user profile
 			- view users (userIDs)
 			- view transactions (trrIDs, OR userID, OR accID) (lead with a tag string saying what kind of ID)
 			- create employee user (name, pass)
@@ -185,3 +186,4 @@ November 7:
 	- I think I'm going to change the DAO behavior on reading a non-existant data object to set the ID on the empty
 		object to the requested ID, rather than -1. This way the user will see "User #454 does not exist" [F]
 		- scratch that, I can have the BankSystem remember which ones weren't found and display that in a different message.
+	- I think I need to add a RequestType for a customer viewing their own profile. This seems easier than checks [ ]

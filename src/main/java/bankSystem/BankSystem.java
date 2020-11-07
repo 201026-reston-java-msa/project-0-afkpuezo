@@ -170,18 +170,21 @@ public class BankSystem {
 	private static final RequestType[] CUSTOMER_CHOICES_NO_ACCOUNTS = 
 			{RequestType.APPLY_OPEN_ACCOUNT, RequestType.LOG_OUT, RequestType.QUIT};
 	private static final RequestType[] CUSTOMER_CHOICES_HAS_ACCOUNT =
-			{RequestType.VIEW_ACCOUNTS, RequestType.DEPOSIT, RequestType.WITHDRAW, RequestType.TRANSFER, 
-			RequestType.VIEW_TRANSACTIONS, RequestType.ADD_ACCOUNT_OWNER, RequestType.REMOVE_ACCOUNT_OWNER,
-			RequestType.APPLY_OPEN_ACCOUNT, RequestType.LOG_OUT, RequestType.QUIT};
+			{RequestType.VIEW_SELF_PROFILE, RequestType.VIEW_ACCOUNTS, RequestType.DEPOSIT, 
+			RequestType.WITHDRAW, RequestType.TRANSFER, RequestType.VIEW_TRANSACTIONS, 
+			RequestType.ADD_ACCOUNT_OWNER, RequestType.REMOVE_ACCOUNT_OWNER,RequestType.APPLY_OPEN_ACCOUNT, 
+			RequestType.LOG_OUT, RequestType.QUIT};
 	
 	private static final RequestType[] EMPLOYEE_CHOICES = 
-			{RequestType.VIEW_ACCOUNTS, RequestType.VIEW_USERS, RequestType.APPROVE_OPEN_ACCOUNT, 
-			RequestType.DENY_OPEN_ACCOUNT, RequestType.LOG_OUT, RequestType.QUIT};
+			{RequestType.VIEW_SELF_PROFILE,RequestType.VIEW_ACCOUNTS, RequestType.VIEW_USERS, 
+			RequestType.APPROVE_OPEN_ACCOUNT, RequestType.DENY_OPEN_ACCOUNT, RequestType.LOG_OUT, 
+			RequestType.QUIT};
 	
 	private static final RequestType[] ADMIN_CHOICES =
-			{RequestType.VIEW_ACCOUNTS, RequestType.VIEW_USERS, RequestType.APPROVE_OPEN_ACCOUNT,
-			RequestType.DENY_OPEN_ACCOUNT, RequestType.WITHDRAW, RequestType.DEPOSIT, RequestType.TRANSFER,
-			RequestType.CLOSE_ACCOUNT, RequestType.LOG_OUT, RequestType.QUIT};
+			{RequestType.VIEW_SELF_PROFILE, RequestType.VIEW_ACCOUNTS, RequestType.VIEW_USERS, 
+			RequestType.APPROVE_OPEN_ACCOUNT, RequestType.DENY_OPEN_ACCOUNT, RequestType.WITHDRAW, 
+			RequestType.DEPOSIT, RequestType.TRANSFER, RequestType.CLOSE_ACCOUNT, 
+			RequestType.LOG_OUT, RequestType.QUIT};
 	
 	// instance variables (fields)
 	private BankIO io;
@@ -326,6 +329,9 @@ public class BankSystem {
 						break;
 					case VIEW_ACCOUNTS:
 						handleViewAccounts(currentRequest);
+						break;
+					case VIEW_SELF_PROFILE:
+						handleViewSelfProfile(currentRequest);
 						break;
 					case VIEW_USERS:
 						handleViewUsers(currentRequest);
@@ -1007,7 +1013,22 @@ public class BankSystem {
 	}
 	
 	/**
-	 * TODO doc
+	 * Sends the current user profile to the IO for display.
+	 * 
+	 * @param currentRequest
+	 */
+	private void handleViewSelfProfile(Request currentRequest) {
+		
+		List<UserProfile> users = new ArrayList<>();
+		users.add(currentUser);
+		io.displayUserProfiles(users);
+	}
+	
+	/**
+	 * Sends a set of user profiles to the IO for display.
+	 * Emp/admin can view any users.
+	 * Any invalid user IDs will be displayed afterward.
+	 * 
 	 * @param currentRequest
 	 * @throws ImpossibleActionException
 	 */

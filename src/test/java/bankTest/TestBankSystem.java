@@ -649,6 +649,26 @@ public class TestBankSystem {
 				dest.getFunds());
 	}
 	
+	/**
+	 * A helper method for the handle view tests.
+	 * @param output
+	 * @return a list of the ID numbers of all the BankData objects 
+	 * 			in the given list.
+	 */
+	public List<Integer> parseOutputForIDs(List<Object> output){
+		
+		List<Integer> foundIDs = new ArrayList<Integer>();
+		
+		for (Object o : output) {
+			if (o instanceof BankData) {
+				BankData bd = (BankData)o;
+				foundIDs.add(bd.getId());
+			}
+		}
+		
+		return foundIDs;
+	}
+	
 	@Test
 	public void testViewAccountsAdmin() throws BankDAOException{
 		
@@ -696,24 +716,21 @@ public class TestBankSystem {
 		assertTrue(foundIDs.contains(317));
 		assertTrue(foundIDs.contains(515));
 	}
-	
-	/**
-	 * A helper method for the handle view tests.
-	 * @param output
-	 * @return a list of the ID numbers of all the BankData objects 
-	 * 			in the given list.
-	 */
-	public List<Integer> parseOutputForIDs(List<Object> output){
+
+	@Test
+	public void testViewSelfProfile() throws BankDAOException{
 		
-		List<Integer> foundIDs = new ArrayList<Integer>();
+		logInHelp("user", "pass");
 		
-		for (Object o : output) {
-			if (o instanceof BankData) {
-				BankData bd = (BankData)o;
-				foundIDs.add(bd.getId());
-			}
-		}
+		Request request = new Request(
+				RequestType.VIEW_SELF_PROFILE,
+				new ArrayList<>());
+		mio.setNextRequest(request);
+		bank.testLoop();
 		
-		return foundIDs;
+		List<Integer> foundIDs = parseOutputForIDs(mio.getCachedOutput());
+		assertEquals(1, foundIDs.size());
+		//assertEquals(101, foundIDs.get(0)); // why is this broken???
+		assertTrue(101 == foundIDs.get(0));
 	}
 }

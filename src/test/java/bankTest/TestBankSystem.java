@@ -57,7 +57,7 @@ public class TestBankSystem {
 			"ACC 317 OPN SNG 7892312 103", "PRF 999 admin admin ADM", "ACC 515 OPN SNG 111111 103",
 			"TRR 123 3:00 FDP 101 -1 444 87654"
 	};
-	
+
 	// utility methods ----------
 	
 	/**
@@ -608,5 +608,44 @@ public class TestBankSystem {
 		
 		ba = tdao.readBankAccount(444);
 		assertEquals(originalFunds - 2000, ba.getFunds());
+	}
+	
+	@Test
+	public void testTransfer() throws BankDAOException{
+		
+		//ACC 444 -> ACC 317
+		int sourceID = 444;
+		BankAccount source = tdao.readBankAccount(sourceID);
+		int sourceOriginal = source.getFunds();
+		int destID = 317;
+		BankAccount dest = tdao.readBankAccount(destID);
+		int destOriginal = dest.getFunds();
+		int transferAmount = 100;
+		
+		logInHelp("user", "pass");
+		
+		List<String> params = new ArrayList<String>();
+		params.add("" + sourceID); 
+		params.add("" + destID);
+		params.add("" + transferAmount);
+		Request request = new Request(
+				RequestType.TRANSFER,
+				params);
+		mio.setNextRequest(request);
+		bank.testLoop();
+		
+		List<Object> output = mio.getCachedOutput();
+		assertEquals(
+				BankSystem.TRANSFER_SUCCESSFUL_MESSAGE, 
+				output.get(output.size() - 1));
+		
+		source = tdao.readBankAccount(sourceID);
+		assertEquals(
+				sourceOriginal - transferAmount, 
+				source.getFunds());
+		dest = tdao.readBankAccount(destID);
+		assertEquals(
+				destOriginal + transferAmount, 
+				dest.getFunds());
 	}
 }

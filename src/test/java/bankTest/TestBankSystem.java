@@ -557,4 +557,30 @@ public class TestBankSystem {
 		UserProfile up = tdao.readUserProfile(101);
 		assertFalse(up.getOwnedAccounts().contains(444));
 	}
+	
+	@Test
+	public void testDeposit() throws BankDAOException{
+		
+		// get the original money amount
+		BankAccount ba = tdao.readBankAccount(444);
+		int originalFunds = ba.getFunds();
+		
+		logInHelp("user", "pass");
+		List<String> params = new ArrayList<String>();
+		params.add("444"); // the account
+		params.add("2000"); // the money to add
+		Request request = new Request(
+				RequestType.DEPOSIT,
+				params);
+		mio.setNextRequest(request);
+		bank.testLoop();
+		
+		List<Object> output = mio.getCachedOutput();
+		assertEquals(
+				BankSystem.DEPOSIT_SUCCESSFUL_MESSAGE, 
+				output.get(output.size() - 1));
+		
+		ba = tdao.readBankAccount(444);
+		assertEquals(originalFunds + 2000, ba.getFunds());
+	}
 }

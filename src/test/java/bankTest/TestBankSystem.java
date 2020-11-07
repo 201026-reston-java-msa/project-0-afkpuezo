@@ -733,4 +733,26 @@ public class TestBankSystem {
 		//assertEquals(101, foundIDs.get(0)); // why is this broken???
 		assertTrue(101 == foundIDs.get(0));
 	}
+	
+	@Test
+	public void testViewUsers() throws BankDAOException{
+		
+		logInHelp("admin", "admin");
+		
+		List<String> params = new ArrayList<String>();
+		params.add("101");
+		params.add("103");
+		params.add("999");
+		Request request = new Request(
+				RequestType.VIEW_USERS,
+				params);
+		mio.setNextRequest(request);
+		bank.testLoop();
+		
+		List<Integer> foundIDs = parseOutputForIDs(mio.getCachedOutput());
+		assertEquals(3, foundIDs.size());
+		assertTrue(foundIDs.contains(101));
+		assertTrue(foundIDs.contains(103));
+		assertTrue(foundIDs.contains(999));
+	}
 }

@@ -74,6 +74,8 @@ public class BankSystem {
 			= "Unable to proceed: No account exists with ID: ";
 	public static final String USER_ID_NOT_FOUND_PREFIX // there's like 3 of these 
 			= "Unable to proceed: No user exists with ID: ";
+	public static final String USER_ID_MULTIPLE_NOT_FOUND_PREFIX // there's like 4 of these 
+			= "Could not find user profiles for the following IDs: ";
 	public static final String TRANSACTION_RECORD_NOT_SAVED_MESSAGE
 			= "ALERT: The transaction was carried out, but there was a problem adding it to the log";
 	public static final String GENERIC_NO_PERMISSION_MESSAGE
@@ -1026,15 +1028,39 @@ public class BankSystem {
 	
 	/**
 	 * Sends a set of user profiles to the IO for display.
-	 * Emp/admin can view any users.
+	 * Emp/admin can view any users. Customers can not take this action.
 	 * Any invalid user IDs will be displayed afterward.
 	 * 
 	 * @param currentRequest
 	 * @throws ImpossibleActionException
 	 */
 	private void handleViewUsers(Request currentRequest) throws ImpossibleActionException {
-		// TODO Auto-generated method stub
-		
+
+		try {
+			String invalidIDs = "";
+			List<UserProfile> users = new ArrayList<>();
+			
+			for (String id : currentRequest.getParams()) {
+				UserProfile up = dao.readUserProfile(Integer.parseInt(id));
+				
+				if (up.getType() == UserProfileType.NONE) {
+					invalidIDs = invalidIDs + id;
+				}
+				else {
+					users.add(up);
+				}
+			} // end for id loop
+			
+			if (!users.isEmpty()) {
+				io.displayUserProfiles(users);				
+			}
+			if (!invalidIDs.equals("")) {
+				io.displayText(invalidIDs);
+			}
+		}
+		catch (BankDAOException e) {
+			throw new ImpossibleActionException(GENERIC_DAO_ERROR_MESSAGE);
+		}
 	}
 	
 	/**

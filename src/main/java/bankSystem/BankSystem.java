@@ -127,6 +127,15 @@ public class BankSystem {
 	public static final String DEPOSIT_ACCOUNT_NOT_OPEN_MESSAGE
 			= "Unable to proceed: You cannot deposit to an account that is not open.";
 	
+	public static final String WITHDRAW_SUCCESSFUL_MESSAGE 
+			= "Deposit successful. Balance is now: ";
+	public static final String WITHDRAW_ACCOUNT_NOT_OWNED_MESSAGE
+			= "Unable to proceed: You cannot withdraw from an account you do not own. Use a transfer instead.";
+	public static final String WITHDRAW_ACCOUNT_NOT_OPEN_MESSAGE
+			= "Unable to proceed: You cannot withdraw from an account that is not open.";
+	public static final String WITHDRAW_OVERDRAFT_BLOCK_MESSAGE
+			= "Unable to proceed: There are insufficient funds in that account.";
+	
 	// arrays of permitted request types
 	private static final RequestType[] NO_USER_CHOICES = 
 			{RequestType.LOG_IN, RequestType.REGISTER_USER, RequestType.QUIT};
@@ -736,16 +745,16 @@ public class BankSystem {
 			BankAccount ba = dao.readBankAccount(accID);
 			
 			if (ba.getType() == BankAccountType.NONE) {
-				io.displayText(ACCOUNT_DOES_NOT_EXIST_PREFIX + accID);
+				throw new ImpossibleActionException(ACCOUNT_DOES_NOT_EXIST_PREFIX + accID);
 			}
 
 			if (currentUser.getType() == UserProfileType.CUSTOMER 
 					&& !currentUser.getOwnedAccounts().contains(accID)) {
-				io.displayText(DEPOSIT_ACCOUNT_NOT_OWNED_MESSAGE);
+				throw new ImpossibleActionException(DEPOSIT_ACCOUNT_NOT_OWNED_MESSAGE);
 			}
 			
 			if (ba.getStatus() != BankAccountStatus.OPEN) {
-				io.displayText(DEPOSIT_ACCOUNT_NOT_OPEN_MESSAGE);
+				throw new ImpossibleActionException(DEPOSIT_ACCOUNT_NOT_OPEN_MESSAGE);
 			}
 			
 			// can go ahead now
@@ -766,13 +775,55 @@ public class BankSystem {
 	}
 	
 	/**
-	 * TODO doc
+	 * Decreases the funds in an account.
+	 * A customer can only withdraw from an open account they own (use transfer instead).
+	 * An employee or admin can withdraw from any open account.
+	 * Assumes the amount is positive (should be sanitized by IO).
+	 * Cannot withdraw below zero (will block whole transaction)
 	 * @param currentRequest
 	 * @throws ImpossibleActionException
 	 */
 	private void handleWithdraw(Request currentRequest) throws ImpossibleActionException {
-		// TODO Auto-generated method stub
 		
+		List<String> params = currentRequest.getParams();
+		int accID = Integer.parseInt(params.get(0));
+		int moneyAmount = Integer.parseInt(params.get(1));
+		
+		try {
+			BankAccount ba = dao.readBankAccount(accID);
+			
+			if (ba.getType() == BankAccountType.NONE) {
+				throw new ImpossibleActionException(ACCOUNT_DOES_NOT_EXIST_PREFIX + accID);
+			}
+
+			if (currentUser.getType() == UserProfileType.CUSTOMER 
+					&& !currentUser.getOwnedAccounts().contains(accID)) {
+				throw new ImpossibleActionException(DEPOSIT_ACCOUNT_NOT_OWNED_MESSAGE);
+			}
+			
+			if (ba.getStatus() != BankAccountStatus.OPEN) {
+				throw new ImpossibleActionException(DEPOSIT_ACCOUNT_NOT_OPEN_MESSAGE);
+			}
+			
+			if (ba.getFunds() < moneyAmount) {
+				throw new ImpossibleActionException(WITHDRAW_OVERDRAFT_BLOCK_MESSAGE);
+			}
+			
+			// can go ahead now
+			ba.setFunds(ba.getFunds() - moneyAmount);
+			dao.write(ba);
+			
+			io.displayText(DEPOSIT_SUCCESSFUL_MESSAGE);
+			
+			TransactionRecord tr = new TransactionRecord();
+			tr.setType(TransactionType.FUNDS_DEPOSITED);
+			tr.setDestinationAccount(accID);
+			tr.setMoneyAmount(moneyAmount);
+			saveTransactionRecord(tr);
+		}
+		catch(BankDAOException e) {
+			throw new ImpossibleActionException(GENERIC_DAO_ERROR_MESSAGE);
+		}
 	}
 	
 	/**

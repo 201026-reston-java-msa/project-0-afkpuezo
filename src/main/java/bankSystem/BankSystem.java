@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.stream.events.StartDocument;
+import javax.xml.transform.Source;
 
 import com.revature.bankDataObjects.BankAccount;
 import com.revature.bankDataObjects.TransactionRecord;
@@ -34,6 +35,7 @@ public class BankSystem {
 	// class variables
 	
 	/**
+	 * ----------------------------------------------------------------------
 	 * These Strings are public for the purpose of testing.
 	 * Since they are final, I figure there is minimal risk of damage.
 	 */
@@ -68,6 +70,8 @@ public class BankSystem {
 			= "Unable to proceed: You do not have permission to take that action.";
 	public static final String USER_REGISTERED_MESSAGED
 			= "New user profile registered.";
+	public static final String ACCOUNT_NOT_OPEN_PREFIX
+			= "Unable to proceed: Bank account is not open. Account ID: ";
 	
 	public static final String APPLY_OPEN_ACCOUNT_NOT_CUSTOMER_MESSAGE 
 			= "Unable to proceed: Only customers can apply to open accounts";
@@ -136,7 +140,15 @@ public class BankSystem {
 	public static final String WITHDRAW_OVERDRAFT_BLOCK_MESSAGE
 			= "Unable to proceed: There are insufficient funds in that account.";
 	
-	// arrays of permitted request types
+	public static final String TRANSFER_SUCCESSFUL_MESSAGE 
+			= "Transfer successful.";
+	public static final String TRANSFER_SOURCE_ACCOUNT_NOT_OWNED_MESSAGE
+	= "Unable to proceed: You cannot transfer from an account you do not own.";
+	public static final String TRANSFER_OVERDRAFT_BLOCK_MESSAGE
+	= "Unable to proceed: There are insufficient funds in the source account.";
+	
+	// arrays of permitted request types -----------------------------------------
+	
 	private static final RequestType[] NO_USER_CHOICES = 
 			{RequestType.LOG_IN, RequestType.REGISTER_USER, RequestType.QUIT};
 	
@@ -827,12 +839,77 @@ public class BankSystem {
 	}
 	
 	/**
-	 * TODO doc
+	 * Moves funds from one account to another.
+	 * User must be a customer who owns the source (withdraw) account, or an emp/admin.
+	 * Both accounts must be open.
+	 * The source account must have enough money. 
 	 * @param currentRequest
 	 * @throws ImpossibleActionException
 	 */
 	private void handleTransfer(Request currentRequest) throws ImpossibleActionException {
-		// TODO Auto-generated method stub
+		
+		List<String> params = currentRequest.getParams();
+		int sourceAccID = Integer.parseInt(params.get(0)); // money comes from
+		int destAccID = Integer.parseInt(params.get(1)); // money goes to
+		int moneyAmount = Integer.parseInt(params.get(2)); // how much?
+		
+		try {
+			BankAccount source = dao.readBankAccount(sourceAccID);
+			BankAccount dest = dao.readBankAccount(destAccID);
+			
+			// check the permissions
+			
+			if (source.getType() == BankAccountType.NONE) {
+				throw new ImpossibleActionException(
+						ACCOUNT_DOES_NOT_EXIST_PREFIX + sourceAccID);
+			}
+			if (dest.getType() == BankAccountType.NONE) {
+				throw new ImpossibleActionException(
+						ACCOUNT_DOES_NOT_EXIST_PREFIX + destAccID);
+			}
+			
+			// assume no NONE user
+			if (currentUser.getType() == UserProfileType.CUSTOMER 
+					&& !currentUser.getOwnedAccounts().contains(sourceAccID)) {
+				throw new ImpossibleActionException(
+						TRANSFER_SOURCE_ACCOUNT_NOT_OWNED_MESSAGE);
+			}
+			
+			
+			if (source.getStatus() != BankAccountStatus.OPEN) {
+				throw new ImpossibleActionException(
+						ACCOUNT_NOT_OPEN_PREFIX + sourceAccID);
+			}
+			if (dest.getStatus() != BankAccountStatus.OPEN) {
+				throw new ImpossibleActionException(
+						ACCOUNT_NOT_OPEN_PREFIX + destAccID);
+			}
+			
+			// check the funds
+			if (source.getFunds() < moneyAmount) {
+				throw new ImpossibleActionException(TRANSFER_OVERDRAFT_BLOCK_MESSAGE);
+			}
+			
+			// should finally be good
+			source.setFunds(source.getFunds() - moneyAmount);
+			dest.setFunds(dest.getFunds() + moneyAmount);
+			
+			List<BankData> toWrite = new ArrayList<>();
+			toWrite.add(source);
+			toWrite.add(dest);
+			dao.write(toWrite);
+			
+			io.displayText(TRANSFER_SUCCESSFUL_MESSAGE);
+			
+			TransactionRecord tr = new TransactionRecord();
+			tr.setSourceAccount(sourceAccID);
+			tr.setDestinationAccount(destAccID);
+			tr.setMoneyAmount(moneyAmount);
+			saveTransactionRecord(tr);
+		}
+		catch(BankDAOException e) {
+			throw new ImpossibleActionException(GENERIC_DAO_ERROR_MESSAGE);
+		}
 	}
 	
 	/**

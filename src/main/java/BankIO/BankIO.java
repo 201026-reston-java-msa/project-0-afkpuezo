@@ -31,10 +31,10 @@ public interface BankIO {
 	public void displayText(String text, boolean frame);
 	
 	/**
-	 * Displays information about the given user profile to the user.
+	 * Displays information about the given user profile(s) to the user.
 	 * @param up
 	 */
-	public void displayUserProfile(UserProfile up);
+	public void displayUserProfiles(List<UserProfile> users);
 	
 	/**
 	 * Displays information about the given bank accounts to the user.

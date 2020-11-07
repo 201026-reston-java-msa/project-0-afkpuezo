@@ -833,7 +833,6 @@ public class BankSystem {
 	 */
 	private void handleTransfer(Request currentRequest) throws ImpossibleActionException {
 		// TODO Auto-generated method stub
-		
 	}
 	
 	/**

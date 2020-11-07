@@ -51,21 +51,27 @@ public class MockIO implements BankIO {
 	}
 
 	@Override
-	public void displayUserProfile(UserProfile up) {
+	public void displayUserProfiles(List<UserProfile> users) {
 
-		cachedOutput.add(up);
+		for (UserProfile up : users) {
+			cachedOutput.add(up);			
+		}
 	}
 
 	@Override
 	public void displayBankAccounts(List<BankAccount> accounts) {
 		
-		cachedOutput.add(accounts);
+		for (BankAccount ba : accounts) {
+			cachedOutput.add(ba);			
+		}
 	}
 
 	@Override
 	public void displayTransactionRecords(List<TransactionRecord> transactions) {
 
-		cachedOutput.add(transactions);
+		for (TransactionRecord tr : transactions) {
+			cachedOutput.add(tr);			
+		}
 	}
 
 	@Override

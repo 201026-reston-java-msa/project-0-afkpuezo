@@ -940,6 +940,7 @@ public class BankSystem {
 	 */
 	private void handleViewAccounts(Request currentRequest) throws ImpossibleActionException {
 		
+		//System.out.println("DEBUG: handleViewAccounts called");
 		try {
 			List<Integer> lookupIDs = new ArrayList<>();
 			List<String> params = currentRequest.getParams();
@@ -950,6 +951,12 @@ public class BankSystem {
 				// get all accounts owned by this user
 				int ownerID = Integer.parseInt(params.get(1));
 				UserProfile owner = dao.readUserProfile(ownerID);
+				
+				// make sure this user actually exists - can this be reached?
+				if (owner.getType() == UserProfileType.NONE) {
+					throw new ImpossibleActionException(USER_ID_NOT_FOUND_PREFIX + ownerID);
+				}
+				
 				for (int accID : owner.getOwnedAccounts()) {
 					lookupIDs.add(accID);
 				}
@@ -969,14 +976,20 @@ public class BankSystem {
 				if (currentUser.getType() == UserProfileType.CUSTOMER
 						&& !currentUser.getOwnedAccounts().contains(accID)) {
 					unpermittedAccounts = unpermittedAccounts + accID;
+					break;
 				}
 				
 				BankAccount ba = dao.readBankAccount(accID);
 				
 				if (ba.getType() == BankAccountType.NONE) {
 					nonexistantAccounts = nonexistantAccounts + accID;
+					break;
 				}
+				
+				accounts.add(ba);
 			} // end lookup for loop
+			
+			//System.out.println("DEBUG: accounts list is: " + accounts);
 			
 			if (!accounts.isEmpty()) {
 				io.displayBankAccounts(accounts);

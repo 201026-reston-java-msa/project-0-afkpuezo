@@ -57,7 +57,7 @@ public class TestBankSystem {
 			"ACC 317 OPN SNG 7892312 103", "PRF 999 admin admin ADM", "ACC 515 OPN SNG 111111 103",
 			"TRR 123 3:00 FDP 101 -1 444 87654"
 	};
-
+	
 	// utility methods ----------
 	
 	/**
@@ -647,5 +647,73 @@ public class TestBankSystem {
 		assertEquals(
 				destOriginal + transferAmount, 
 				dest.getFunds());
+	}
+	
+	@Test
+	public void testViewAccountsAdmin() throws BankDAOException{
+		
+		// these are the accounts: 444, 317, 515. User 103 owns 317 and 515
+		logInHelp("admin", "admin"); // should view all of the accounts
+		
+		List<String> params = new ArrayList<String>();
+		params.add(BankSystem.ACCOUNT_TAG);
+		params.add("444");
+		params.add("317");
+		params.add("515");
+		Request request = new Request(
+				RequestType.VIEW_ACCOUNTS,
+				params);
+		mio.setNextRequest(request);
+		bank.testLoop();
+		
+		//System.out.println(mio.getCachedOutput());
+		List<Integer> foundIDs = parseOutputForIDs(mio.getCachedOutput());
+		assertEquals(3, foundIDs.size());
+		assertTrue(foundIDs.contains(444));
+		assertTrue(foundIDs.contains(317));
+		assertTrue(foundIDs.contains(515));
+	}
+	
+	@Test
+	public void testViewAccountsCustomer() throws BankDAOException{
+		
+		// these are the accounts: 444, 317, 515. User 103 owns 317 and 515
+		logInHelp("user2", "pass"); // this is user 103
+		
+		List<String> params = new ArrayList<String>();
+		params.add(BankSystem.USER_PROFILE_TAG);
+		params.add("" + 103);
+		Request request = new Request(
+				RequestType.VIEW_ACCOUNTS,
+				params);
+		mio.setNextRequest(request);
+		bank.testLoop();
+		
+		//System.out.println(mio.getCachedOutput());
+		List<Integer> foundIDs = parseOutputForIDs(mio.getCachedOutput());
+		assertEquals(2, foundIDs.size());
+		assertFalse(foundIDs.contains(444));
+		assertTrue(foundIDs.contains(317));
+		assertTrue(foundIDs.contains(515));
+	}
+	
+	/**
+	 * A helper method for the handle view tests.
+	 * @param output
+	 * @return a list of the ID numbers of all the BankData objects 
+	 * 			in the given list.
+	 */
+	public List<Integer> parseOutputForIDs(List<Object> output){
+		
+		List<Integer> foundIDs = new ArrayList<Integer>();
+		
+		for (Object o : output) {
+			if (o instanceof BankData) {
+				BankData bd = (BankData)o;
+				foundIDs.add(bd.getId());
+			}
+		}
+		
+		return foundIDs;
 	}
 }

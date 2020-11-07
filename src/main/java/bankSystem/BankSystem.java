@@ -121,14 +121,14 @@ public class BankSystem {
 			= "Unable to proceed: You cannot remove an owner from that account because that account is not open.";
 	
 	public static final String DEPOSIT_SUCCESSFUL_MESSAGE 
-			= "Deposit successful. Balance is now: ";
+			= "Deposit successful.";
 	public static final String DEPOSIT_ACCOUNT_NOT_OWNED_MESSAGE
 			= "Unable to proceed: You cannot deposit to an account you do not own. Use a transfer instead.";
 	public static final String DEPOSIT_ACCOUNT_NOT_OPEN_MESSAGE
 			= "Unable to proceed: You cannot deposit to an account that is not open.";
 	
 	public static final String WITHDRAW_SUCCESSFUL_MESSAGE 
-			= "Deposit successful. Balance is now: ";
+			= "Deposit successful.";
 	public static final String WITHDRAW_ACCOUNT_NOT_OWNED_MESSAGE
 			= "Unable to proceed: You cannot withdraw from an account you do not own. Use a transfer instead.";
 	public static final String WITHDRAW_ACCOUNT_NOT_OPEN_MESSAGE
@@ -813,10 +813,10 @@ public class BankSystem {
 			ba.setFunds(ba.getFunds() - moneyAmount);
 			dao.write(ba);
 			
-			io.displayText(DEPOSIT_SUCCESSFUL_MESSAGE);
+			io.displayText(WITHDRAW_SUCCESSFUL_MESSAGE);
 			
 			TransactionRecord tr = new TransactionRecord();
-			tr.setType(TransactionType.FUNDS_DEPOSITED);
+			tr.setType(TransactionType.FUNDS_WITHDRAWN);
 			tr.setDestinationAccount(accID);
 			tr.setMoneyAmount(moneyAmount);
 			saveTransactionRecord(tr);

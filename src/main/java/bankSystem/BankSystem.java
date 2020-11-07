@@ -32,8 +32,12 @@ import dao.BankDAOException;
 public class BankSystem {
 
 	// class variables
-	// these Strings are public for the purpose of testing.
-	// since they are final, I figure there is minimal risk of damage
+	
+	/**
+	 * These Strings are public for the purpose of testing.
+	 * Since they are final, I figure there is minimal risk of damage.
+	 */
+	
 	public static final String START_MESSAGE 
 			= "Welcome to the bank!";
 	public static final String NO_USER_LOGGED_IN_MESSAGE 
@@ -108,12 +112,20 @@ public class BankSystem {
 	public static final String REMOVE_OWNER_TARGET_NOT_OWNER
 			= "Unable to proceed: The user you are trying to remove is not an owner of that account.";
 	public static final String REMOVE_OWNER_OPEN_ONLY_ONE_OWNER
-			= "Unable to proceed: You cannot remove the last owner of an open account. Contact support and have the account closed first.";
+			= "Unable to proceed: You cannot remove the last owner of an open account." 
+			+ " Contact support and have the account closed first.";
 	public static final String REMOVE_OWNER_CUSTOMER_CAN_ONLY_REMOVE_THEMSELF_MESSAGE
 			= "Unable to proceed: A customer cannot remove another customer. Have the other customer remove themselves,"
 			+ "or contact support for assistance.";
 	public static final String REMOVE_OWNER_ACCOUNT_NOT_OPEN_MESSAGE
-	= "Unable to proceed: You cannot remove an owner from that account because that account is not open.";
+			= "Unable to proceed: You cannot remove an owner from that account because that account is not open.";
+	
+	public static final String DEPOSIT_SUCCESSFUL_MESSAGE 
+			= "Deposit successful. Balance is now: ";
+	public static final String DEPOSIT_ACCOUNT_NOT_OWNED_MESSAGE
+			= "Unable to proceed: You cannot deposit to an account you do not own. Use a transfer instead.";
+	public static final String DEPOSIT_ACCOUNT_NOT_OPEN_MESSAGE
+			= "Unable to proceed: You cannot deposit to an account that is not open.";
 	
 	// arrays of permitted request types
 	private static final RequestType[] NO_USER_CHOICES = 
@@ -335,7 +347,7 @@ public class BankSystem {
 				
 				TransactionRecord tr = new TransactionRecord();
 				tr.setType(TransactionType.USER_REGISTERED);
-				tr.setActingUser(user.getId());
+				//tr.setActingUser(user.getId());
 				saveTransactionRecord(tr);
 			}
 			else { // username is taken
@@ -434,7 +446,7 @@ public class BankSystem {
 			
 			TransactionRecord tr = new TransactionRecord();
 			tr.setType(TransactionType.ACCOUNT_REGISTERED);
-			tr.setActingUser(currentUser.getId());
+			//tr.setActingUser(currentUser.getId());
 			tr.setDestinationAccount(ba.getId());
 			saveTransactionRecord(tr);
 		}
@@ -477,7 +489,7 @@ public class BankSystem {
 			
 			TransactionRecord tr = new TransactionRecord();
 			tr.setType(TransactionType.ACCOUNT_APPROVED);
-			tr.setActingUser(currentUser.getId());
+			//tr.setActingUser(currentUser.getId());
 			tr.setDestinationAccount(ba.getId());
 			saveTransactionRecord(tr);
 		}
@@ -518,7 +530,7 @@ public class BankSystem {
 			
 			TransactionRecord tr = new TransactionRecord();
 			tr.setType(TransactionType.ACCOUNT_CLOSED);
-			tr.setActingUser(currentUser.getId());
+			//tr.setActingUser(currentUser.getId());
 			tr.setDestinationAccount(ba.getId());
 			saveTransactionRecord(tr);
 		}
@@ -560,7 +572,7 @@ public class BankSystem {
 			
 			TransactionRecord tr = new TransactionRecord();
 			tr.setType(TransactionType.ACCOUNT_CLOSED);
-			tr.setActingUser(currentUser.getId());
+			//tr.setActingUser(currentUser.getId());
 			tr.setDestinationAccount(ba.getId());
 			saveTransactionRecord(tr);
 		}
@@ -625,7 +637,7 @@ public class BankSystem {
 			
 			TransactionRecord tr = new TransactionRecord();
 			tr.setType(TransactionType.ACCOUNT_OWNER_ADDED);
-			tr.setActingUser(currentUser.getId());
+			//tr.setActingUser(currentUser.getId());
 			tr.setSourceAccount(userToAddID);
 			tr.setDestinationAccount(accID);
 			saveTransactionRecord(tr);
@@ -663,7 +675,7 @@ public class BankSystem {
 			}
 			
 			if (ba.getType() == BankAccountType.NONE) {
-				throw new ImpossibleActionException(BANK_ACCOUNT_DOES_NOT_EXIST_PREFIX + id);
+				throw new ImpossibleActionException(BANK_ACCOUNT_DOES_NOT_EXIST_PREFIX + accID);
 			}
 			if (ba.getStatus() != BankAccountStatus.OPEN) {
 				throw new ImpossibleActionException(REMOVE_OWNER_ACCOUNT_NOT_OPEN_MESSAGE);
@@ -695,7 +707,7 @@ public class BankSystem {
 			
 			TransactionRecord tr = new TransactionRecord();
 			tr.setType(TransactionType.ACCOUNT_OWNER_REMOVED);
-			tr.setActingUser(currentUser.getId());
+			//tr.setActingUser(currentUser.getId());
 			tr.setSourceAccount(userToRemoveID); // iffy on the formatting
 			tr.setDestinationAccount(accID);
 			saveTransactionRecord(tr);
@@ -708,8 +720,8 @@ public class BankSystem {
 	
 	/**
 	 * Increases the funds in an account.
-	 * A customer can only deposit to an account they own (use transfer instead).
-	 * An employee or admin can deposit to any account.
+	 * A customer can only deposit to an open account they own (use transfer instead).
+	 * An employee or admin can deposit to any open account.
 	 * Assumes the amount is positive (should be sanitized by IO).
 	 * @param currentRequest
 	 * @throws ImpossibleActionException
@@ -723,11 +735,33 @@ public class BankSystem {
 		try {
 			BankAccount ba = dao.readBankAccount(accID);
 			
-			// TODO continue here
-			//if ()
+			if (ba.getType() == BankAccountType.NONE) {
+				io.displayText(ACCOUNT_DOES_NOT_EXIST_PREFIX + accID);
+			}
+
+			if (currentUser.getType() == UserProfileType.CUSTOMER 
+					&& !currentUser.getOwnedAccounts().contains(accID)) {
+				io.displayText(DEPOSIT_ACCOUNT_NOT_OWNED_MESSAGE);
+			}
+			
+			if (ba.getStatus() != BankAccountStatus.OPEN) {
+				io.displayText(DEPOSIT_ACCOUNT_NOT_OPEN_MESSAGE);
+			}
+			
+			// can go ahead now
+			ba.setFunds(ba.getFunds() + moneyAmount);
+			dao.write(ba);
+			
+			io.displayText(DEPOSIT_SUCCESSFUL_MESSAGE);
+			
+			TransactionRecord tr = new TransactionRecord();
+			tr.setType(TransactionType.FUNDS_DEPOSITED);
+			tr.setDestinationAccount(accID);
+			tr.setMoneyAmount(moneyAmount);
+			saveTransactionRecord(tr);
 		}
 		catch(BankDAOException e) {
-			
+			throw new ImpossibleActionException(GENERIC_DAO_ERROR_MESSAGE);
 		}
 	}
 	
@@ -833,13 +867,15 @@ public class BankSystem {
 	
 	/**
 	 * Writes the given TR to the database.
-	 * This method will take care of finding the ID and creating the timestamp (eventually)
+	 * This method will take care of finding the ID, setting the acting user,
+	 *  and creating the timestamp (eventually)
 	 * @param tr
 	 */
 	private void saveTransactionRecord(TransactionRecord tr){
 		
 		try {
 			tr.setId(dao.getHighestTransactionRecordID() + 1);
+			tr.setActingUser(currentUser.getId());
 			tr.setTime("PLACEHOLDER"); // TODO fix this
 			dao.write(tr);			
 		}

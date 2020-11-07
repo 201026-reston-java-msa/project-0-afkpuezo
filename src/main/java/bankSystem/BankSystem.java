@@ -32,7 +32,17 @@ import dao.BankDAOException;
 
 public class BankSystem {
 
-	// class variables
+	// class/static variables
+	
+	/**
+	 * ----------------------------------------------------------------------
+	 * These strings are tags used in certain requests to describe what kind
+	 * of ID is being passed in the params list. They are public so that the
+	 * IO can access them when creating requests.
+	 */
+	public static final String USER_PROFILE_TAG = "PRF";
+	public static final String ACCOUNT_TAG = "ACC";
+	public static final String TRANSACTION_TAG = "TRR";
 	
 	/**
 	 * ----------------------------------------------------------------------
@@ -143,9 +153,14 @@ public class BankSystem {
 	public static final String TRANSFER_SUCCESSFUL_MESSAGE 
 			= "Transfer successful.";
 	public static final String TRANSFER_SOURCE_ACCOUNT_NOT_OWNED_MESSAGE
-	= "Unable to proceed: You cannot transfer from an account you do not own.";
+			= "Unable to proceed: You cannot transfer from an account you do not own.";
 	public static final String TRANSFER_OVERDRAFT_BLOCK_MESSAGE
-	= "Unable to proceed: There are insufficient funds in the source account.";
+			= "Unable to proceed: There are insufficient funds in the source account.";
+	
+	public static final String VIEW_ACCOUNTS_NO_PERMISSION_PREFIX
+			= "You do not have permission to look at the following accounts: ";
+	public static final String VIEW_ACCOUNTS_NOT_FOUND_PREFIX
+			= "The following accounts were not found: ";
 	
 	// arrays of permitted request types -----------------------------------------
 	
@@ -914,13 +929,68 @@ public class BankSystem {
 	}
 	
 	/**
-	 * TODO doc
+	 * Sends a set of accounts to the IO for display.
+	 * The request either contains the account IDS directly,
+	 * or a userID, in which case all accounts owned by that user are returned.
+	 * A customer can only view accounts they own.
+	 * If any account IDs are invalid, a separate display message will follow
+	 * containing a list of them.
 	 * @param currentRequest
 	 * @throws ImpossibleActionException
 	 */
 	private void handleViewAccounts(Request currentRequest) throws ImpossibleActionException {
-		// TODO Auto-generated method stub
 		
+		try {
+			List<Integer> lookupIDs = new ArrayList<>();
+			List<String> params = currentRequest.getParams();
+			
+			
+			// which kind of request / params format is it?
+			if (params.get(0).equals(USER_PROFILE_TAG)) {
+				// get all accounts owned by this user
+				int ownerID = Integer.parseInt(params.get(1));
+				UserProfile owner = dao.readUserProfile(ownerID);
+				for (int accID : owner.getOwnedAccounts()) {
+					lookupIDs.add(accID);
+				}
+			} else if (params.get(0).equals(ACCOUNT_TAG)) {
+				// get these account IDs directly
+				for (int i = 1; i < params.size(); i++) { // skip the tag
+					lookupIDs.add(Integer.parseInt(params.get(i)));
+				}
+			}
+			
+			// now actually look up the accounts
+			List<BankAccount> accounts = new ArrayList<>();
+			String unpermittedAccounts = "";
+			String nonexistantAccounts = "";
+			
+			for (int accID : lookupIDs) {
+				if (currentUser.getType() == UserProfileType.CUSTOMER
+						&& !currentUser.getOwnedAccounts().contains(accID)) {
+					unpermittedAccounts = unpermittedAccounts + accID;
+				}
+				
+				BankAccount ba = dao.readBankAccount(accID);
+				
+				if (ba.getType() == BankAccountType.NONE) {
+					nonexistantAccounts = nonexistantAccounts + accID;
+				}
+			} // end lookup for loop
+			
+			if (!accounts.isEmpty()) {
+				io.displayBankAccounts(accounts);
+			}
+			if (!unpermittedAccounts.equals("")) {
+				io.displayText(VIEW_ACCOUNTS_NO_PERMISSION_PREFIX + unpermittedAccounts);
+			}
+			if (!nonexistantAccounts.equals("")) {
+				io.displayText(VIEW_ACCOUNTS_NOT_FOUND_PREFIX + nonexistantAccounts);
+			}
+		}
+		catch (BankDAOException e){
+			throw new ImpossibleActionException(GENERIC_DAO_ERROR_MESSAGE);
+		}
 	}
 	
 	/**

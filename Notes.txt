@@ -107,9 +107,9 @@ November 4:
 			- deposit money (accID, $)
 			- withdraw money (accID, $)
 			- transfer money (sourceAccID, destAccID, $)
-			- view account(s) (accIDs, OR ownerUserID)
-			- view user (userID)
-			- view transactions (trrID, OR userID, OR accID)
+			- view account(s) (accIDs, OR ownerUserID) (lead with a tag string saying what kind of ID)
+			- view users (userIDs)
+			- view transactions (trrIDs, OR userID, OR accID) (lead with a tag string saying what kind of ID)
 			- create employee user (name, pass)
 			- create admin user (name, pass)
 		- seeing this, I think I'll just make one Request class. It will have:
@@ -178,3 +178,10 @@ November 7:
 	- crab dance
 	- Continue from handle deposit
 	- it occurs to me that maybe money should be long instead of int...but that's not a priority
+	- when viewing multiple bank accounts, or multiple transactions, the params list in the Request will start with a
+		tag string describing what they are. EG, if we want to look at a set of bank accounts, the list will be
+		{"ACC", "101", "234", "583"}. If we want to look at all accounts owned by a user, the list will be
+		{"PRF", "454"} to see all accounts owned by user #454. [ ]
+	- I think I'm going to change the DAO behavior on reading a non-existant data object to set the ID on the empty
+		object to the requested ID, rather than -1. This way the user will see "User #454 does not exist" [F]
+		- scratch that, I can have the BankSystem remember which ones weren't found and display that in a different message.

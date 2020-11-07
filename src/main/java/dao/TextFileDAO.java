@@ -90,7 +90,7 @@ public class TextFileDAO implements BankDAO {
 	/**
 	 * Fetches the bank account with the given ID number from the data storage.
 	 * If no such account exists, the resulting BankAccount object will have status
-	 *  NONE and id of -1
+	 *  NONE
 	 * @param accID
 	 * @return BankAccount object
 	 */
@@ -475,7 +475,7 @@ public class TextFileDAO implements BankDAO {
 	
 	/**
 	 * Returns a BankAccount object based on the given entry. If the entry is the empty string,
-	 * an account with type NONE and id -1 will be returned.
+	 * an account with type NONE will be returned.
 	 * @param entry
 	 * @return
 	 */
@@ -484,7 +484,7 @@ public class TextFileDAO implements BankDAO {
 		BankAccount ba = new BankAccount();
 		
 		if (entry.equals("")){ // if not found
-			ba.setId(-1);
+			//ba.setId(-1);
 			ba.setType(BankAccountType.NONE);
 		}
 		else { // if found
@@ -537,7 +537,7 @@ public class TextFileDAO implements BankDAO {
 	
 	/**
 	 * Returns a UserProfile object based on the given entry. If the entry is the empty string,
-	 * returns a UserProfile with ID -1 and type NONE.
+	 * returns a UserProfile with type NONE.
 	 * @param entry
 	 * @return
 	 */
@@ -546,7 +546,7 @@ public class TextFileDAO implements BankDAO {
 		UserProfile up = new UserProfile();
 		
 		if (entry.equals("")){ // if not found
-			up.setId(-1);
+			//up.setId(-1);
 			up.setType(UserProfileType.NONE);
 		}
 		else {
@@ -585,7 +585,7 @@ public class TextFileDAO implements BankDAO {
 	
 	/**
 	 * Returns a TransactionRecord object based on the given entry. If the entry is the empty string,
-	 * returns a TransactionRecord with ID -1 and type NONE.
+	 * returns a TransactionRecord with type NONE.
 	 * @param entry
 	 * @return
 	 */
@@ -594,7 +594,7 @@ public class TextFileDAO implements BankDAO {
 		TransactionRecord tr = new TransactionRecord();
 		
 		if (entry.equals("")) { // if not found
-			tr.setId(-1);
+			//tr.setId(-1);
 			tr.setType(TransactionType.NONE);
 		}
 		else { // if found

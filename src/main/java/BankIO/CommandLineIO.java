@@ -5,8 +5,14 @@
  */
 package BankIO;
 
+import java.security.Identity;
+import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
+
+import javax.xml.crypto.dsig.spec.DigestMethodParameterSpec;
+import javax.xml.stream.events.EndDocument;
 
 import com.revature.bankDataObjects.BankAccount;
 import com.revature.bankDataObjects.TransactionRecord;
@@ -23,7 +29,21 @@ public class CommandLineIO implements BankIO {
 	private static final String DISPLAY_PROFILES_HEADER = "Showing user profiles...";
 	private static final String DISPLAY_ACCOUNTS_HEADER = "Showing accounts...";
 	private static final String DISPLAY_TRANSACTIONS_HEADER = "Showing transactions...";
+	private static final String CHOICES_HEADER 
+			= "Type the number matching one of the following choices:";
+	private static final String CHOICES_PROMPT 
+	= "Enter your choice here:";
 	private static final String DISPLAY_FIELD_EMPTY = "---";
+	
+	private static final String PARSE_INT_INVALID_INPUT_MESSAGE
+			= "Invalid input. Please enter a number.";
+	private static final String PARSE_INT_CHOICE_OUT_OF_BOUNDS_MESSAGE
+			= "Invalid input. Please choose one of the available options.";
+	
+	private static final String PARSE_STRING_WHITESPACE_INVALID
+			= "Invalid input. No whitespace characters are allowed"; 
+	private static final String PARSE_STRING_EMPTY_STRING_INVALID
+	= "Invalid input - no input detected.";
 	
 	private static final String BAD_MONEY_FORMAT_ONLY_TWO_DECIMAL_PLACES_MESSAGE
 			= "Input has more than 2 characters after the decimal point.";
@@ -34,13 +54,22 @@ public class CommandLineIO implements BankIO {
 	private static final String BAD_MONEY_FORMAT_GENERIC_PREFIX
 			= "Input contains an invalid character: ";
 	
+	private static final String USERNAME_PROMPT
+			= "Enter username: ";
+	private static final String PASSWORD_PROMPT
+	= "Enter password: ";
+	
+	private static final String REGISTER_HEADER = "Registering new user...";
+	
+	private static final String LOG_IN_HEADER = "Loggin in...";
+	
 	// instance variables (fields)
-	private Scanner input;
+	private Scanner scan;
 	
 	// constructor
 	public CommandLineIO() {
 
-		input = new Scanner(System.in);
+		scan = new Scanner(System.in);
 	}
 	
 	// helper methods --------------------
@@ -246,7 +275,197 @@ public class CommandLineIO implements BankIO {
 	 */
 	@Override
 	public Request prompt(RequestType[] permittedRequestTypes) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		// Figure out what kind of request the user wants to make
+		// Then, handle getting the parameters from the user
+		// then, return the request
+		RequestType rtype = permittedRequestTypes[chooseRequestType(permittedRequestTypes)];
+		Request req = null; // filled in later
+		
+		switch(rtype) {
+		
+			case REGISTER_USER:
+				req = buildRegisterUser();
+				break;
+			case LOG_IN:
+				req = buildLogIn();
+				break;
+			case LOG_OUT:
+				req = buildLogOut();
+				break;
+			case QUIT:
+				req = buildQuit();
+				break;
+			case APPLY_OPEN_ACCOUNT:
+				req = buildApplyToOpenAccount();
+				break;
+			case APPROVE_OPEN_ACCOUNT:
+				req = buildApproveOpenAccount();
+				break;
+			case DENY_OPEN_ACCOUNT:
+				req = buildDenyOpenAccount();
+				break;
+			case CLOSE_ACCOUNT:
+				req = buildCloseAccount();
+				break;
+			case ADD_ACCOUNT_OWNER:
+				req = buildAddAccountOwner();
+				break;
+			case REMOVE_ACCOUNT_OWNER:
+				req = buildRemoveAccountOwner();
+				break;
+			case DEPOSIT:
+				req = buildDeposit();
+				break;
+			case WITHDRAW:
+				req = buildWithdraw();
+				break;
+			case TRANSFER:
+				req = buildTransfer();
+				break;
+			case VIEW_ACCOUNTS:
+				req = buildViewAccounts();
+				break;
+			case VIEW_SELF_PROFILE:
+				req = buildViewSelfProfile();
+				break;
+			case VIEW_USERS:
+				req = buildViewUsers();
+				break;
+			case VIEW_TRANSACTIONS:
+				req = buildViewTransactions();
+				break;
+			case CREATE_EMPLOYEE:
+				req = buildCreateEmployee();
+				break;
+			case CREATE_ADMIN:
+				req = buildCreateAdmin();
+				break;
+		}
+		
+		return req;
+	}
+	
+	/**
+	 * Gets the username and password.
+	 * @return
+	 */
+	private Request buildLogIn() {
+		System.out.println(FRAME_LINE);
+		System.out.println(LOG_IN_HEADER);
+		System.out.println(FRAME_LINE);
+		
+		List<String> params = new ArrayList<>();
+		params.add(parseString(USERNAME_PROMPT));
+		params.add(parseString(PASSWORD_PROMPT));
+		return new Request(
+				RequestType.LOG_IN,
+				params);
+	}
+
+	/**
+	 * Gets the desired username and password.
+	 * @return
+	 */
+	private Request buildRegisterUser() {
+		
+		System.out.println(FRAME_LINE);
+		System.out.println(REGISTER_HEADER);
+		System.out.println(FRAME_LINE);
+		
+		List<String> params = new ArrayList<>();
+		params.add(parseString(USERNAME_PROMPT));
+		params.add(parseString(PASSWORD_PROMPT));
+		return new Request(
+				RequestType.REGISTER_USER,
+				params);
+	}
+
+	/**
+	 * Helper method that asks the user which of the provided choices they want.
+	 * @param permittedRequestTypes
+	 * @return
+	 */
+	private int chooseRequestType(RequestType[] permittedRequestTypes) {
+		
+		System.out.println(FRAME_LINE);
+		System.out.println(CHOICES_HEADER);
+		System.out.println(FRAME_LINE);
+		for (int i = 0; i < permittedRequestTypes.length; i++) {
+			String line = "(" + i + ") " + permittedRequestTypes[i];
+			System.out.println(line);
+		}
+		
+		return parseInt(CHOICES_PROMPT, 0, permittedRequestTypes.length);
+	}
+	
+	/**
+	 * Helper method that prompts the user for an int (non-money) value.
+	 * Will loop until they give valid input.
+	 * @param promptText
+	 * @param min : minimum choice value allowed (inclusive)
+	 * @param max : minimum choice value allowed (NOT inclusive)
+	 * @return
+	 */
+	private int parseInt(String promptText, int min, int max) {
+		
+		
+		int choice = 0;
+		boolean isValid = false;
+		do {
+			System.out.print(promptText);
+			String input = scan.next();
+			try {
+				choice = Integer.parseInt(input);
+				// it's an int, is it a valid int?
+				if (min <= choice && choice < max) {
+					isValid = true;					
+				}
+				else {
+					System.out.println(PARSE_INT_CHOICE_OUT_OF_BOUNDS_MESSAGE);
+				}
+			}
+			catch (NumberFormatException e) {
+				System.out.println(PARSE_INT_INVALID_INPUT_MESSAGE);
+			}
+		} while(!isValid);
+		
+		return choice;
+	}
+	
+	/**
+	 * Helper method that prompts the user for a string.
+	 * Currently, only whitespace characters or the empty string are invalid.
+	 * @param promptText
+	 * @return
+	 */
+	private String parseString(String promptText) {
+		
+		boolean isValid = false;
+		String input = ""; // will be filled in
+		do {
+			System.out.print(promptText);
+			input = scan.nextLine();
+			
+			if (input.equals("")) {
+				System.out.println(PARSE_STRING_EMPTY_STRING_INVALID);
+			}
+			else { // not empty string
+				boolean foundWhite = false;
+				for (char c : input.toCharArray()) {
+					if (Character.isWhitespace(c)){
+						foundWhite = true;
+						System.out.println(PARSE_STRING_WHITESPACE_INVALID);
+						break;
+					}
+				}
+				
+				if (!foundWhite) {
+					isValid = true;
+				}
+			} // end else (if not empty string)
+		} while(!isValid);
+		
+		return input;
 	}
 }

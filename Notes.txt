@@ -192,4 +192,5 @@ November 7:
 November 8: 
 
 	- time to make the CLIO [ ]
+		- oh man this is WAY more work than I expected
 	- created a BadMoneyFormatException for the CLIO [x]

@@ -88,6 +88,8 @@ public class CommandLineIO implements BankIO {
 	
 	private static final String DEPOSIT_HEADER = "Depositing funds...";
 	
+	private static final String WITHDRAW_HEADER = "Withdrawing funds...";
+	
 	// instance variables (fields)
 	private Scanner scan;
 	
@@ -351,7 +353,7 @@ public class CommandLineIO implements BankIO {
 				req = buildDeposit();
 				break;
 			case WITHDRAW:
-				//req = buildWithdraw();
+				req = buildWithdraw();
 				break;
 			case TRANSFER:
 				//req = buildTransfer();
@@ -379,6 +381,25 @@ public class CommandLineIO implements BankIO {
 		return req;
 	}
 	
+	/**
+	 * Gets the account ID and money amount
+	 * @return
+	 */
+	private Request buildWithdraw() {
+		
+		System.out.println(FRAME_LINE);
+		System.out.println(WITHDRAW_HEADER);
+		System.out.println(FRAME_LINE);
+		
+		List<String> params = new ArrayList<>();
+		params.add("" + parseInt(ACCOUNT_ID_PROMPT, 0, Integer.MAX_VALUE));
+		params.add("" + parseMoney(MONEY_AMOUNT_PROMPT));
+		
+		return new Request(
+				RequestType.WITHDRAW,
+				params);
+	}
+
 	/**
 	 * Gets the account ID and money amount
 	 * @return

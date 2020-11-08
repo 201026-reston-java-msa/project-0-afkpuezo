@@ -56,6 +56,7 @@ public class CommandLineIO implements BankIO {
 	
 	private static final String USERNAME_PROMPT = "Enter username: ";
 	private static final String PASSWORD_PROMPT = "Enter password: ";
+	private static final String USER_ID_PROMPT = "Enter user ID: ";
 	private static final String ACCOUNT_ID_PROMPT = "Enter account ID: ";
 	
 	private static final String REGISTER_HEADER = "Registering new user...";
@@ -69,6 +70,16 @@ public class CommandLineIO implements BankIO {
 	private static final String APPLY_HEADER = "Applying to open an account...";
 	
 	private static final String APPROVE_HEADER = "Approving an account...";
+	
+	private static final String DENY_HEADER = "Denying an account...";
+	
+	private static final String CLOSE_HEADER = "Closing an account...";
+	
+	private static final String ADD_OWNER_HEADER 
+			= "Adding a new owner to an account...";
+	
+	private static final String REMOVE_OWNER_HEADER
+			= "Removing an owner from an account...";
 	
 	// instance variables (fields)
 	private Scanner scan;
@@ -322,40 +333,109 @@ public class CommandLineIO implements BankIO {
 				req = buildRemoveAccountOwner();
 				break;
 			case DEPOSIT:
-				req = buildDeposit();
+				//req = buildDeposit();
 				break;
 			case WITHDRAW:
-				req = buildWithdraw();
+				//req = buildWithdraw();
 				break;
 			case TRANSFER:
-				req = buildTransfer();
+				//req = buildTransfer();
 				break;
 			case VIEW_ACCOUNTS:
-				req = buildViewAccounts();
+				//req = buildViewAccounts();
 				break;
 			case VIEW_SELF_PROFILE:
-				req = buildViewSelfProfile();
+				//req = buildViewSelfProfile();
 				break;
 			case VIEW_USERS:
-				req = buildViewUsers();
+				//req = buildViewUsers();
 				break;
 			case VIEW_TRANSACTIONS:
-				req = buildViewTransactions();
+				//req = buildViewTransactions();
 				break;
 			case CREATE_EMPLOYEE:
-				req = buildCreateEmployee();
+				//req = buildCreateEmployee();
 				break;
 			case CREATE_ADMIN:
-				req = buildCreateAdmin();
+				//req = buildCreateAdmin();
 				break;
 		}
 		
 		return req;
 	}
 	
+	/**
+	 * Gets the account and user IDs
+	 * @return
+	 */
+	private Request buildRemoveAccountOwner() {
+		
+		System.out.println(FRAME_LINE);
+		System.out.println(REMOVE_OWNER_HEADER);
+		System.out.println(FRAME_LINE);
+		
+		List<String> params = new ArrayList<>();
+		params.add("" + parseInt(ACCOUNT_ID_PROMPT, 0, Integer.MAX_VALUE));
+		params.add("" + parseInt(USER_ID_PROMPT, 0, Integer.MAX_VALUE));
+	
+		return new Request(
+				RequestType.REMOVE_ACCOUNT_OWNER,
+				params);
+	}
+
+	/**
+	 * Gets the account and user IDs
+	 * @return
+	 */
+	private Request buildAddAccountOwner() {
+		
+		System.out.println(FRAME_LINE);
+		System.out.println(ADD_OWNER_HEADER);
+		System.out.println(FRAME_LINE);
+		
+		List<String> params = new ArrayList<>();
+		params.add("" + parseInt(ACCOUNT_ID_PROMPT, 0, Integer.MAX_VALUE));
+		params.add("" + parseInt(USER_ID_PROMPT, 0, Integer.MAX_VALUE));
+	
+		return new Request(
+				RequestType.ADD_ACCOUNT_OWNER,
+				params);
+	}
+
+	/**
+	 * Gets the ID of the account to close.
+	 * @return
+	 */
+	private Request buildCloseAccount() {
+		
+		System.out.println(FRAME_LINE);
+		System.out.println(CLOSE_HEADER);
+		System.out.println(FRAME_LINE);
+		
+		List<String> params = new ArrayList<>();
+		params.add("" + parseInt(ACCOUNT_ID_PROMPT, 0, Integer.MAX_VALUE));
+		
+		return new Request(
+				RequestType.CLOSE_ACCOUNT,
+				params);
+	}
+
+	/**
+	 * Gets the ID of the account to deny.
+	 * @return
+	 */
 	private Request buildDenyOpenAccount() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		System.out.println(FRAME_LINE);
+		System.out.println(DENY_HEADER);
+		System.out.println(FRAME_LINE);
+		
+		List<String> params = new ArrayList<>();
+		params.add("" + parseInt(ACCOUNT_ID_PROMPT, 0, Integer.MAX_VALUE));
+		
+		return new Request(
+				RequestType.DENY_OPEN_ACCOUNT,
+				params);
 	}
 
 	/**

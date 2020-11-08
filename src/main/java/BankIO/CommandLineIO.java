@@ -90,6 +90,12 @@ public class CommandLineIO implements BankIO {
 	
 	private static final String WITHDRAW_HEADER = "Withdrawing funds...";
 	
+	private static final String TRANSFER_HEADER = "Transferring funds...";
+	private static final String TRANSFER_SOURCE_ACCOUNT_PROMPT
+			= "Enter source account ID: ";
+	private static final String TRANSFER_DESTINATION_ACCOUNT_PROMPT
+			= "Enter destination account ID: ";
+	
 	// instance variables (fields)
 	private Scanner scan;
 	
@@ -356,7 +362,7 @@ public class CommandLineIO implements BankIO {
 				req = buildWithdraw();
 				break;
 			case TRANSFER:
-				//req = buildTransfer();
+				req = buildTransfer();
 				break;
 			case VIEW_ACCOUNTS:
 				//req = buildViewAccounts();
@@ -381,6 +387,25 @@ public class CommandLineIO implements BankIO {
 		return req;
 	}
 	
+	/**
+	 * Gets the source account ID, the destination account ID,
+	 * and money amount
+	 * @return
+	 */
+	private Request buildTransfer() {
+		
+		displayText(TRANSFER_HEADER, true); // why was I not doing this for every method...
+		
+		List<String> params = new ArrayList<>();
+		params.add("" + parseInt(TRANSFER_SOURCE_ACCOUNT_PROMPT));
+		params.add("" + parseInt(TRANSFER_DESTINATION_ACCOUNT_PROMPT));
+		params.add("" + parseMoney(MONEY_AMOUNT_PROMPT));
+		
+		return new Request(
+				RequestType.TRANSFER,
+				params);
+	}
+
 	/**
 	 * Gets the account ID and money amount
 	 * @return

@@ -172,6 +172,9 @@ public class BankSystem {
 	public static final String VIEW_TRANSACTIONS_NONPERMITTED_IDS_PREFIX
 			= "You do not have permission to view the following transactions: ";
 	
+	public static final String CREATE_EMPLOYEE_SUCCESSFUL_PREFIX
+			= "Employee account created, with ID: ";
+	
 	// arrays of permitted request types -----------------------------------------
 	
 	private static final RequestType[] NO_USER_CHOICES = 
@@ -1150,13 +1153,38 @@ public class BankSystem {
 	}
 	
 	/**
-	 * TODO doc
+	 * Creates a new account with employee privileges.
+	 * Can only be done by an admin (checked by generic check)
 	 * @param currentRequest
 	 * @throws ImpossibleActionException
 	 */
 	private void handleCreateEmployee(Request currentRequest) throws ImpossibleActionException {
-		// TODO Auto-generated method stub
-		
+
+		try {
+			List<String> params = currentRequest.getParams();
+			String username = params.get(0);
+			
+			if (!dao.isUsernameFree(username)) {
+				throw new ImpossibleActionException(USERNAME_IN_USE_MESSAGE);
+			}
+			
+			String password = params.get(1); 
+			int empID = dao.getHighestUserProfileID() + 1;
+			UserProfile employee = new UserProfile(empID);
+			employee.setUsername(username);
+			employee.setPassword(password);
+			employee.setType(UserProfileType.EMPLOYEE);
+			dao.write(employee);
+			io.displayText(CREATE_EMPLOYEE_SUCCESSFUL_PREFIX + empID);
+			
+			TransactionRecord tr = new TransactionRecord();
+			tr.setType(TransactionType.USER_REGISTERED);
+			tr.setDestinationAccount(empID);
+			saveTransactionRecord(tr);
+		}
+		catch (BankDAOException e) {
+			throw new ImpossibleActionException(GENERIC_DAO_ERROR_MESSAGE);
+		}
 	}
 	
 	/**

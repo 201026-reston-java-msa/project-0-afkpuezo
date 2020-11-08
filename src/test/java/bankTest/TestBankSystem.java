@@ -148,6 +148,7 @@ public class TestBankSystem {
 	@Test
 	public void testRegisterUser() throws BankDAOException{
 		
+		//System.out.println(UserProfile.UserProfileType.CUSTOMER);
 		List<String> params = new ArrayList<String>();
 		params.add("newuser");
 		params.add("newpass");

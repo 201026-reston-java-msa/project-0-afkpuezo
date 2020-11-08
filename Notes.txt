@@ -182,8 +182,14 @@ November 7:
 	- when viewing multiple bank accounts, or multiple transactions, the params list in the Request will start with a
 		tag string describing what they are. EG, if we want to look at a set of bank accounts, the list will be
 		{"ACC", "101", "234", "583"}. If we want to look at all accounts owned by a user, the list will be
-		{"PRF", "454"} to see all accounts owned by user #454. [ ]
+		{"PRF", "454"} to see all accounts owned by user #454. [x]
 	- I think I'm going to change the DAO behavior on reading a non-existant data object to set the ID on the empty
 		object to the requested ID, rather than -1. This way the user will see "User #454 does not exist" [F]
 		- scratch that, I can have the BankSystem remember which ones weren't found and display that in a different message.
-	- I think I need to add a RequestType for a customer viewing their own profile. This seems easier than checks [ ]
+	- I think I need to add a RequestType for a customer viewing their own profile. This seems easier than checks [x]
+	- finished bank system [x], tomorrow do the IO (and start the DBDAO?)
+	
+November 8: 
+
+	- time to make the CLIO [ ]
+	- created a BadMoneyFormatException for the CLIO [x]

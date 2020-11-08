@@ -79,11 +79,4 @@ public class MockIO implements BankIO {
 		
 		return nextRequest;
 	}
-
-	@Override
-	public Request prompt(RequestType[] permittedRequestTypes, String text) {
-		
-		return nextRequest;
-	}
-
 }

@@ -54,13 +54,4 @@ public interface BankIO {
 	 * @return Request
 	 */
 	public Request prompt(RequestType[] permittedRequestTypes);
-	
-	/**
-	 * Displays the given text to the user, and returns a Request object based on
-	 * the user's responding input.
-	 * @param permittedRequestTypes : the user chooses one of these
-	 * @param text
-	 * @return Request
-	 */
-	public Request prompt(RequestType[] permittedRequestTypes, String text);
 }

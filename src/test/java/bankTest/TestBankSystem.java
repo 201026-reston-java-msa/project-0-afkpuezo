@@ -743,6 +743,7 @@ public class TestBankSystem {
 		params.add("101");
 		params.add("103");
 		params.add("999");
+		params.add("9872384");
 		Request request = new Request(
 				RequestType.VIEW_USERS,
 				params);

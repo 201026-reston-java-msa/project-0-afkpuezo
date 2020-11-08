@@ -164,6 +164,14 @@ public class BankSystem {
 	public static final String VIEW_ACCOUNTS_NOT_FOUND_PREFIX
 			= "The following accounts were not found: ";
 	
+	public static final String VIEW_TRANSACTIONS_CUSTOMER_CAN_ONLY_VIEW_SELF_MESSAGE
+			= "Unable to proceed: A customer can only see transactions caused by themself, " 
+			+ "or affecting accounts they own.";
+	public static final String VIEW_TRANSACTIONS_INVALID_IDS_PREFIX
+			= "The following transactions were not found: ";
+	public static final String VIEW_TRANSACTIONS_NONPERMITTED_IDS_PREFIX
+			= "You do not have permission to view the following transactions: ";
+	
 	// arrays of permitted request types -----------------------------------------
 	
 	private static final RequestType[] NO_USER_CHOICES = 
@@ -983,14 +991,14 @@ public class BankSystem {
 			for (int accID : lookupIDs) {
 				if (currentUser.getType() == UserProfileType.CUSTOMER
 						&& !currentUser.getOwnedAccounts().contains(accID)) {
-					unpermittedAccounts = unpermittedAccounts + accID;
+					unpermittedAccounts = unpermittedAccounts + " " + accID;
 					break;
 				}
 				
 				BankAccount ba = dao.readBankAccount(accID);
 				
 				if (ba.getType() == BankAccountType.NONE) {
-					nonexistantAccounts = nonexistantAccounts + accID;
+					nonexistantAccounts = nonexistantAccounts + " " + accID;
 					break;
 				}
 				
@@ -1044,7 +1052,7 @@ public class BankSystem {
 				UserProfile up = dao.readUserProfile(Integer.parseInt(id));
 				
 				if (up.getType() == UserProfileType.NONE) {
-					invalidIDs = invalidIDs + id;
+					invalidIDs = invalidIDs + " " + id;
 				}
 				else {
 					users.add(up);
@@ -1064,13 +1072,77 @@ public class BankSystem {
 	}
 	
 	/**
-	 * TODO doc
+	 * Sends a set of Transactions to the IO for display.
+	 * Can be grouped by transaction ID, acting user ID, or involved account ID.
+	 * Customers can only see transactions grouped by themselves, or an account they own.
+	 * Emp/admin can see any.
+	 * 
 	 * @param currentRequest
 	 * @throws ImpossibleActionException
 	 */
 	private void handleViewTransactions(Request currentRequest) throws ImpossibleActionException {
-		// TODO Auto-generated method stub
 		
+		try {
+			// figure out how the TRRs are grouped
+			List<String> params = currentRequest.getParams();
+			String tag = params.get(0);
+			List<TransactionRecord> transactions = new ArrayList<>(); // may be replaced
+			String nonpermittedIDs = "";
+			String invalidIDs = "";
+			//List<TransactionRecord> toDisplay = new ArrayList<>();
+			
+			if (tag.equals(TRANSACTION_TAG)) {
+				
+				for (int i = 1; i < params.size(); i++) {
+					TransactionRecord tr = dao.readTransactionRecord(Integer.parseInt(params.get(i)));
+					if (tr.getType() == TransactionType.NONE) {
+						invalidIDs = invalidIDs + " " + tr.getId();
+ 					}
+					else if (currentUser.getType() == UserProfileType.CUSTOMER 
+							&& tr.getActingUser() != currentUser.getId()) {
+						nonpermittedIDs = nonpermittedIDs + " " + nonpermittedIDs;
+					}
+					else { // valid, permitted ID
+						transactions.add(tr);
+					}
+				}
+			}
+			else if (tag.equals(USER_PROFILE_TAG)) {
+				int userID = Integer.parseInt(params.get(1));
+				if (currentUser.getType() == UserProfileType.CUSTOMER
+						&& currentUser.getId() != userID) {
+					throw new ImpossibleActionException(
+							VIEW_TRANSACTIONS_CUSTOMER_CAN_ONLY_VIEW_SELF_MESSAGE);
+				}
+				
+				transactions = dao.readTransactionRecordByActingUserId(userID);
+			}
+			else if (tag.equals(ACCOUNT_TAG)) {
+				int accID = Integer.parseInt(params.get(1));
+				if (currentUser.getType() == UserProfileType.CUSTOMER 
+						&& currentUser.getOwnedAccounts().contains(accID)) {
+					throw new ImpossibleActionException(
+							VIEW_TRANSACTIONS_CUSTOMER_CAN_ONLY_VIEW_SELF_MESSAGE);
+				}
+				
+				transactions = dao.readTransactionRecordByAccountId(accID);
+			}
+			
+			// finally display the transactions
+			if (!transactions.isEmpty()) {
+				io.displayTransactionRecords(transactions);
+			}
+			if (!invalidIDs.equals("")) {
+				io.displayText(VIEW_TRANSACTIONS_INVALID_IDS_PREFIX + invalidIDs);
+			}
+			if (!nonpermittedIDs.equals("")) {
+				io.displayText(
+						VIEW_TRANSACTIONS_NONPERMITTED_IDS_PREFIX + nonpermittedIDs);
+			}		
+		}
+		catch (BankDAOException e) {
+			throw new ImpossibleActionException(GENERIC_DAO_ERROR_MESSAGE);
+		}
 	}
 	
 	/**

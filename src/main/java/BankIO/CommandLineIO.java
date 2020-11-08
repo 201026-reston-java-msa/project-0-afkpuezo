@@ -19,6 +19,7 @@ import com.revature.bankDataObjects.TransactionRecord;
 import com.revature.bankDataObjects.UserProfile;
 import com.revature.bankDataObjects.UserProfile.UserProfileType;
 
+import bankSystem.BankSystem;
 import bankSystem.Request;
 import bankSystem.Request.RequestType;
 
@@ -95,6 +96,17 @@ public class CommandLineIO implements BankIO {
 			= "Enter source account ID: ";
 	private static final String TRANSFER_DESTINATION_ACCOUNT_PROMPT
 			= "Enter destination account ID: ";
+	
+	private static final String VIEW_ACCOUNTS_HEADER = "Viewing accounts...";
+	private static final String VIEW_ACCOUNTS_MENU
+			= "(1) View all accounts owned by a single user\n"
+			+ "(2) Input a list of account IDS to view";
+	private static final String VIEW_ACCOUNTS_ID_LIST_HEADER
+			= "Enter a list of account IDs on a single line, separated by spaces.";
+	private static final String VIEW_ACCOUNTS_ID_LIST_PROMPT
+			= "Enter the IDs here: ";
+	private static final String VIEW_ACCOUNTS_BAD_TOKEN_MESSAGE
+			= "Invalid input. Every ID must be numbers only.";
 	
 	// instance variables (fields)
 	private Scanner scan;
@@ -365,7 +377,7 @@ public class CommandLineIO implements BankIO {
 				req = buildTransfer();
 				break;
 			case VIEW_ACCOUNTS:
-				//req = buildViewAccounts();
+				req = buildViewAccounts();
 				break;
 			case VIEW_SELF_PROFILE:
 				//req = buildViewSelfProfile();
@@ -387,6 +399,76 @@ public class CommandLineIO implements BankIO {
 		return req;
 	}
 	
+	/**
+	 * Figures out if they want to search by owning user or by number, then
+	 * hand off to helper method.
+	 * @return
+	 */
+	private Request buildViewAccounts() {
+		
+		displayText(VIEW_ACCOUNTS_HEADER, true);
+		
+		System.out.println(VIEW_ACCOUNTS_MENU);
+		int choice = parseInt(CHOICES_PROMPT, 1, 2);
+		
+		if (choice == 1) { 
+			return viewAccountsByUser(); 
+		}
+		else { // only other choice is 2
+			return viewAccountsByID();
+		}
+	}
+
+	/**
+	 * Helper for buildViewAccounts
+	 * Gets the owning user's ID
+	 * @return
+	 */
+	private Request viewAccountsByUser() {
+		
+		List<String> params = new ArrayList<>();
+		params.add(BankSystem.USER_PROFILE_TAG);
+		params.add("" + parseInt(USER_ID_PROMPT));
+		
+		return new Request(
+				RequestType.VIEW_ACCOUNTS,
+				params);
+	}
+	
+	/**
+	 * Gets the list of IDs
+	 * @return
+	 */
+	private Request viewAccountsByID() {
+		
+		System.out.println(VIEW_ACCOUNTS_ID_LIST_HEADER);
+		boolean isValid = false;
+		List<String> params = null;
+		
+		do {
+			System.out.println(VIEW_ACCOUNTS_ID_LIST_PROMPT);
+			String idLine = scan.next();
+			String[] tokens = idLine.split(" ");
+			params = new ArrayList<>();
+			
+			try {
+				for (String t : tokens) {
+					Integer.parseInt(t); // only to check the format
+					params.add(t);
+				}
+				// if we read every token, we're good
+				isValid = true;
+			}
+			catch(NumberFormatException e){ // if one of the tokens was bad
+				System.out.println(VIEW_ACCOUNTS_BAD_TOKEN_MESSAGE);
+			} 
+		} while(!isValid);
+		
+		return new Request(
+				RequestType.VIEW_ACCOUNTS,
+				params);
+	}
+
 	/**
 	 * Gets the source account ID, the destination account ID,
 	 * and money amount

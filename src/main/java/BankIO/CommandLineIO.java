@@ -30,9 +30,9 @@ public class CommandLineIO implements BankIO {
 	private static final String DISPLAY_ACCOUNTS_HEADER = "Showing accounts...";
 	private static final String DISPLAY_TRANSACTIONS_HEADER = "Showing transactions...";
 	private static final String CHOICES_HEADER 
-			= "Type the number matching one of the following choices:";
+			= "Type the number matching one of the following choices: ";
 	private static final String CHOICES_PROMPT 
-	= "Enter your choice here:";
+			= "Enter your choice here: ";
 	private static final String DISPLAY_FIELD_EMPTY = "---";
 	
 	private static final String PARSE_INT_INVALID_INPUT_MESSAGE
@@ -43,7 +43,10 @@ public class CommandLineIO implements BankIO {
 	private static final String PARSE_STRING_WHITESPACE_INVALID
 			= "Invalid input. No whitespace characters are allowed"; 
 	private static final String PARSE_STRING_EMPTY_STRING_INVALID
-	= "Invalid input - no input detected.";
+			= "Invalid input - no input detected.";
+	
+	private static final String PARSE_MONEY_BAD_FORMAT_PREFIX
+			= "Invalid input: ";
 	
 	private static final String BAD_MONEY_FORMAT_ONLY_TWO_DECIMAL_PLACES_MESSAGE
 			= "Input has more than 2 characters after the decimal point.";
@@ -58,6 +61,8 @@ public class CommandLineIO implements BankIO {
 	private static final String PASSWORD_PROMPT = "Enter password: ";
 	private static final String USER_ID_PROMPT = "Enter user ID: ";
 	private static final String ACCOUNT_ID_PROMPT = "Enter account ID: ";
+	private static final String TRANSACTION_ID_PROMPT = "Enter transaction ID: ";
+	private static final String MONEY_AMOUNT_PROMPT = "Enter an amount of money: ";
 	
 	private static final String REGISTER_HEADER = "Registering new user...";
 	
@@ -80,6 +85,8 @@ public class CommandLineIO implements BankIO {
 	
 	private static final String REMOVE_OWNER_HEADER
 			= "Removing an owner from an account...";
+	
+	private static final String DEPOSIT_HEADER = "Depositing funds...";
 	
 	// instance variables (fields)
 	private Scanner scan;
@@ -130,7 +137,7 @@ public class CommandLineIO implements BankIO {
 						BAD_MONEY_FORMAT_ONLY_TWO_DECIMAL_PLACES_MESSAGE);
 			}
 			
-			char c = clean.charAt(i);
+			char c = funds.charAt(i);
 			if (Character.isDigit(c)) { // numerical digit
 				clean = clean + c;
 			}
@@ -285,6 +292,14 @@ public class CommandLineIO implements BankIO {
 			System.out.println(line);
 		} // end outer for loop
 	}
+	
+	/**
+	 * Called by the BankSystem when execution is ending. Allows for cleanup.
+	 */
+	public void close() {
+		
+		scan.close();
+	}
 
 	/**
 	 * Returns a Request object based on the user's responding input.
@@ -333,7 +348,7 @@ public class CommandLineIO implements BankIO {
 				req = buildRemoveAccountOwner();
 				break;
 			case DEPOSIT:
-				//req = buildDeposit();
+				req = buildDeposit();
 				break;
 			case WITHDRAW:
 				//req = buildWithdraw();
@@ -365,6 +380,25 @@ public class CommandLineIO implements BankIO {
 	}
 	
 	/**
+	 * Gets the account ID and money amount
+	 * @return
+	 */
+	private Request buildDeposit() {
+
+		System.out.println(FRAME_LINE);
+		System.out.println(DEPOSIT_HEADER);
+		System.out.println(FRAME_LINE);
+		
+		List<String> params = new ArrayList<>();
+		params.add("" + parseInt(ACCOUNT_ID_PROMPT, 0, Integer.MAX_VALUE));
+		params.add("" + parseMoney(MONEY_AMOUNT_PROMPT));
+		
+		return new Request(
+				RequestType.DEPOSIT,
+				params);
+	}
+
+	/**
 	 * Gets the account and user IDs
 	 * @return
 	 */
@@ -378,6 +412,7 @@ public class CommandLineIO implements BankIO {
 		params.add("" + parseInt(ACCOUNT_ID_PROMPT, 0, Integer.MAX_VALUE));
 		params.add("" + parseInt(USER_ID_PROMPT, 0, Integer.MAX_VALUE));
 	
+		System.out.println(FRAME_LINE);
 		return new Request(
 				RequestType.REMOVE_ACCOUNT_OWNER,
 				params);
@@ -397,6 +432,7 @@ public class CommandLineIO implements BankIO {
 		params.add("" + parseInt(ACCOUNT_ID_PROMPT, 0, Integer.MAX_VALUE));
 		params.add("" + parseInt(USER_ID_PROMPT, 0, Integer.MAX_VALUE));
 	
+		System.out.println(FRAME_LINE);
 		return new Request(
 				RequestType.ADD_ACCOUNT_OWNER,
 				params);
@@ -415,6 +451,7 @@ public class CommandLineIO implements BankIO {
 		List<String> params = new ArrayList<>();
 		params.add("" + parseInt(ACCOUNT_ID_PROMPT, 0, Integer.MAX_VALUE));
 		
+		System.out.println(FRAME_LINE);
 		return new Request(
 				RequestType.CLOSE_ACCOUNT,
 				params);
@@ -433,6 +470,7 @@ public class CommandLineIO implements BankIO {
 		List<String> params = new ArrayList<>();
 		params.add("" + parseInt(ACCOUNT_ID_PROMPT, 0, Integer.MAX_VALUE));
 		
+		System.out.println(FRAME_LINE);
 		return new Request(
 				RequestType.DENY_OPEN_ACCOUNT,
 				params);
@@ -451,6 +489,7 @@ public class CommandLineIO implements BankIO {
 		List<String> params = new ArrayList<>();
 		params.add("" + parseInt(ACCOUNT_ID_PROMPT, 0, Integer.MAX_VALUE));
 		
+		System.out.println(FRAME_LINE);
 		return new Request(
 				RequestType.APPLY_OPEN_ACCOUNT,
 				params);
@@ -466,6 +505,7 @@ public class CommandLineIO implements BankIO {
 		System.out.println(APPLY_HEADER);
 		System.out.println(FRAME_LINE);
 		
+		System.out.println(FRAME_LINE);
 		return new Request(RequestType.APPLY_OPEN_ACCOUNT);
 	}
 
@@ -479,6 +519,7 @@ public class CommandLineIO implements BankIO {
 		System.out.println(QUIT_HEADER);
 		System.out.println(FRAME_LINE);
 		
+		System.out.println(FRAME_LINE);
 		return new Request(RequestType.QUIT);
 	}
 
@@ -492,6 +533,7 @@ public class CommandLineIO implements BankIO {
 		System.out.println(LOG_OUT_HEADER);
 		System.out.println(FRAME_LINE);
 		
+		System.out.println(FRAME_LINE);
 		return new Request(RequestType.LOG_OUT);
 	}
 
@@ -508,6 +550,8 @@ public class CommandLineIO implements BankIO {
 		List<String> params = new ArrayList<>();
 		params.add(parseString(USERNAME_PROMPT));
 		params.add(parseString(PASSWORD_PROMPT));
+		
+		System.out.println(FRAME_LINE);
 		return new Request(
 				RequestType.LOG_IN,
 				params);
@@ -526,6 +570,8 @@ public class CommandLineIO implements BankIO {
 		List<String> params = new ArrayList<>();
 		params.add(parseString(USERNAME_PROMPT));
 		params.add(parseString(PASSWORD_PROMPT));
+		
+		System.out.println(FRAME_LINE);
 		return new Request(
 				RequestType.REGISTER_USER,
 				params);
@@ -546,6 +592,7 @@ public class CommandLineIO implements BankIO {
 			System.out.println(line);
 		}
 		
+		System.out.println(FRAME_LINE);
 		return parseInt(CHOICES_PROMPT, 0, permittedRequestTypes.length);
 	}
 	
@@ -584,6 +631,16 @@ public class CommandLineIO implements BankIO {
 	}
 	
 	/**
+	 * Helper method that prompts the user for an int (non-money) value.
+	 * Will loop until they give valid input (any positive int)
+	 * @param promptText
+	 * @return
+	 */
+	private int parseInt(String promptText) {
+		return parseInt(promptText, 0, Integer.MAX_VALUE);
+	}
+	
+	/**
 	 * Helper method that prompts the user for a string.
 	 * Currently, only whitespace characters or the empty string are invalid.
 	 * @param promptText
@@ -595,7 +652,7 @@ public class CommandLineIO implements BankIO {
 		String input = ""; // will be filled in
 		do {
 			System.out.print(promptText);
-			input = scan.nextLine();
+			input = scan.next();
 			
 			if (input.equals("")) {
 				System.out.println(PARSE_STRING_EMPTY_STRING_INVALID);
@@ -614,6 +671,32 @@ public class CommandLineIO implements BankIO {
 					isValid = true;
 				}
 			} // end else (if not empty string)
+		} while(!isValid);
+		
+		return input;
+	}
+	
+	/**
+	 * Helper method that prompts the user for an amount of money.
+	 * @param promptText
+	 * @return int representation of money
+	 */
+	private int parseMoney(String promptText) {
+		
+		boolean isValid = false;
+		int input = -1; // will be filled in
+		
+		do {
+			try {
+				System.out.print(promptText);
+				String moneyText = scan.next();
+				input = moneyStringToInt(moneyText);
+				// if we get here, it's valid
+				isValid = true;
+			}
+			catch (BadMoneyFormatException e){
+				System.out.println(PARSE_MONEY_BAD_FORMAT_PREFIX + e.getMessage());
+			}
 		} while(!isValid);
 		
 		return input;

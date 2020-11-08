@@ -53,7 +53,7 @@ public class BankSystem {
 	public static final String START_MESSAGE 
 			= "Welcome to the bank!";
 	public static final String NO_USER_LOGGED_IN_MESSAGE 
-			= "LOGGED IN AS: N/A";
+			= "NO USER LOGGED IN";
 	public static final String USER_LOGGED_IN_PREFIX
 			= "LOGGED IN AS: "; // should append username
 	public static final String USERNAME_IN_USE_MESSAGE 
@@ -62,6 +62,8 @@ public class BankSystem {
 			= "Unable to proceed: No user profile with that name exists.";
 	public static final String GENERIC_DAO_ERROR_MESSAGE 
 			= "ALERT: There were issues communicating with the database. Contact your system administrator.";
+	public static final String LOG_IN_SUCCESSFUL_PREFIX
+			= "Successfully logging in as: ";
 	public static final String LOGIN_USER_NOT_FOUND_PREFIX 
 			= "Unable to proceed: No profile found matching username: ";
 	public static final String LOGIN_INVALID_PASSWORD_MESSAGE 
@@ -435,7 +437,7 @@ public class BankSystem {
 			}
 			else { // account found
 				if (up.getPassword().equals(password)) {
-					io.displayText(USER_LOGGED_IN_PREFIX + username);
+					io.displayText(LOG_IN_SUCCESSFUL_PREFIX + username);
 					changeLoggedInUser(up);
 				}
 				else { // invalid pass

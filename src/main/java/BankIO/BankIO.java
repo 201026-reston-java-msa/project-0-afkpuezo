@@ -54,4 +54,9 @@ public interface BankIO {
 	 * @return Request
 	 */
 	public Request prompt(RequestType[] permittedRequestTypes);
+	
+	/**
+	 * Called by the BankSystem when execution is ending. Allows for cleanup.
+	 */
+	public void close();
 }

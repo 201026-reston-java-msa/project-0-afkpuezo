@@ -195,7 +195,7 @@ public class TestBankSystem {
 		
 		List<Object> output = mio.getCachedOutput();
 		assertEquals(2, output.size());
-		assertEquals(output.get(1), BankSystem.USER_LOGGED_IN_PREFIX + "user");
+		assertEquals(output.get(1), BankSystem.LOG_IN_SUCCESSFUL_PREFIX + "user");
 	}
 	
 	@Test

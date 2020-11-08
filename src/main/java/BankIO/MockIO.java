@@ -79,4 +79,11 @@ public class MockIO implements BankIO {
 		
 		return nextRequest;
 	}
+	
+	/**
+	 * Called by the BankSystem when execution is ending. Allows for cleanup.
+	 */
+	public void close() {
+		
+	}
 }

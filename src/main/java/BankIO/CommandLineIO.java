@@ -23,6 +23,7 @@ public class CommandLineIO implements BankIO {
 	private static final String DISPLAY_PROFILES_HEADER = "Showing user profiles...";
 	private static final String DISPLAY_ACCOUNTS_HEADER = "Showing accounts...";
 	private static final String DISPLAY_TRANSACTIONS_HEADER = "Showing transactions...";
+	private static final String DISPLAY_FIELD_EMPTY = "---";
 	
 	private static final String BAD_MONEY_FORMAT_ONLY_TWO_DECIMAL_PLACES_MESSAGE
 			= "Input has more than 2 characters after the decimal point.";
@@ -159,11 +160,11 @@ public class CommandLineIO implements BankIO {
 				line = line + " |Owned Accounts:";
 				for (int accID : up.getOwnedAccounts()) {
 					line = line + " " + accID;
-				}
+				} // end inner for loop
 			}
 			
 			System.out.println(line);
-		}
+		} // end outer for loop
 	}
 
 	/**
@@ -179,8 +180,17 @@ public class CommandLineIO implements BankIO {
 		
 		for (BankAccount ba : accounts) {
 			String line = "|ID: " + ba.getId();
+			line = " |Type: " + ba.getType();
+			line = " |Status: " + ba.getStatus();
 			line = line + " |Funds: " + intToMoneyString(ba.getFunds());
-		}
+			line = line + " |Owner(s):"; // assume not empty
+			
+			for (int ownerID : ba.getOwners()) {
+				line = line + " " + ownerID;
+			} // end inner for loop
+			
+			System.out.println(line);
+		} // end outer for loop
 	}
 
 	/**
@@ -190,8 +200,43 @@ public class CommandLineIO implements BankIO {
 	 */
 	@Override
 	public void displayTransactionRecords(List<TransactionRecord> transactions) {
-		// TODO Auto-generated method stub
-
+		
+		System.out.println(FRAME_LINE);
+		System.out.println(DISPLAY_ACCOUNTS_HEADER);
+		System.out.println(FRAME_LINE);
+		
+		for (TransactionRecord tr : transactions) {
+			String line = "|ID: " + tr.getId();
+			line = " |Type: " + tr.getType();
+			line = " |Time: " + tr.getTime();
+			line = " |Acting User: " + tr.getActingUser();
+			
+			line = " |Source Account: ";
+			if (tr.getSourceAccount() == -1) {
+				line = line + DISPLAY_FIELD_EMPTY;
+			}
+			else {
+				line = line + tr.getSourceAccount();
+			}
+			
+			line = " |Destination Account: ";
+			if (tr.getDestinationAccount() == -1) {
+				line = line + DISPLAY_FIELD_EMPTY;
+			}
+			else {
+				line = line + tr.getDestinationAccount();
+			}
+			
+			line = " |Money amount: ";
+			if (tr.getMoneyAmount() == -1) {
+				line = line + DISPLAY_FIELD_EMPTY;
+			}
+			else {
+				line = line + tr.getMoneyAmount();
+			}
+			
+			System.out.println(line);
+		} // end outer for loop
 	}
 
 	/**

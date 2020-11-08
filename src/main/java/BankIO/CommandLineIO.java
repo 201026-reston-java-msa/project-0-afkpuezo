@@ -54,14 +54,21 @@ public class CommandLineIO implements BankIO {
 	private static final String BAD_MONEY_FORMAT_GENERIC_PREFIX
 			= "Input contains an invalid character: ";
 	
-	private static final String USERNAME_PROMPT
-			= "Enter username: ";
-	private static final String PASSWORD_PROMPT
-	= "Enter password: ";
+	private static final String USERNAME_PROMPT = "Enter username: ";
+	private static final String PASSWORD_PROMPT = "Enter password: ";
+	private static final String ACCOUNT_ID_PROMPT = "Enter account ID: ";
 	
 	private static final String REGISTER_HEADER = "Registering new user...";
 	
 	private static final String LOG_IN_HEADER = "Loggin in...";
+	
+	private static final String LOG_OUT_HEADER = "Loggin out...";
+	
+	private static final String QUIT_HEADER = "Quitting...";
+	
+	private static final String APPLY_HEADER = "Applying to open an account...";
+	
+	private static final String APPROVE_HEADER = "Approving an account...";
 	
 	// instance variables (fields)
 	private Scanner scan;
@@ -346,11 +353,74 @@ public class CommandLineIO implements BankIO {
 		return req;
 	}
 	
+	private Request buildDenyOpenAccount() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * Gets the ID of the account to approve.
+	 * @return
+	 */
+	private Request buildApproveOpenAccount() {
+		
+		System.out.println(FRAME_LINE);
+		System.out.println(APPROVE_HEADER);
+		System.out.println(FRAME_LINE);
+		
+		List<String> params = new ArrayList<>();
+		params.add("" + parseInt(ACCOUNT_ID_PROMPT, 0, Integer.MAX_VALUE));
+		
+		return new Request(
+				RequestType.APPLY_OPEN_ACCOUNT,
+				params);
+	}
+
+	/**
+	 * Creates a request to open an account
+	 * @return
+	 */
+	private Request buildApplyToOpenAccount() {
+		
+		System.out.println(FRAME_LINE);
+		System.out.println(APPLY_HEADER);
+		System.out.println(FRAME_LINE);
+		
+		return new Request(RequestType.APPLY_OPEN_ACCOUNT);
+	}
+
+	/**
+	 * Creates a quit request.
+	 * @return
+	 */
+	private Request buildQuit() {
+		
+		System.out.println(FRAME_LINE);
+		System.out.println(QUIT_HEADER);
+		System.out.println(FRAME_LINE);
+		
+		return new Request(RequestType.QUIT);
+	}
+
+	/**
+	 * Creates a log out request.
+	 * @return
+	 */
+	private Request buildLogOut() {
+		
+		System.out.println(FRAME_LINE);
+		System.out.println(LOG_OUT_HEADER);
+		System.out.println(FRAME_LINE);
+		
+		return new Request(RequestType.LOG_OUT);
+	}
+
 	/**
 	 * Gets the username and password.
 	 * @return
 	 */
 	private Request buildLogIn() {
+		
 		System.out.println(FRAME_LINE);
 		System.out.println(LOG_IN_HEADER);
 		System.out.println(FRAME_LINE);

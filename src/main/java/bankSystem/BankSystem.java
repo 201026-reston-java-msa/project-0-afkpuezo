@@ -1189,13 +1189,38 @@ public class BankSystem {
 	}
 	
 	/**
-	 * TODO doc
+	 * Creates a new account with admin privileges.
+	 * Can only be done by an admin (checked by generic check)
 	 * @param currentRequest
 	 * @throws ImpossibleActionException
 	 */
 	private void handleCreateAdmin(Request currentRequest) throws ImpossibleActionException {
-		// TODO Auto-generated method stub
-		
+
+		try {
+			List<String> params = currentRequest.getParams();
+			String username = params.get(0);
+			
+			if (!dao.isUsernameFree(username)) {
+				throw new ImpossibleActionException(USERNAME_IN_USE_MESSAGE);
+			}
+			
+			String password = params.get(1); 
+			int adminID = dao.getHighestUserProfileID() + 1;
+			UserProfile adm = new UserProfile(adminID);
+			adm.setUsername(username);
+			adm.setPassword(password);
+			adm.setType(UserProfileType.ADMIN);
+			dao.write(adm);
+			io.displayText(CREATE_EMPLOYEE_SUCCESSFUL_PREFIX + adminID);
+			
+			TransactionRecord tr = new TransactionRecord();
+			tr.setType(TransactionType.USER_REGISTERED);
+			tr.setDestinationAccount(adminID);
+			saveTransactionRecord(tr);
+		}
+		catch (BankDAOException e) {
+			throw new ImpossibleActionException(GENERIC_DAO_ERROR_MESSAGE);
+		}
 	}
 
 	// util methods

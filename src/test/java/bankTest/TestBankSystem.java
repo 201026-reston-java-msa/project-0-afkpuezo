@@ -855,4 +855,28 @@ public class TestBankSystem {
 		assertEquals("newEmp", emp.getUsername());
 		assertEquals("pass", emp.getPassword());
 	}
+	
+	@Test
+	public void testCreateAdmin() throws BankDAOException{
+		
+		logInHelp("admin", "admin");
+		
+		// get the ID number that will be used
+		int adminID = tdao.getHighestUserProfileID() + 1;
+		
+		List<String> params = new ArrayList<String>();
+		params.add("newAdm");
+		params.add("pass");
+		Request request = new Request(
+				RequestType.CREATE_ADMIN,
+				params);
+		mio.setNextRequest(request);
+		bank.testLoop();
+		
+		UserProfile adm = tdao.readUserProfile(adminID);
+		//System.out.println("DEBUG: new employee ID is " + empID);
+		assertEquals(UserProfileType.ADMIN, adm.getType());
+		assertEquals("newAdm", adm.getUsername());
+		assertEquals("pass", adm.getPassword());
+	}
 }

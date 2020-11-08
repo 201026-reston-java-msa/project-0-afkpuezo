@@ -197,7 +197,8 @@ public class BankSystem {
 			{RequestType.VIEW_SELF_PROFILE, RequestType.VIEW_ACCOUNTS, RequestType.VIEW_USERS, 
 			RequestType.APPROVE_OPEN_ACCOUNT, RequestType.DENY_OPEN_ACCOUNT, RequestType.WITHDRAW, 
 			RequestType.DEPOSIT, RequestType.TRANSFER, RequestType.VIEW_TRANSACTIONS, 
-			RequestType.CLOSE_ACCOUNT, RequestType.LOG_OUT, RequestType.QUIT};
+			RequestType.CLOSE_ACCOUNT, RequestType.CREATE_EMPLOYEE, RequestType.CREATE_ADMIN, 
+			RequestType.LOG_OUT, RequestType.QUIT};
 	
 	// instance variables (fields)
 	private BankIO io;

@@ -659,7 +659,7 @@ public class TextFileDAO implements BankDAO {
 				entry = entry + " " + PROFILE_TYPE_CUSTOMER;
 				break;
 			case EMPLOYEE:
-				entry = entry + " " + PROFILE_TYPE_CUSTOMER;
+				entry = entry + " " + PROFILE_TYPE_EMPLOYEE;
 				break;
 			case ADMIN:
 				entry = entry + " " + PROFILE_TYPE_ADMIN;

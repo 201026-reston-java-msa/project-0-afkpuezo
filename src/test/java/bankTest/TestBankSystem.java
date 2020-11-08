@@ -53,9 +53,11 @@ public class TestBankSystem {
 	
 	static private final String testFilename = "testfile.bdf"; // 'bank data file'
 	static private final String[] FILELINES = {
-			"PRF 101 user pass CST 444", "ACC 444 OPN SNG 78923 101", "PRF 103 user2 pass CST 317 515",
-			"ACC 317 OPN SNG 7892312 103", "PRF 999 admin admin ADM", "ACC 515 OPN SNG 111111 103",
-			"TRR 123 3:00 FDP 101 -1 444 87654"
+			"PRF 101 user pass CST 444", "ACC 444 OPN SNG 78923 101", 
+			"PRF 103 user2 pass CST 317 515", "ACC 317 OPN SNG 7892312 103", 
+			"PRF 999 admin admin ADM", "ACC 515 OPN SNG 111111 103",
+			"TRR 1 3:00 FDP 101 -1 444 87654", "TRR 2 3:00 FDP 103 -1 444 225", 
+			"TRR 3 4:00 FDP 999 -1 515 12345"
 	};
 	
 	// utility methods ----------
@@ -755,5 +757,78 @@ public class TestBankSystem {
 		assertTrue(foundIDs.contains(101));
 		assertTrue(foundIDs.contains(103));
 		assertTrue(foundIDs.contains(999));
+	}
+	
+	@Test
+	public void testViewTransactions() throws BankDAOException{
+		
+		//"TRR 1 3:00 FDP 101 -1 444 87654", "TRR 2 3:00 FDP 103 -1 444 225", 
+		//"TRR 3 4:00 FDP 999 -1 515 12345"
+		logInHelp("admin", "admin");
+		
+		List<String> params = new ArrayList<String>();
+		params.add(BankSystem.TRANSACTION_TAG);
+		params.add("" + 1);
+		params.add("" + 2);
+		params.add("" + 3);
+		Request request = new Request(
+				RequestType.VIEW_TRANSACTIONS,
+				params);
+		mio.setNextRequest(request);
+		bank.testLoop();
+		
+		List<Integer> foundIDs = parseOutputForIDs(mio.getCachedOutput());
+		assertEquals(3, foundIDs.size());
+		assertTrue(foundIDs.contains(1));
+		assertTrue(foundIDs.contains(2));
+		assertTrue(foundIDs.contains(3));
+	}
+	
+	@Test
+	public void testViewTransactionsActingUser() throws BankDAOException{
+		
+		//"TRR 1 3:00 FDP 101 -1 444 87654", "TRR 2 3:00 FDP 103 -1 444 225", 
+		//"TRR 3 4:00 FDP 999 -1 515 12345"
+		
+		// U101, can only see T1 by acting user and T1 + T2 by owned accounts
+		logInHelp("user", "pass");  
+		
+		List<String> params = new ArrayList<String>();
+		params.add(BankSystem.USER_PROFILE_TAG);
+		params.add("101");
+		Request request = new Request(
+				RequestType.VIEW_TRANSACTIONS,
+				params);
+		mio.setNextRequest(request);
+		bank.testLoop();
+		
+		List<Integer> foundIDs = parseOutputForIDs(mio.getCachedOutput());
+		assertEquals(1, foundIDs.size());
+		assertTrue(foundIDs.contains(1));
+
+	}
+	
+	@Test
+	public void testViewTransactionsOwnedAccount() throws BankDAOException{
+		
+		//"TRR 1 3:00 FDP 101 -1 444 87654", "TRR 2 3:00 FDP 103 -1 444 225", 
+		//"TRR 3 4:00 FDP 999 -1 515 12345"
+		
+		// U101, can only see T1 by acting user and T1 + T2 by owned accounts
+		logInHelp("user", "pass"); 
+		
+		List<String> params = new ArrayList<String>();
+		params.add(BankSystem.ACCOUNT_TAG);
+		params.add("444");
+		Request request = new Request(
+				RequestType.VIEW_TRANSACTIONS,
+				params);
+		mio.setNextRequest(request);
+		bank.testLoop();
+		
+		List<Integer> foundIDs = parseOutputForIDs(mio.getCachedOutput());
+		assertEquals(2, foundIDs.size());
+		assertTrue(foundIDs.contains(1));
+		assertTrue(foundIDs.contains(2));
 	}
 }

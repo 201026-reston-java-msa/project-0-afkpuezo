@@ -193,8 +193,8 @@ public class BankSystem {
 	private static final RequestType[] ADMIN_CHOICES =
 			{RequestType.VIEW_SELF_PROFILE, RequestType.VIEW_ACCOUNTS, RequestType.VIEW_USERS, 
 			RequestType.APPROVE_OPEN_ACCOUNT, RequestType.DENY_OPEN_ACCOUNT, RequestType.WITHDRAW, 
-			RequestType.DEPOSIT, RequestType.TRANSFER, RequestType.CLOSE_ACCOUNT, 
-			RequestType.LOG_OUT, RequestType.QUIT};
+			RequestType.DEPOSIT, RequestType.TRANSFER, RequestType.VIEW_TRANSACTIONS, 
+			RequestType.CLOSE_ACCOUNT, RequestType.LOG_OUT, RequestType.QUIT};
 	
 	// instance variables (fields)
 	private BankIO io;
@@ -1082,6 +1082,7 @@ public class BankSystem {
 	 */
 	private void handleViewTransactions(Request currentRequest) throws ImpossibleActionException {
 		
+		//System.out.println("DEBUG: handleViewTransactions called");
 		try {
 			// figure out how the TRRs are grouped
 			List<String> params = currentRequest.getParams();
@@ -1118,14 +1119,17 @@ public class BankSystem {
 				transactions = dao.readTransactionRecordByActingUserId(userID);
 			}
 			else if (tag.equals(ACCOUNT_TAG)) {
+				//System.out.println("DEBUG: View TRR reached ACCOUNT_TAG block");
 				int accID = Integer.parseInt(params.get(1));
 				if (currentUser.getType() == UserProfileType.CUSTOMER 
-						&& currentUser.getOwnedAccounts().contains(accID)) {
+						&& !currentUser.getOwnedAccounts().contains(accID)) {
+					//System.out.println("DEBUG: View TRR reached ACCOUNT_TAG block and threw");
 					throw new ImpossibleActionException(
 							VIEW_TRANSACTIONS_CUSTOMER_CAN_ONLY_VIEW_SELF_MESSAGE);
 				}
-				
+
 				transactions = dao.readTransactionRecordByAccountId(accID);
+				//System.out.println("DEBUG: transactions list is " + transactions);
 			}
 			
 			// finally display the transactions

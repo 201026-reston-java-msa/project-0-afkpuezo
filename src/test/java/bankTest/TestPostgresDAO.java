@@ -1,5 +1,6 @@
 /**
  * This class contains Junit tests for the PostgresDAO class.
+ * NOTE: Several tests could break if details of the resetDatabase method are changed.
  * 
  * @author Andrew Curry
  */
@@ -25,6 +26,8 @@ import org.junit.validator.PublicClassValidator;
 import com.revature.bankDataObjects.BankAccount;
 import com.revature.bankDataObjects.BankAccount.BankAccountStatus;
 import com.revature.bankDataObjects.BankAccount.BankAccountType;
+import com.revature.bankDataObjects.UserProfile;
+import com.revature.bankDataObjects.UserProfile.UserProfileType;
 
 import dao.BankDAOException;
 import dao.DatabaseUtil;
@@ -63,10 +66,6 @@ public class TestPostgresDAO {
 		assertNotNull(conn);
 	}
 	
-	/**
-	 * could fail if i change something in the setup
-	 * @throws BankDAOException
-	 */
 	@Test
 	public void testReadBankAccount() throws BankDAOException{
 		
@@ -79,10 +78,6 @@ public class TestPostgresDAO {
 		assertTrue(3 == ba.getOwners().get(0));
 	}
 	
-	/**
-	 * could fail if i change something in the setup
-	 * @throws BankDAOException
-	 */
 	@Test
 	public void testReadAllBankAccounts() throws BankDAOException{
 		
@@ -104,5 +99,15 @@ public class TestPostgresDAO {
 		assertEquals(0, ba.getFunds());
 		assertEquals(1, ba.getOwners().size());
 		assertTrue(4 == ba.getOwners().get(0));
+	}
+	
+	@Test
+	public void testReadUserProfile() throws BankDAOException{
+		
+		UserProfile up = pdao.readUserProfile(1);
+		assertEquals(1, up.getId());
+		assertEquals("admin", up.getUsername());
+		assertEquals("admin", up.getPassword());
+		assertEquals(UserProfileType.ADMIN, up.getType());
 	}
 }

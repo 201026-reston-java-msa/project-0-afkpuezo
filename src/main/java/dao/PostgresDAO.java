@@ -163,7 +163,7 @@ public class PostgresDAO implements BankDAO {
 				throw new BankDAOException(NULL_CONNECTION_MESSAGE);
 			}
 			
-			String sql = "SELECT * FROM user_profile WHERE account_id = ?;";
+			String sql = "SELECT * FROM user_profile WHERE user_id = ?;";
 			PreparedStatement pstm = conn.prepareStatement(sql);
 			pstm.setInt(1, userID);
 			ResultSet userSet = pstm.executeQuery();
@@ -171,6 +171,8 @@ public class PostgresDAO implements BankDAO {
 			UserProfile up = new UserProfile(userID);
 			while (userSet.next()) { // should only be one result
 				//up.setId(userSet.getInt("user_id"));
+				up.setUsername(userSet.getString("username"));
+				up.setPassword(userSet.getString("password"));
 				up.setType(stringToUserProfileType(userSet.getString("type")));
 			}
 			

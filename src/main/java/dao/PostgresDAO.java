@@ -74,12 +74,22 @@ public class PostgresDAO implements BankDAO {
 	
 	// methods from DAO interface ------------------------------------------------
 
+	/**
+	 * Returns address of the database
+	 */
 	@Override
 	public String getResourceName() {
 
 		return DatabaseUtil.getAddress();
 	}
 
+	/**
+	 * Fetches the bank account with the given ID number from the data storage.
+	 * If no such account exists, the resulting BankAccount object will have the
+	 * status NONE, and -1 in other fields
+	 * @param accID
+	 * @return BankAccount object
+	 */
 	@Override
 	public BankAccount readBankAccount(int accID) throws BankDAOException {
 
@@ -113,90 +123,179 @@ public class PostgresDAO implements BankDAO {
 		}
 	}
 
+	/**
+	 * Fetches all bank accounts in the data storage.
+	 * @return
+	 */
 	@Override
 	public List<BankAccount> readAllBankAccounts() throws BankDAOException {
 		
 		try (Connection conn = DatabaseUtil.getConnection()){
 			
-			return null;
+			if (conn == null) {
+				throw new BankDAOException(NULL_CONNECTION_MESSAGE);
+			}
+			
+			String sql = "SELECT * FROM bank_account";
+			PreparedStatement pstm = conn.prepareStatement(sql);
+			ResultSet accSet = pstm.executeQuery();
+			
+			List<BankAccount> accounts = new ArrayList<>();
+			
+			while (accSet.next()) { // should only be one result
+				BankAccount ba = new BankAccount();
+				int accID = accSet.getInt("account_id");
+				ba.setId(accID);
+				ba.setStatus(stringToBankAccountStatus(accSet.getString("status")));
+				ba.setType(stringToBankAccountType(accSet.getString("type")));
+				ba.setFunds(accSet.getInt("funds"));
+				ba.setOwners(getAccountOwnerList(conn, accID));
+				accounts.add(ba);
+			}
+			
+			return accounts;
 		}
 		catch(SQLException e) {
 			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
 		}
 	}
 
+	/**
+	 * Fetches the user profile with the given ID number from the data storage.
+	 * If no such account exists, the resulting UserProfile object will have type NONE.
+	 * @param userID
+	 * @return UserProfile object
+	 */
 	@Override
 	public UserProfile readUserProfile(int userID) throws BankDAOException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	/**
+	 * Fetches the user profile with the given username from the data storage.
+	 * If no such account exists, the resulting UserProfile object will have type NONE.
+	 * @param userID
+	 * @return UserProfile object
+	 */
 	@Override
 	public UserProfile readUserProfile(String username) throws BankDAOException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	/**
+	 * Fetches all user profiles in the data storage.
+	 * @return
+	 */
 	@Override
 	public List<UserProfile> readAllUserProfiles() throws BankDAOException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	/**
+	 * Fetches the TransactionRecord with the given ID number from the data storage.
+	 * If no such account exists, the resulting TransactionRecord object will have type NONE.
+	 * @param recID
+	 * @return TransactionRecord
+	 */
 	@Override
 	public TransactionRecord readTransactionRecord(int recID) throws BankDAOException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	/**
+	 * Fetches all TransactionRecords in the data storage.
+	 * @return
+	 */
 	@Override
 	public List<TransactionRecord> readAllTransactionRecords() throws BankDAOException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	/**
+	 * Fetches all TransactionRecords that were carried out by the given user.
+	 * Returns an empty list if there are no matches.
+	 * @param actingUserId
+	 * @return
+	 * @throws BankDAOException
+	 */
 	@Override
 	public List<TransactionRecord> readTransactionRecordByActingUserId(int actingUserID) throws BankDAOException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	/**
+	 * Fetches all TransactionRecords that involved the given account (as source or destination)
+	 * Returns an empty list if there are no matches.
+	 * @param accID
+	 * @return
+	 * @throws BankDAOException
+	 */
 	@Override
 	public List<TransactionRecord> readTransactionRecordByAccountId(int accID) throws BankDAOException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	/**
+	 * Writes the given BankData object to the data storage. WILL overwrite if matching
+	 * data is already present.
+	 * @param bd
+	 */
 	@Override
 	public void write(BankData bd) throws BankDAOException {
 		// TODO Auto-generated method stub
 
 	}
 
+	/**
+	 * Writes each of the BankData objects in the given List to the data storage. 
+	 * WILL overwrite if matching data is already present.
+	 * @param bd
+	 */
 	@Override
 	public void write(List<BankData> toWrite) throws BankDAOException {
 		// TODO Auto-generated method stub
 
 	}
 
+	/** 
+	 * @return the highest ID currently assigned to a user profile
+	 */
 	@Override
 	public int getHighestUserProfileID() throws BankDAOException {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
+	/** 
+	 * @return the highest ID currently assigned to a bank account
+	 */
 	@Override
 	public int getHighestBankAccountID() throws BankDAOException {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
+	/** 
+	 * @return the highest ID currently assigned to a transaction record
+	 */
 	@Override
 	public int getHighestTransactionRecordID() throws BankDAOException {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
+	/**
+	 * Determines whether or not the given username is free to use. Used during registration, to make sure that usernames are unique.
+	 * @param username
+	 * @return
+	 */
 	@Override
 	public boolean isUsernameFree(String username) throws BankDAOException {
 		// TODO Auto-generated method stub

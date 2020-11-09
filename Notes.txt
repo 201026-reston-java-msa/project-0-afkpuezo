@@ -202,5 +202,6 @@ November 9:
 
 	- Okay, I've gotten the basic SQL stuff working. I think I AM going to have a "DatabaseUtil" that the
 		PostgresDAO will use. It will have the getConnection method from the demos, and also a method to reset and
-		recreate the initial setup of the database.
+		recreate the initial setup of the database. [x]
+	- I'm reusing some of the enum-to-string (and vice versa) code from the TextFileDAO in the PDAO
 	

@@ -71,9 +71,7 @@ public class DatabaseUtil {
 	 */
 	public static void resetDatabase() {
 		
-		Connection conn = getConnection();
-		
-		try {
+		try (Connection conn = getConnection()){
 			// drop tables --------------------------------------------------------------
 			dropTableIfExists(conn, "user_profile");
 			dropTableIfExists(conn, "bank_account");
@@ -220,7 +218,7 @@ public class DatabaseUtil {
 		pstm = conn.prepareStatement(insertTransactionString);
 		pstm.setInt(1, 1); // id
 		pstm.setString(2, "PLACEHOLDER"); // time
-		pstm.setString(3, "DEPOSIT"); // type 
+		pstm.setString(3, "FUNDS_DEPOSITED"); // type 
 		pstm.setInt(4, 3); // the acting user - the customer profile
 		pstm.setInt(5, -1); // the source account, none
 		pstm.setInt(6, 1); // the destination account, owned by the customer
@@ -228,8 +226,15 @@ public class DatabaseUtil {
 		pstm.execute();
 	}
 	
-	private static void populateAccountOwnership(Connection conn) {
-		// TODO Auto-generated method stub
+	private static void populateAccountOwnership(Connection conn) throws SQLException {
 		
+		PreparedStatement pstm;
+		String insertBankAccountString = 
+				"INSERT INTO account_ownership (user_id, account_id) VALUES (?, ?);";
+		
+		pstm = conn.prepareStatement(insertBankAccountString);
+		pstm.setInt(1, 3); // owner is user 3
+		pstm.setInt(2, 1); // the account is account 1
+		pstm.execute();
 	}
 }

@@ -21,6 +21,11 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.validator.PublicClassValidator;
 
+import com.revature.bankDataObjects.BankAccount;
+import com.revature.bankDataObjects.BankAccount.BankAccountStatus;
+import com.revature.bankDataObjects.BankAccount.BankAccountType;
+
+import dao.BankDAOException;
 import dao.DatabaseUtil;
 import dao.PostgresDAO;
 
@@ -52,5 +57,16 @@ public class TestPostgresDAO {
 	public void testGetConnection() {
 		Connection conn = DatabaseUtil.getConnection();
 		assertNotNull(conn);
+	}
+	
+	@Test
+	public void testReadBankAccount() throws BankDAOException{
+		BankAccount ba = pdao.readBankAccount(1);
+		assertEquals(1,  ba.getId());
+		assertEquals(BankAccountStatus.OPEN, ba.getStatus());
+		assertEquals(BankAccountType.SINGLE, ba.getType());
+		assertEquals(123456, ba.getFunds());
+		assertEquals(1, ba.getOwners().size());
+		assertTrue(3 == ba.getOwners().get(0));
 	}
 }

@@ -196,4 +196,11 @@ November 8:
 	- created a BadMoneyFormatException for the CLIO [x]
 	- I'm not sure how to unit test the IO but I can manually test what I've done so far, but ill need a Driver [x]
 	- Just realized I never get to close the scanner...I'll add a quit method to the interface
-	- Okay, the CLIO is ugly but done. Next the dbdao [ ]
+	- Okay, the CLIO is ugly but done. Next the dbdao [~]
+
+November 9:
+
+	- Okay, I've gotten the basic SQL stuff working. I think I AM going to have a "DatabaseUtil" that the
+		PostgresDAO will use. It will have the getConnection method from the demos, and also a method to reset and
+		recreate the initial setup of the database.
+	

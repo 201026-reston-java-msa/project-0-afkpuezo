@@ -21,14 +21,15 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.validator.PublicClassValidator;
 
+import dao.DatabaseUtil;
 import dao.PostgresDAO;
 
 public class TestPostgresDAO {
 	
 	// class variables / constants
-	private static final String TEST_ADDRESS = "jdbc:postgresql://localhost:5432/";
-	private static final String TEST_USERNAME = "postgres";
-	private static final String TEST_PASSWORD = "password";
+	//private static final String TEST_ADDRESS = "jdbc:postgresql://localhost:5432/";
+	//private static final String TEST_USERNAME = "postgres";
+	//private static final String TEST_PASSWORD = "password";
 
 	// instance variables ----------------------------------------------------------
 	private PostgresDAO pdao;
@@ -36,19 +37,19 @@ public class TestPostgresDAO {
 	// junit util methods ----------------------------------------------------------
 	@Before
 	public void setupPDAO() {
-		pdao = new PostgresDAO(TEST_ADDRESS, TEST_USERNAME, TEST_PASSWORD);
+		pdao = new PostgresDAO();
 	}
 	
 	// test methods ----------------------------------------------------------------
 	
 	@Test
 	public void testResourceName() {
-		assertEquals(TEST_ADDRESS, pdao.getResourceName());
+		assertEquals(DatabaseUtil.TEST_ADDRESS, pdao.getResourceName());
 	}
 	
 	@Test
 	public void testGetConnection() {
-		Connection conn = pdao.getConnection();
+		Connection conn = DatabaseUtil.getConnection();
 		assertNotNull(conn);
 	}
 }

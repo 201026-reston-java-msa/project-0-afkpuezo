@@ -23,48 +23,26 @@ public class PostgresDAO implements BankDAO {
 	// class / static variables
 	
 	// instance variables
-	private String databaseAddress;
-	private String databaseUsername;
-	private String databasePassword;
+	//private String databaseAddress;
+	//private String databaseUsername;
+	//private String databasePassword;
 	
 	// constructor
-	public PostgresDAO(String address, String username, String password) {
+	public PostgresDAO() {
 
-		databaseAddress = address;
-		databaseUsername = username;
-		databasePassword = password;
+		DatabaseUtil.loadConfiguration();
 	}
 	
 	// util methods ------------------------------------------------------------
 	
-	/**
-	 * Based on the ConnectionUtil method from the demo
-	 * Should probably be private but public makes it easier to test
-	 * @return
-	 */
-	public Connection getConnection() {
-		
-		Connection conn = null;
-		
-		try {
-			conn = DriverManager.getConnection(
-					databaseAddress,
-					databaseUsername,
-					databasePassword
-					);
-		} catch (SQLException e) {
-			System.out.println("Unable to obtain connection to database " + e.getMessage());
-		}
-		
-		return conn;
-	}
+	
 	
 	// methods from DAO interface ------------------------------------------------
 
 	@Override
 	public String getResourceName() {
 
-		return databaseAddress;
+		return DatabaseUtil.getAddress();
 	}
 
 	@Override

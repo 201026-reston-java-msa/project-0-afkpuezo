@@ -3,7 +3,9 @@ package junk;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 public class SQLPractice {
 
@@ -26,8 +28,25 @@ public class SQLPractice {
 	        
 	        String sql3 = "INSERT INTO test_table_please (test_id) VALUES (?)";
 	        PreparedStatement stm3 = conn.prepareStatement(sql3);
-	        stm3.setInt(1, 12345);
+	        stm3.setInt(1, 123456);
 	        stm3.execute();
+	        stm3 = conn.prepareStatement(sql3);
+	        stm3.setInt(1, 654321);
+	        stm3.execute();
+	        stm3 = conn.prepareStatement(sql3);
+	        stm3.setInt(1, 999999);
+	        stm3.execute();
+	        
+	        String sql4 = "SELECT * FROM test_table_please;";
+	        Statement stm4 = conn.createStatement();
+	        ResultSet rs = stm4.executeQuery(sql4);
+	        
+	        System.out.println("Printing IDs...");
+	        while (rs.next()) {
+	        	
+	        	int id = rs.getInt("test_id");
+	        	System.out.println(id);
+	        }
 	        
 		}catch (SQLException ex) {
 			ex.printStackTrace();

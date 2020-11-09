@@ -191,8 +191,9 @@ November 7:
 	
 November 8: 
 
-	- time to make the CLIO [ ]
+	- time to make the CLIO [X]
 		- oh man this is WAY more work than I expected
 	- created a BadMoneyFormatException for the CLIO [x]
 	- I'm not sure how to unit test the IO but I can manually test what I've done so far, but ill need a Driver [x]
 	- Just realized I never get to close the scanner...I'll add a quit method to the interface
+	- Okay, the CLIO is ugly but done. Next the dbdao [ ]

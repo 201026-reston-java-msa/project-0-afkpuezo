@@ -119,6 +119,12 @@ public class CommandLineIO implements BankIO {
 			+ "(2) View all transactions involving a certain account\n"
 			+ "(3) Input a list of transaction IDs to view";
 	
+	private static final String CREATE_EMPLOYEE_HEADER 
+			= "Creating new employee account...";
+	
+	private static final String CREATE_ADMIN_HEADER 
+	= "Creating new administrator account...";
+	
 	// instance variables (fields)
 	private Scanner scan;
 	
@@ -317,7 +323,7 @@ public class CommandLineIO implements BankIO {
 				line = line + DISPLAY_FIELD_EMPTY;
 			}
 			else {
-				line = line + tr.getMoneyAmount();
+				line = line + intToMoneyString(tr.getMoneyAmount());
 			}
 			
 			System.out.println(line);
@@ -400,16 +406,56 @@ public class CommandLineIO implements BankIO {
 				req = buildViewTransactions();
 				break;
 			case CREATE_EMPLOYEE:
-				//req = buildCreateEmployee();
+				req = buildCreateEmployee();
 				break;
 			case CREATE_ADMIN:
-				//req = buildCreateAdmin();
+				req = buildCreateAdmin();
 				break;
 		}
 		
 		return req;
 	}
 	
+	/**
+	 * Gets the username and password for the new admin account
+	 * @return
+	 */
+	private Request buildCreateAdmin() {
+		
+		System.out.println(FRAME_LINE);
+		System.out.println(CREATE_ADMIN_HEADER);
+		System.out.println(FRAME_LINE);
+		
+		List<String> params = new ArrayList<>();
+		params.add(parseString(USERNAME_PROMPT));
+		params.add(parseString(PASSWORD_PROMPT));
+		
+		System.out.println(FRAME_LINE);
+		return new Request(
+				RequestType.CREATE_ADMIN,
+				params);
+	}
+
+	/**
+	 * Gets the username and password for the new employee account
+	 * @return
+	 */
+	private Request buildCreateEmployee() {
+		
+		System.out.println(FRAME_LINE);
+		System.out.println(CREATE_EMPLOYEE_HEADER);
+		System.out.println(FRAME_LINE);
+		
+		List<String> params = new ArrayList<>();
+		params.add(parseString(USERNAME_PROMPT));
+		params.add(parseString(PASSWORD_PROMPT));
+		
+		System.out.println(FRAME_LINE);
+		return new Request(
+				RequestType.CREATE_EMPLOYEE,
+				params);
+	}
+
 	/**
 	 * Figures out if they want to search by trr ID, acting user ID, or
 	 * source/dest bank ID, then hands off to helper method.

@@ -192,8 +192,9 @@ public class BankSystem {
 	
 	private static final RequestType[] EMPLOYEE_CHOICES = 
 			{RequestType.VIEW_SELF_PROFILE,RequestType.VIEW_ACCOUNTS, RequestType.VIEW_USERS, 
-			RequestType.APPROVE_OPEN_ACCOUNT, RequestType.DENY_OPEN_ACCOUNT, RequestType.LOG_OUT, 
-			RequestType.QUIT};
+			RequestType.APPROVE_OPEN_ACCOUNT, RequestType.DENY_OPEN_ACCOUNT, RequestType.WITHDRAW, 
+			RequestType.DEPOSIT, RequestType.TRANSFER, RequestType.VIEW_TRANSACTIONS, 
+			RequestType.LOG_OUT, RequestType.QUIT};
 	
 	private static final RequestType[] ADMIN_CHOICES =
 			{RequestType.VIEW_SELF_PROFILE, RequestType.VIEW_ACCOUNTS, RequestType.VIEW_USERS, 

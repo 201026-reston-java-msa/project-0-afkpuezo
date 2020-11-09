@@ -107,12 +107,15 @@ public class PostgresDAO implements BankDAO {
 			ResultSet accSet = pstm.executeQuery();
 			
 			BankAccount ba = new BankAccount(accID);
+			
 			while (accSet.next()) { // should only be one result
+				//System.out.println("DEBUG: while loop starting");
 				//ba.setId(accSet.getInt("account_id"));
 				ba.setStatus(stringToBankAccountStatus(accSet.getString("status")));
 				ba.setType(stringToBankAccountType(accSet.getString("type")));
 				ba.setFunds(accSet.getInt("funds"));
 			}
+			accSet.close();
 			
 			ba.setOwners(getAccountOwnerList(conn, accID));
 			
@@ -191,8 +194,31 @@ public class PostgresDAO implements BankDAO {
 	 */
 	@Override
 	public UserProfile readUserProfile(String username) throws BankDAOException {
-		// TODO Auto-generated method stub
-		return null;
+		
+		try (Connection conn = DatabaseUtil.getConnection()){
+			
+			if (conn == null) {
+				throw new BankDAOException(NULL_CONNECTION_MESSAGE);
+			}
+			
+			String sql = "SELECT * FROM user_profile WHERE username = ?;";
+			PreparedStatement pstm = conn.prepareStatement(sql);
+			pstm.setString(1, username);
+			ResultSet userSet = pstm.executeQuery();
+			
+			UserProfile up = new UserProfile();
+			while (userSet.next()) { // should only be one result
+				up.setId(userSet.getInt("user_id"));
+				up.setUsername(userSet.getString("username"));
+				up.setPassword(userSet.getString("password"));
+				up.setType(stringToUserProfileType(userSet.getString("type")));
+			}
+			
+			return up;
+		}
+		catch(SQLException e) {
+			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
+		}
 	}
 
 	/**

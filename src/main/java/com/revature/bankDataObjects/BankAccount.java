@@ -33,6 +33,7 @@ public class BankAccount extends BankData {
 		super();
 		owners = new ArrayList<Integer>();
 		funds = 0;
+		type = BankAccountType.NONE;
 	}
 	
 	public BankAccount(int id) {
@@ -40,6 +41,7 @@ public class BankAccount extends BankData {
 		super.setId(id);
 		owners = new ArrayList<Integer>();
 		funds = 0;
+		type = BankAccountType.NONE;
 	}
 	
 	// util methods

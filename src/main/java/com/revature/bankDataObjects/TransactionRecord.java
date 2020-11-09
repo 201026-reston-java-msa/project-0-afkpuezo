@@ -35,6 +35,7 @@ public class TransactionRecord extends BankData {
 	// constructors
 	public TransactionRecord() {
 		super();
+		type = TransactionType.NONE;
 	}
 	
 	
@@ -45,6 +46,7 @@ public class TransactionRecord extends BankData {
 		sourceAccount = -1;
 		destinationAccount = -1;
 		moneyAmount = -1;
+		type = TransactionType.NONE;
 	}
 	
 	

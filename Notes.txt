@@ -204,4 +204,6 @@ November 9:
 		PostgresDAO will use. It will have the getConnection method from the demos, and also a method to reset and
 		recreate the initial setup of the database. [x]
 	- I'm reusing some of the enum-to-string (and vice versa) code from the TextFileDAO in the PDAO
+	- I neglected to account for what happens when the pDAO tries to read an entry that doesn't exist [x]
+		- turns out I forgot to have BankAccount and TransactionRecord initialize their types to NONE
 	

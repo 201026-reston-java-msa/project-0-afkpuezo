@@ -53,6 +53,7 @@ public class TestPostgresDAO {
 	
 	// test methods ----------------------------------------------------------------
 	
+	/*
 	@Test
 	public void testResourceName() {
 		
@@ -65,6 +66,7 @@ public class TestPostgresDAO {
 		Connection conn = DatabaseUtil.getConnection();
 		assertNotNull(conn);
 	}
+	*/
 	
 	@Test
 	public void testReadBankAccount() throws BankDAOException{
@@ -76,15 +78,17 @@ public class TestPostgresDAO {
 		assertEquals(123456, ba.getFunds());
 		assertEquals(1, ba.getOwners().size());
 		assertTrue(3 == ba.getOwners().get(0));
-	}
-	
-	@Test
-	public void testReadAllBankAccounts() throws BankDAOException{
+		
+		ba = pdao.readBankAccount(1001); // not found
+		assertEquals(1001, ba.getId());
+		assertEquals(BankAccountType.NONE, ba.getType());
+
+		// test readAll
 		
 		List<BankAccount> accounts = pdao.readAllBankAccounts();
 		assertEquals(2, accounts.size());
 
-		BankAccount ba = accounts.get(0);
+		ba = accounts.get(0);
 		assertEquals(1,  ba.getId());
 		assertEquals(BankAccountStatus.OPEN, ba.getStatus());
 		assertEquals(BankAccountType.SINGLE, ba.getType());
@@ -104,10 +108,20 @@ public class TestPostgresDAO {
 	@Test
 	public void testReadUserProfile() throws BankDAOException{
 		
-		UserProfile up = pdao.readUserProfile(1);
+		UserProfile up = pdao.readUserProfile(1); // by ID
 		assertEquals(1, up.getId());
 		assertEquals("admin", up.getUsername());
 		assertEquals("admin", up.getPassword());
 		assertEquals(UserProfileType.ADMIN, up.getType());
+		
+		up = pdao.readUserProfile("admin"); // by username
+		assertEquals(1, up.getId());
+		assertEquals("admin", up.getUsername());
+		assertEquals("admin", up.getPassword());
+		assertEquals(UserProfileType.ADMIN, up.getType());
+		
+		up = pdao.readUserProfile(1001); // not found
+		assertEquals(1001, up.getId());
+		assertEquals(UserProfileType.NONE, up.getType());
 	}
 }

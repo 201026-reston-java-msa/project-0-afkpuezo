@@ -95,13 +95,18 @@ public class PostgresDAO implements BankDAO {
 			pstm.setInt(1, accID);
 			ResultSet accSet = pstm.executeQuery();
 			
-			// get the owners in a seperate set
-			sql = "SELECT user_id FROM account_ownership WHERE account_id = ?";
-			pstm = conn.prepareStatement(sql);
-			pstm.setInt(1, accID);
-			ResultSet ownerSet = pstm.executeQuery();
+			BankAccount ba = new BankAccount();
+			while (accSet.next()) { // should only be one result
+				ba.setId(accSet.getInt("account_id"));
+				ba.setStatus(stringToBankAccountStatus(accSet.getString("status")));
+				ba.setType(stringToBankAccountType(accSet.getString("type")));
+				ba.setFunds(accSet.getInt("funds"));
+			}
 			
-			return buildBankAccountFromResults(accSet, ownerSet);
+			ba.setOwners(getAccountOwnerList(conn, accID));
+			
+			return ba;
+			//return buildBankAccountFromResults(accSet, ownerSet);
 		}
 		catch(SQLException e) {
 			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
@@ -110,8 +115,14 @@ public class PostgresDAO implements BankDAO {
 
 	@Override
 	public List<BankAccount> readAllBankAccounts() throws BankDAOException {
-		// TODO Auto-generated method stub
-		return null;
+		
+		try (Connection conn = DatabaseUtil.getConnection()){
+			
+			return null;
+		}
+		catch(SQLException e) {
+			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
+		}
 	}
 
 	@Override
@@ -195,23 +206,20 @@ public class PostgresDAO implements BankDAO {
 	// helper methods -------------------------------------------------------------
 	
 	/**
-	 * Creates a new BankAccount object representing the data contained in the given
-	 * SQL result sets.
-	 * @param accSet : Most of the account information
-	 * @param ownerSet : IDs of the user(s) who own this account
+	 * Gets the list of owning user IDs for the indicated account
+	 * @param conn : an already open connection
+	 * @param accID
 	 * @return
+	 * @throws BankDAOException
 	 */
-	private BankAccount buildBankAccountFromResults(ResultSet accSet, ResultSet ownerSet) throws BankDAOException{
+	private List<Integer> getAccountOwnerList(Connection conn, int accID) throws BankDAOException{
 		
 		try {
-			BankAccount ba = new BankAccount();
-			while (accSet.next()) { // should only be one result
-				ba.setId(accSet.getInt("account_id"));
-				ba.setStatus(stringToBankAccountStatus(accSet.getString("status")));
-				ba.setType(stringToBankAccountType(accSet.getString("type")));
-				ba.setFunds(accSet.getInt("funds"));
-			}
-			// now get the owners
+			String sql = "SELECT user_id FROM account_ownership WHERE account_id = ?";
+			PreparedStatement pstm = conn.prepareStatement(sql);
+			pstm.setInt(1, accID);
+			ResultSet ownerSet = pstm.executeQuery();
+			
 			List<Integer> owners = new ArrayList<>();
 			
 			while (ownerSet.next()) { // should be AT LEAST one
@@ -219,9 +227,7 @@ public class PostgresDAO implements BankDAO {
 				int ownerID = ownerSet.getInt("user_id");
 				owners.add(ownerID);
 			}
-			ba.setOwners(owners);
-			
-			return ba;
+			return owners;
 		}
 		catch (SQLException e) {
 			throw new BankDAOException(RESULT_SET_ERROR_MESSAGE);

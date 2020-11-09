@@ -111,6 +111,14 @@ public class CommandLineIO implements BankIO {
 	
 	private static final String VIEW_USERS_HEADER = "Viewing users...";
 	
+	private static final String VIEW_TRANSACTION_HEADER = "Viewing transactions...";
+	private static final String VIEW_TRANSACTIONS_ID_LIST_HEADER
+			= "Enter a list of transaction IDs on a single line, separated by spaces.";
+	private static final String VIEW_TRANSACTIONS_MENU
+			= "(1) View all transactions made by a single user\n"
+			+ "(2) View all transactions involving a certain account\n"
+			+ "(3) Input a list of transaction IDs to view";
+	
 	// instance variables (fields)
 	private Scanner scan;
 	
@@ -279,16 +287,16 @@ public class CommandLineIO implements BankIO {
 	public void displayTransactionRecords(List<TransactionRecord> transactions) {
 		
 		System.out.println(FRAME_LINE);
-		System.out.println(DISPLAY_ACCOUNTS_HEADER);
+		System.out.println(DISPLAY_TRANSACTIONS_HEADER);
 		System.out.println(FRAME_LINE);
 		
 		for (TransactionRecord tr : transactions) {
 			String line = "|ID: " + tr.getId();
-			line = " |Type: " + tr.getType();
-			line = " |Time: " + tr.getTime();
-			line = " |Acting User: " + tr.getActingUser();
+			line = line + " |Type: " + tr.getType();
+			line = line + " |Time: " + tr.getTime();
+			line = line + " |Acting User: " + tr.getActingUser();
 			
-			line = " |Source Account: ";
+			line = line + " |Source Account: ";
 			if (tr.getSourceAccount() == -1) {
 				line = line + DISPLAY_FIELD_EMPTY;
 			}
@@ -296,7 +304,7 @@ public class CommandLineIO implements BankIO {
 				line = line + tr.getSourceAccount();
 			}
 			
-			line = " |Destination Account: ";
+			line = line + " |Destination Account: ";
 			if (tr.getDestinationAccount() == -1) {
 				line = line + DISPLAY_FIELD_EMPTY;
 			}
@@ -304,7 +312,7 @@ public class CommandLineIO implements BankIO {
 				line = line + tr.getDestinationAccount();
 			}
 			
-			line = " |Money amount: ";
+			line = line + " |Money amount: ";
 			if (tr.getMoneyAmount() == -1) {
 				line = line + DISPLAY_FIELD_EMPTY;
 			}
@@ -389,7 +397,7 @@ public class CommandLineIO implements BankIO {
 				req = buildViewUsers();
 				break;
 			case VIEW_TRANSACTIONS:
-				//req = buildViewTransactions();
+				req = buildViewTransactions();
 				break;
 			case CREATE_EMPLOYEE:
 				//req = buildCreateEmployee();
@@ -402,6 +410,75 @@ public class CommandLineIO implements BankIO {
 		return req;
 	}
 	
+	/**
+	 * Figures out if they want to search by trr ID, acting user ID, or
+	 * source/dest bank ID, then hands off to helper method.
+	 * @return
+	 */
+	private Request buildViewTransactions() {
+		
+		displayText(VIEW_TRANSACTION_HEADER, true);
+		
+		System.out.println(VIEW_TRANSACTIONS_MENU);
+		int choice = parseInt(CHOICES_PROMPT, 1, 4); // max NOT inclusive
+		
+		if (choice == 1) { 
+			return viewTransactionsByUser(); 
+		}
+		else if (choice == 2){
+			return viewTransactionsByAccount();
+		} else { // only other choice is 2
+			return viewTransactionsByID();
+		}
+	}
+
+	/**
+	 * Gets the account ID
+	 * @return
+	 */
+	private Request viewTransactionsByAccount() {
+		
+		int id = parseInt(ACCOUNT_ID_PROMPT);
+		List<String> params = new ArrayList<>();
+		params.add(BankSystem.ACCOUNT_TAG);
+		params.add("" + id);
+		
+		return new Request(
+				RequestType.VIEW_TRANSACTIONS,
+				params);
+	}
+
+	/**
+	 * Gets the user ID
+	 * @return
+	 */
+	private Request viewTransactionsByUser() {
+		
+		int id = parseInt(USER_ID_PROMPT);
+		List<String> params = new ArrayList<>();
+		params.add(BankSystem.USER_PROFILE_TAG);
+		params.add("" + id);
+		
+		return new Request(
+				RequestType.VIEW_TRANSACTIONS,
+				params);
+	}
+
+	/**
+	 * Gets the list of trr IDs
+	 * @return
+	 */
+	private Request viewTransactionsByID() {
+		
+		System.out.println(VIEW_TRANSACTIONS_ID_LIST_HEADER);
+		
+		List<String> params = parseIDList(ID_LIST_PROMPT);
+		params.add(0, BankSystem.TRANSACTION_TAG);
+		return new Request(
+				RequestType.VIEW_TRANSACTIONS,
+				params);
+	}
+
 	/**
 	 * Gets the list of user IDs
 	 * @return
@@ -749,7 +826,10 @@ public class CommandLineIO implements BankIO {
 		boolean isValid = false;
 		do {
 			System.out.print(promptText);
-			String input = scan.next();
+			String input = "";
+			while (input.equals("")) {
+				input = scan.nextLine();
+			}
 			try {
 				choice = Integer.parseInt(input);
 				// it's an int, is it a valid int?

@@ -264,7 +264,9 @@ public class BankSystem {
 				io.displayText(NO_USER_LOGGED_IN_MESSAGE);
 			}
 			else {
-				io.displayText(USER_LOGGED_IN_PREFIX + currentUser.getUsername() + " ID: " + currentUser.getId());
+				io.displayText(
+						USER_LOGGED_IN_PREFIX + currentUser.getUsername() + " ID: " + currentUser.getId(),
+						true);
 			}
 			
 			//determine what to prompt the user with
@@ -1058,6 +1060,7 @@ public class BankSystem {
 				UserProfile up = dao.readUserProfile(Integer.parseInt(id));
 				
 				if (up.getType() == UserProfileType.NONE) {
+					//System.out.println("DEBUG: invalid user in handleViewUsers: " + id);
 					invalidIDs = invalidIDs + " " + id;
 				}
 				else {
@@ -1069,7 +1072,8 @@ public class BankSystem {
 				io.displayUserProfiles(users);				
 			}
 			if (!invalidIDs.equals("")) {
-				io.displayText(invalidIDs);
+				//System.out.println("DEBUG: printing invalid ids");
+				io.displayText(USER_ID_MULTIPLE_NOT_FOUND_PREFIX + invalidIDs);
 			}
 		}
 		catch (BankDAOException e) {

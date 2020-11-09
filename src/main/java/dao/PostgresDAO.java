@@ -12,6 +12,7 @@ import com.revature.bankDataObjects.BankAccount;
 import com.revature.bankDataObjects.BankData;
 import com.revature.bankDataObjects.TransactionRecord;
 import com.revature.bankDataObjects.UserProfile;
+import com.revature.bankDataObjects.UserProfile.UserProfileType;
 import com.revature.bankDataObjects.BankAccount.BankAccountStatus;
 import com.revature.bankDataObjects.BankAccount.BankAccountType;
 
@@ -105,9 +106,9 @@ public class PostgresDAO implements BankDAO {
 			pstm.setInt(1, accID);
 			ResultSet accSet = pstm.executeQuery();
 			
-			BankAccount ba = new BankAccount();
+			BankAccount ba = new BankAccount(accID);
 			while (accSet.next()) { // should only be one result
-				ba.setId(accSet.getInt("account_id"));
+				//ba.setId(accSet.getInt("account_id"));
 				ba.setStatus(stringToBankAccountStatus(accSet.getString("status")));
 				ba.setType(stringToBankAccountType(accSet.getString("type")));
 				ba.setFunds(accSet.getInt("funds"));
@@ -140,20 +141,7 @@ public class PostgresDAO implements BankDAO {
 			PreparedStatement pstm = conn.prepareStatement(sql);
 			ResultSet accSet = pstm.executeQuery();
 			
-			List<BankAccount> accounts = new ArrayList<>();
-			
-			while (accSet.next()) { // should only be one result
-				BankAccount ba = new BankAccount();
-				int accID = accSet.getInt("account_id");
-				ba.setId(accID);
-				ba.setStatus(stringToBankAccountStatus(accSet.getString("status")));
-				ba.setType(stringToBankAccountType(accSet.getString("type")));
-				ba.setFunds(accSet.getInt("funds"));
-				ba.setOwners(getAccountOwnerList(conn, accID));
-				accounts.add(ba);
-			}
-			
-			return accounts;
+			return getAccountListFromResults(conn, accSet);
 		}
 		catch(SQLException e) {
 			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
@@ -168,8 +156,29 @@ public class PostgresDAO implements BankDAO {
 	 */
 	@Override
 	public UserProfile readUserProfile(int userID) throws BankDAOException {
-		// TODO Auto-generated method stub
-		return null;
+		
+		try (Connection conn = DatabaseUtil.getConnection()){
+			
+			if (conn == null) {
+				throw new BankDAOException(NULL_CONNECTION_MESSAGE);
+			}
+			
+			String sql = "SELECT * FROM user_profile WHERE account_id = ?;";
+			PreparedStatement pstm = conn.prepareStatement(sql);
+			pstm.setInt(1, userID);
+			ResultSet userSet = pstm.executeQuery();
+			
+			UserProfile up = new UserProfile(userID);
+			while (userSet.next()) { // should only be one result
+				//up.setId(userSet.getInt("user_id"));
+				up.setType(stringToUserProfileType(userSet.getString("type")));
+			}
+			
+			return up;
+		}
+		catch(SQLException e) {
+			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
+		}
 	}
 
 	/**
@@ -333,41 +342,82 @@ public class PostgresDAO implements BankDAO {
 		}
 	}
 	
-	// util methods ------------------------------------------------------------
-	
-		/**
-		 * String -> enum
-		 * @param s
-		 * @return
-		 */
-		private BankAccountType stringToBankAccountType(String s) {
-
-			switch (s) { // set the account type
-				case ACCOUNT_TYPE_JOINT:
-					return BankAccountType.JOINT;
-				case ACCOUNT_TYPE_SINGLE:
-					return (BankAccountType.SINGLE);
-				default:
-					return BankAccountType.NONE;
-			}
+	/**
+	 * Convers the results of a query into a list of BankAccount objects.
+	 * @param conn
+	 * @param accSet
+	 * @return
+	 * @throws SQLException
+	 * @throws BankDAOException
+	 */
+	private List<BankAccount> getAccountListFromResults(Connection conn, ResultSet accSet) 
+			throws SQLException, BankDAOException{
+		
+		List<BankAccount> accounts = new ArrayList<>();
+		
+		while (accSet.next()) { // should only be one result
+			BankAccount ba = new BankAccount();
+			int accID = accSet.getInt("account_id");
+			ba.setId(accID);
+			ba.setStatus(stringToBankAccountStatus(accSet.getString("status")));
+			ba.setType(stringToBankAccountType(accSet.getString("type")));
+			ba.setFunds(accSet.getInt("funds"));
+			ba.setOwners(getAccountOwnerList(conn, accID));
+			accounts.add(ba);
 		}
 		
-		/**
-		 * String -> enum
-		 * @param s
-		 * @return
-		 */
-		private BankAccountStatus stringToBankAccountStatus(String s) {
-			
-			switch(s) { // set the status
-				case ACCOUNT_STATUS_OPEN:
-					return BankAccountStatus.OPEN;
-				case ACCOUNT_STATUS_CLOSED:
-					return BankAccountStatus.CLOSED;
-				case ACCOUNT_STATUS_PENDING:
-					return BankAccountStatus.PENDING;
-				default:
-					return BankAccountStatus.NONE;
-			}
+		return accounts;
+	}
+	
+	// util methods ------------------------------------------------------------
+	
+	/**
+	 * String -> enum
+	 * @param s
+	 * @return
+	 */
+	private BankAccountType stringToBankAccountType(String s) {
+
+		switch (s) { // set the account type
+			case ACCOUNT_TYPE_JOINT:
+				return BankAccountType.JOINT;
+			case ACCOUNT_TYPE_SINGLE:
+				return (BankAccountType.SINGLE);
+			default:
+				return BankAccountType.NONE;
 		}
+	}
+	
+	/**
+	 * String -> enum
+	 * @param s
+	 * @return
+	 */
+	private BankAccountStatus stringToBankAccountStatus(String s) {
+		
+		switch(s) { // set the status
+			case ACCOUNT_STATUS_OPEN:
+				return BankAccountStatus.OPEN;
+			case ACCOUNT_STATUS_CLOSED:
+				return BankAccountStatus.CLOSED;
+			case ACCOUNT_STATUS_PENDING:
+				return BankAccountStatus.PENDING;
+			default:
+				return BankAccountStatus.NONE;
+		}
+	}
+	
+	private UserProfileType stringToUserProfileType(String s) {
+		
+		switch(s) { // set the type
+			case PROFILE_TYPE_ADMIN:
+				return UserProfileType.ADMIN;
+			case PROFILE_TYPE_CUSTOMER:
+				return UserProfileType.CUSTOMER;
+			case PROFILE_TYPE_EMPLOYEE:
+				return UserProfileType.EMPLOYEE;
+			default:
+				return UserProfileType.NONE;
+		}
+	}
 }

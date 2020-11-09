@@ -103,10 +103,13 @@ public class CommandLineIO implements BankIO {
 			+ "(2) Input a list of account IDS to view";
 	private static final String VIEW_ACCOUNTS_ID_LIST_HEADER
 			= "Enter a list of account IDs on a single line, separated by spaces.";
-	private static final String VIEW_ACCOUNTS_ID_LIST_PROMPT
+	
+	private static final String ID_LIST_PROMPT
 			= "Enter the IDs here: ";
-	private static final String VIEW_ACCOUNTS_BAD_TOKEN_MESSAGE
+	private static final String ID_LIST_BAD_TOKEN_MESSAGE
 			= "Invalid input. Every ID must be numbers only.";
+	
+	private static final String VIEW_USERS_HEADER = "Viewing users...";
 	
 	// instance variables (fields)
 	private Scanner scan;
@@ -380,10 +383,10 @@ public class CommandLineIO implements BankIO {
 				req = buildViewAccounts();
 				break;
 			case VIEW_SELF_PROFILE:
-				//req = buildViewSelfProfile();
+				req = buildViewSelfProfile();
 				break;
 			case VIEW_USERS:
-				//req = buildViewUsers();
+				req = buildViewUsers();
 				break;
 			case VIEW_TRANSACTIONS:
 				//req = buildViewTransactions();
@@ -399,6 +402,29 @@ public class CommandLineIO implements BankIO {
 		return req;
 	}
 	
+	/**
+	 * Gets the list of user IDs
+	 * @return
+	 */
+	private Request buildViewUsers() {
+		
+		displayText(VIEW_ACCOUNTS_HEADER, true);
+		
+		List<String> params = parseIDList(ID_LIST_PROMPT);
+		return new Request(
+				RequestType.VIEW_USERS,
+				params);
+	}
+
+	/**
+	 * No params needed for this
+	 * @return
+	 */
+	private Request buildViewSelfProfile() {
+		// TODO Auto-generated method stub
+		return new Request(RequestType.VIEW_SELF_PROFILE);
+	}
+
 	/**
 	 * Figures out if they want to search by owning user or by number, then
 	 * hand off to helper method.
@@ -442,30 +468,9 @@ public class CommandLineIO implements BankIO {
 	private Request viewAccountsByID() {
 		
 		System.out.println(VIEW_ACCOUNTS_ID_LIST_HEADER);
-		boolean isValid = false;
-		List<String> params = null;
 		
-		do {
-			System.out.print(VIEW_ACCOUNTS_ID_LIST_PROMPT);
-			String idLine = scan.nextLine();
-			while (idLine.equals("")) { // not sure why this is necessary
-				idLine = scan.nextLine();
-			}
-			String[] tokens = idLine.split(" ");
-			params = new ArrayList<>();
-			
-			try {
-				for (String t : tokens) {
-					Integer.parseInt(t); // only to check the format
-					params.add(t);
-				}
-				// if we read every token, we're good
-				isValid = true;
-			}
-			catch(NumberFormatException e){ // if one of the tokens was bad
-				System.out.println(VIEW_ACCOUNTS_BAD_TOKEN_MESSAGE);
-			} 
-		} while(!isValid);
+		List<String> params = parseIDList(ID_LIST_PROMPT);
+		
 		// insert the tag last because otherwise it would be erased
 		params.add(0, BankSystem.ACCOUNT_TAG);
 		
@@ -830,5 +835,40 @@ public class CommandLineIO implements BankIO {
 		} while(!isValid);
 		
 		return input;
+	}
+	
+	/**
+	 * Helper method that prompts the user for a list of IDs.
+	 * Loops until the input is in the right format (numbers seperated by spaces)
+	 * @param promptText
+	 * @return
+	 */
+	private List<String> parseIDList(String promptText){
+		
+		List<String> params;
+		boolean isValid = false;
+		do {
+			System.out.print(promptText);
+			String idLine = scan.nextLine();
+			while (idLine.equals("")) { // not sure why this is necessary
+				idLine = scan.nextLine();
+			}
+			String[] tokens = idLine.split(" ");
+			params = new ArrayList<>();
+			
+			try {
+				for (String t : tokens) {
+					Integer.parseInt(t); // only to check the format
+					params.add(t);
+				}
+				// if we read every token, we're good
+				isValid = true;
+			}
+			catch(NumberFormatException e){ // if one of the tokens was bad
+				System.out.println(ID_LIST_BAD_TOKEN_MESSAGE);
+			} 
+		} while(!isValid);
+		
+		return params;
 	}
 }

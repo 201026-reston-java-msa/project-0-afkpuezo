@@ -187,6 +187,13 @@ public class DatabaseUtil {
 		pstm.setString(3, "pass");
 		pstm.setString(4, "CUSTOMER");
 		pstm.execute();
+		
+		pstm = conn.prepareStatement(insertUserProfileString);
+		pstm.setInt(1, 4);
+		pstm.setString(2, "cust2");
+		pstm.setString(3, "pass");
+		pstm.setString(4, "CUSTOMER");
+		pstm.execute();
 	}
 	
 	/**
@@ -200,11 +207,19 @@ public class DatabaseUtil {
 				"INSERT INTO bank_account (account_id, status, type, funds) VALUES (?, ? , ?, ?);";
 		
 		pstm = conn.prepareStatement(insertBankAccountString);
-		pstm.setInt(1, 1);
-		pstm.setString(2, "OPEN");
-		pstm.setString(3, "SINGLE");
-		pstm.setInt(4, 123456);
+		pstm.setInt(1, 1); // acc id is 1
+		pstm.setString(2, "OPEN"); // status
+		pstm.setString(3, "SINGLE"); // type
+		pstm.setInt(4, 123456); // funds
 		pstm.execute();
+		
+		pstm = conn.prepareStatement(insertBankAccountString);
+		pstm.setInt(1, 2); // acc id is 2
+		pstm.setString(2, "CLOSED"); // status
+		pstm.setString(3, "SINGLE"); // type
+		pstm.setInt(4, 0); // funds
+		pstm.execute();
+		
 	}
 	
 	private static void populateTransactionRecords(Connection conn) throws SQLException {
@@ -235,6 +250,11 @@ public class DatabaseUtil {
 		pstm = conn.prepareStatement(insertBankAccountString);
 		pstm.setInt(1, 3); // owner is user 3
 		pstm.setInt(2, 1); // the account is account 1
+		pstm.execute();
+		
+		pstm = conn.prepareStatement(insertBankAccountString);
+		pstm.setInt(1, 4); // owner is user 4
+		pstm.setInt(2, 2); // the account is account 2
 		pstm.execute();
 	}
 }

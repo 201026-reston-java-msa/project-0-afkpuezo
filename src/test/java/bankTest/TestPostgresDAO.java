@@ -5,7 +5,8 @@
  */
 package bankTest;
 
-import static org.junit.Assert.assertEquals;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -42,6 +43,7 @@ public class TestPostgresDAO {
 	// junit util methods ----------------------------------------------------------
 	@Before
 	public void setupPDAO() {
+		
 		pdao = new PostgresDAO();
 		DatabaseUtil.resetDatabase();
 	}
@@ -50,17 +52,24 @@ public class TestPostgresDAO {
 	
 	@Test
 	public void testResourceName() {
+		
 		assertEquals(DatabaseUtil.TEST_ADDRESS, pdao.getResourceName());
 	}
 	
 	@Test
 	public void testGetConnection() {
+		
 		Connection conn = DatabaseUtil.getConnection();
 		assertNotNull(conn);
 	}
 	
+	/**
+	 * could fail if i change something in the setup
+	 * @throws BankDAOException
+	 */
 	@Test
 	public void testReadBankAccount() throws BankDAOException{
+		
 		BankAccount ba = pdao.readBankAccount(1);
 		assertEquals(1,  ba.getId());
 		assertEquals(BankAccountStatus.OPEN, ba.getStatus());
@@ -68,5 +77,32 @@ public class TestPostgresDAO {
 		assertEquals(123456, ba.getFunds());
 		assertEquals(1, ba.getOwners().size());
 		assertTrue(3 == ba.getOwners().get(0));
+	}
+	
+	/**
+	 * could fail if i change something in the setup
+	 * @throws BankDAOException
+	 */
+	@Test
+	public void testReadAllBankAccounts() throws BankDAOException{
+		
+		List<BankAccount> accounts = pdao.readAllBankAccounts();
+		assertEquals(2, accounts.size());
+
+		BankAccount ba = accounts.get(0);
+		assertEquals(1,  ba.getId());
+		assertEquals(BankAccountStatus.OPEN, ba.getStatus());
+		assertEquals(BankAccountType.SINGLE, ba.getType());
+		assertEquals(123456, ba.getFunds());
+		assertEquals(1, ba.getOwners().size());
+		assertTrue(3 == ba.getOwners().get(0));
+		
+		ba = accounts.get(1);
+		assertEquals(2,  ba.getId());
+		assertEquals(BankAccountStatus.CLOSED, ba.getStatus());
+		assertEquals(BankAccountType.SINGLE, ba.getType());
+		assertEquals(0, ba.getFunds());
+		assertEquals(1, ba.getOwners().size());
+		assertTrue(4 == ba.getOwners().get(0));
 	}
 }

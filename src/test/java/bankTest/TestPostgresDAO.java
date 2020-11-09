@@ -52,4 +52,9 @@ public class TestPostgresDAO {
 		Connection conn = DatabaseUtil.getConnection();
 		assertNotNull(conn);
 	}
+	
+	@Test
+	public void testResetDatabase() {
+		DatabaseUtil.resetDatabase();
+	}
 }

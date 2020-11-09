@@ -6,8 +6,10 @@
  */
 package dao;
 
+import java.sql.Statement;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class DatabaseUtil {
@@ -62,5 +64,139 @@ public class DatabaseUtil {
 		}
 		
 		return conn;
+	}
+	
+	/**
+	 * (Should) set the database into a fresh state.
+	 */
+	public static void resetDatabase() {
+		
+		Connection conn = getConnection();
+		
+		try {
+			// drop tables --------------------------------------------------------------
+			dropTableIfExists(conn, "user_profile");
+			dropTableIfExists(conn, "bank_account");
+			dropTableIfExists(conn, "transaction_record");
+			dropTableIfExists(conn, "account_ownership");
+			
+			// create tables ------------------------------------------------------------
+			Statement stm;
+			
+			// a little clumsy but it works (I hope)
+			String createUserProfileTable = "CREATE TABLE \"user_profile\"\n"
+					+ "(\n"
+					+ "\"user_id\" INT NOT NULL,\n"
+					+ "\"username\" VARCHAR(120) NOT NULL,\n"
+					+ "\"password\" VARCHAR(120) NOT NULL,\n"
+					+ "\"type\" VARCHAR(120) NOT NULL,\n"
+					+ "CONSTRAINT \"PK_user_profile\" PRIMARY KEY (\"user_id\")\n"
+					+ ");";
+			stm = conn.createStatement();
+			stm.execute(createUserProfileTable);
+			
+			String createBankAccountTable = "CREATE TABLE \"bank_account\"\n"
+					+ "(\n"
+					+ "\"account_id\" INT NOT NULL,\n"
+					+ "\"status\" VARCHAR(120) NOT NULL,\n"
+					+ "\"type\" VARCHAR(120) NOT NULL,\n"
+					+ "\"funds\" INT NOT NULL,\n"
+					+ "CONSTRAINT \"PK_bank_account\" PRIMARY KEY (\"account_id\")\n"
+					+ ");";
+			stm = conn.createStatement();
+			stm.execute(createBankAccountTable);
+			
+			String createTransactionTable = "CREATE TABLE \"transaction_record\"\n"
+					+ "(\n"
+					+ "\"transaction_id\" INT NOT NULL,\n"
+					+ "\"time\" VARCHAR(120) NOT NULL,\n"
+					+ "\"type\" VARCHAR(120) NOT NULL,\n"
+					+ "\"acting_user\" INT NOT NULL,\n"
+					+ "\"source_account\" INT NOT NULL,\n"
+					+ "\"destination_account\" INT NOT NULL,\n"
+					+ "\"money_amount\" INT NOT NULL,\n"
+					+ "CONSTRAINT \"PK_transaction_record\" PRIMARY KEY (\"transaction_id\")\n"
+					+ ");";
+			stm = conn.createStatement();
+			stm.execute(createTransactionTable);
+			
+			String createAccountOwnershipTable = "CREATE TABLE \"account_ownership\"\n"
+					+ "(\n"
+					+ "\"user_id\" INT NOT NULL,\n"
+					+ "\"account_id\" INT NOT NULL,\n"
+					+ "CONSTRAINT \"PK_ownership\" PRIMARY KEY (\"user_id\", \"account_id\")\n"
+					+ ");";
+			stm = conn.createStatement();
+			stm.execute(createAccountOwnershipTable);
+			
+			// populate with starting data -----------------
+			populateUserProfiles(conn);
+			populateBankAccounts(conn);
+		}
+		catch(SQLException e) {
+			System.out.println("Problem resetting database: " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Helper method that does what it says
+	 * @param conn
+	 * @param table
+	 */
+	private static void dropTableIfExists(Connection conn, String table) throws SQLException {
+		
+		String sql = "DROP TABLE IF EXISTS " + table;
+		Statement stm = conn.createStatement();
+		stm.execute(sql);
+	}
+	
+	/**
+	 * Another helper for readability
+	 * @param conn
+	 */
+	private static void populateUserProfiles(Connection conn) throws SQLException {
+		
+		PreparedStatement pstm;
+		String insertUserProfileString = 
+				"INSERT INTO user_profile (user_id, username, password, type) VALUES (?, ? , ?, ?);";
+		
+		pstm = conn.prepareStatement(insertUserProfileString);
+		pstm.setInt(1, 1);
+		pstm.setString(2, "admin");
+		pstm.setString(3, "admin");
+		pstm.setString(4, "ADMIN");
+		pstm.execute();
+		
+		pstm = conn.prepareStatement(insertUserProfileString);
+		pstm.setInt(1, 2);
+		pstm.setString(2, "empl");
+		pstm.setString(3, "empass");
+		pstm.setString(4, "EMPLOYEE");
+		pstm.execute();
+		
+		pstm = conn.prepareStatement(insertUserProfileString);
+		pstm.setInt(1, 3);
+		pstm.setString(2, "cust");
+		pstm.setString(3, "pass");
+		pstm.setString(4, "CUSTOMER");
+		pstm.execute();
+	}
+	
+	/**
+	 * Another helper for readability
+	 * @param conn
+	 */
+	private static void populateBankAccounts(Connection conn) throws SQLException {
+		
+		PreparedStatement pstm;
+		String insertBankAccountString = 
+				"INSERT INTO bank_account (account_id, status, type, funds) VALUES (?, ? , ?, ?);";
+		
+		pstm = conn.prepareStatement(insertBankAccountString);
+		pstm.setInt(1, 1);
+		pstm.setString(2, "OPEN");
+		pstm.setString(3, "SINGLE");
+		pstm.setInt(4, 123456);
+		pstm.execute();
 	}
 }

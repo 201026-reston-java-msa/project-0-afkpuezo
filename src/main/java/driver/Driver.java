@@ -34,6 +34,8 @@ public class Driver {
 		BankDAO dao = new TextFileDAO(testFilename);
 		BankSystem bank = new BankSystem(io, dao);
 		bank.start();
+		// clean things up
+		io.close();
 	}
 	
 	/**

@@ -254,8 +254,8 @@ public class CommandLineIO implements BankIO {
 		
 		for (BankAccount ba : accounts) {
 			String line = "|ID: " + ba.getId();
-			line = " |Type: " + ba.getType();
-			line = " |Status: " + ba.getStatus();
+			line = line + " |Type: " + ba.getType();
+			line = line + " |Status: " + ba.getStatus();
 			line = line + " |Funds: " + intToMoneyString(ba.getFunds());
 			line = line + " |Owner(s):"; // assume not empty
 			
@@ -409,7 +409,7 @@ public class CommandLineIO implements BankIO {
 		displayText(VIEW_ACCOUNTS_HEADER, true);
 		
 		System.out.println(VIEW_ACCOUNTS_MENU);
-		int choice = parseInt(CHOICES_PROMPT, 1, 2);
+		int choice = parseInt(CHOICES_PROMPT, 1, 3); // max NOT inclusive
 		
 		if (choice == 1) { 
 			return viewAccountsByUser(); 
@@ -446,8 +446,11 @@ public class CommandLineIO implements BankIO {
 		List<String> params = null;
 		
 		do {
-			System.out.println(VIEW_ACCOUNTS_ID_LIST_PROMPT);
-			String idLine = scan.next();
+			System.out.print(VIEW_ACCOUNTS_ID_LIST_PROMPT);
+			String idLine = scan.nextLine();
+			while (idLine.equals("")) { // not sure why this is necessary
+				idLine = scan.nextLine();
+			}
 			String[] tokens = idLine.split(" ");
 			params = new ArrayList<>();
 			
@@ -463,6 +466,8 @@ public class CommandLineIO implements BankIO {
 				System.out.println(VIEW_ACCOUNTS_BAD_TOKEN_MESSAGE);
 			} 
 		} while(!isValid);
+		// insert the tag last because otherwise it would be erased
+		params.add(0, BankSystem.ACCOUNT_TAG);
 		
 		return new Request(
 				RequestType.VIEW_ACCOUNTS,
@@ -780,25 +785,22 @@ public class CommandLineIO implements BankIO {
 		String input = ""; // will be filled in
 		do {
 			System.out.print(promptText);
-			input = scan.next();
+			input = scan.nextLine();
 			
-			if (input.equals("")) {
-				System.out.println(PARSE_STRING_EMPTY_STRING_INVALID);
+			while (input.equals("")) {
+				input = scan.nextLine();
 			}
-			else { // not empty string
-				boolean foundWhite = false;
-				for (char c : input.toCharArray()) {
-					if (Character.isWhitespace(c)){
-						foundWhite = true;
-						System.out.println(PARSE_STRING_WHITESPACE_INVALID);
-						break;
-					}
+			boolean foundWhite = false;
+			for (char c : input.toCharArray()) {
+				if (Character.isWhitespace(c)){
+					foundWhite = true;
+					System.out.println(PARSE_STRING_WHITESPACE_INVALID);
+					break;
 				}
-				
-				if (!foundWhite) {
-					isValid = true;
-				}
-			} // end else (if not empty string)
+			}
+			if (!foundWhite) {
+				isValid = true;
+			}
 		} while(!isValid);
 		
 		return input;

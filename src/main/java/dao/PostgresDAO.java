@@ -47,7 +47,8 @@ public class PostgresDAO implements BankDAO {
 
 	@Override
 	public BankAccount readBankAccount(int accID) throws BankDAOException {
-		// TODO Auto-generated method stub
+
+		String sql = "";
 		return null;
 	}
 
@@ -135,4 +136,5 @@ public class PostgresDAO implements BankDAO {
 		return false;
 	}
 
+	// helper methods -------------------------------------------------------------
 }

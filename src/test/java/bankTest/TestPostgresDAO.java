@@ -38,6 +38,7 @@ public class TestPostgresDAO {
 	@Before
 	public void setupPDAO() {
 		pdao = new PostgresDAO();
+		DatabaseUtil.resetDatabase();
 	}
 	
 	// test methods ----------------------------------------------------------------
@@ -51,10 +52,5 @@ public class TestPostgresDAO {
 	public void testGetConnection() {
 		Connection conn = DatabaseUtil.getConnection();
 		assertNotNull(conn);
-	}
-	
-	@Test
-	public void testResetDatabase() {
-		DatabaseUtil.resetDatabase();
 	}
 }

@@ -124,14 +124,23 @@ public class DatabaseUtil {
 					+ "(\n"
 					+ "\"user_id\" INT NOT NULL,\n"
 					+ "\"account_id\" INT NOT NULL,\n"
-					+ "CONSTRAINT \"PK_ownership\" PRIMARY KEY (\"user_id\", \"account_id\")\n"
+					+ "PRIMARY KEY (\"user_id\", \"account_id\")\n"
+					//+ "CONSTRAINT \"FK_user\" FOREIGN KEY (\"user_id\") REFERENCES user_profile (\"user_id\")"
+					//+ "CONSTRAINT \"FK_account\" FOREIGN KEY (\"account_id\") REFERENCES bank_account (\"account_id\")"
 					+ ");";
 			stm = conn.createStatement();
 			stm.execute(createAccountOwnershipTable);
+			// add the foreign keys
+			String addUserIDForeignKey = "ALTER TABLE \"account_ownership\" ADD CONSTRAINT \"FK_user\"\n"
+					+ "		FOREIGN KEY (\"user_id\") REFERENCES \"user_profile\" (\"user_id\")";
+			stm = conn.createStatement();
+			stm.execute(addUserIDForeignKey);
 			
 			// populate with starting data -----------------
 			populateUserProfiles(conn);
 			populateBankAccounts(conn);
+			populateTransactionRecords(conn);
+			populateAccountOwnership(conn);
 		}
 		catch(SQLException e) {
 			System.out.println("Problem resetting database: " + e.getMessage());
@@ -145,7 +154,7 @@ public class DatabaseUtil {
 	 */
 	private static void dropTableIfExists(Connection conn, String table) throws SQLException {
 		
-		String sql = "DROP TABLE IF EXISTS " + table;
+		String sql = "DROP TABLE IF EXISTS " + table + " CASCADE";
 		Statement stm = conn.createStatement();
 		stm.execute(sql);
 	}
@@ -198,5 +207,29 @@ public class DatabaseUtil {
 		pstm.setString(3, "SINGLE");
 		pstm.setInt(4, 123456);
 		pstm.execute();
+	}
+	
+	private static void populateTransactionRecords(Connection conn) throws SQLException {
+		
+		PreparedStatement pstm;
+		String insertTransactionString = 
+				"INSERT INTO transaction_record (transaction_id, time, type, acting_user, "
+				+ "source_account, destination_account, money_amount) "
+				+ "VALUES (?, ? , ?, ?, ?, ?, ?);";
+		
+		pstm = conn.prepareStatement(insertTransactionString);
+		pstm.setInt(1, 1); // id
+		pstm.setString(2, "PLACEHOLDER"); // time
+		pstm.setString(3, "DEPOSIT"); // type 
+		pstm.setInt(4, 3); // the acting user - the customer profile
+		pstm.setInt(5, -1); // the source account, none
+		pstm.setInt(6, 1); // the destination account, owned by the customer
+		pstm.setInt(7, 123456); // the money amount
+		pstm.execute();
+	}
+	
+	private static void populateAccountOwnership(Connection conn) {
+		// TODO Auto-generated method stub
+		
 	}
 }

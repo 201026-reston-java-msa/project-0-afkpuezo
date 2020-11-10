@@ -11,6 +11,7 @@ import java.util.List;
 import com.revature.bankDataObjects.BankAccount;
 import com.revature.bankDataObjects.BankData;
 import com.revature.bankDataObjects.TransactionRecord;
+import com.revature.bankDataObjects.TransactionRecord.TransactionType;
 import com.revature.bankDataObjects.UserProfile;
 import com.revature.bankDataObjects.UserProfile.UserProfileType;
 import com.revature.bankDataObjects.BankAccount.BankAccountStatus;
@@ -271,9 +272,12 @@ public class PostgresDAO implements BankDAO {
 			TransactionRecord tr = new TransactionRecord(recID);
 			while (trrSet.next()) { // should only be one result
 				// dont need to set ID
+				tr.setType(stringToTransactionType(trrSet.getString("type")));
 				tr.setTime(trrSet.getString("time"));
 				tr.setActingUser(trrSet.getInt("acting_user"));
-				// TODO come back here
+				tr.setSourceAccount(trrSet.getInt("source_account"));
+				tr.setDestinationAccount(trrSet.getInt("destination_account"));
+				tr.setMoneyAmount(trrSet.getInt("money_amount"));
 			}
 			
 			return tr;
@@ -289,8 +293,22 @@ public class PostgresDAO implements BankDAO {
 	 */
 	@Override
 	public List<TransactionRecord> readAllTransactionRecords() throws BankDAOException {
-		// TODO Auto-generated method stub
-		return null;
+		
+		try (Connection conn = DatabaseUtil.getConnection()){
+			
+			if (conn == null) {
+				throw new BankDAOException(NULL_CONNECTION_MESSAGE);
+			}
+			
+			String sql = "SELECT * FROM transaction_record;";
+			PreparedStatement pstm = conn.prepareStatement(sql);
+			ResultSet trrSet = pstm.executeQuery();
+		
+			return getTransactionListFromResults(conn, trrSet);
+		}
+		catch(SQLException e) {
+			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
+		}
 	}
 
 	/**
@@ -490,6 +508,25 @@ public class PostgresDAO implements BankDAO {
 		return users;
 	}
 	
+	private List<TransactionRecord> getTransactionListFromResults(Connection conn, ResultSet trrSet)
+			throws SQLException, BankDAOException{
+		
+		List<TransactionRecord> transactions = new ArrayList<>();
+		while (trrSet.next()) { // should only be one result
+			TransactionRecord tr = new TransactionRecord();
+			tr.setId(trrSet.getInt("transaction_id"));
+			tr.setType(stringToTransactionType(trrSet.getString("type")));
+			tr.setTime(trrSet.getString("time"));
+			tr.setActingUser(trrSet.getInt("acting_user"));
+			tr.setSourceAccount(trrSet.getInt("source_account"));
+			tr.setDestinationAccount(trrSet.getInt("destination_account"));
+			tr.setMoneyAmount(trrSet.getInt("money_amount"));
+			transactions.add(tr);
+		}
+		
+		return transactions;
+	}
+	
 	// util methods ------------------------------------------------------------
 	
 	/**
@@ -539,6 +576,28 @@ public class PostgresDAO implements BankDAO {
 				return UserProfileType.EMPLOYEE;
 			default:
 				return UserProfileType.NONE;
+		}
+	}
+	
+	private TransactionType stringToTransactionType(String s) {
+		
+		switch(s) { // type
+			case TRANSACTION_TYPE_ACCOUNT_REGISTERED:
+				return TransactionType.ACCOUNT_REGISTERED;
+			case TRANSACTION_TYPE_ACCOUNT_APPROVED:
+				return TransactionType.ACCOUNT_APPROVED;
+			case TRANSACTION_TYPE_ACCOUNT_CLOSED:
+				return TransactionType.ACCOUNT_CLOSED;
+			case TRANSACTION_TYPE_FUNDS_DEPOSITED:
+				return TransactionType.FUNDS_DEPOSITED;
+			case TRANSACTION_TYPE_FUNDS_WITHDRAWN:
+				return TransactionType.FUNDS_WITHDRAWN;
+			case TRANSACTION_TYPE_FUNDS_TRANSFERED:
+				return TransactionType.FUNDS_TRANSFERED;
+			case TRANSACTION_TYPE_USER_REGISTERED:
+				return TransactionType.USER_REGISTERED;
+			default:
+				return TransactionType.NONE;
 		}
 	}
 }

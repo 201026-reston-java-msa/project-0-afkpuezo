@@ -24,6 +24,8 @@ import org.junit.rules.ExpectedException;
 import org.junit.validator.PublicClassValidator;
 
 import com.revature.bankDataObjects.BankAccount;
+import com.revature.bankDataObjects.TransactionRecord;
+import com.revature.bankDataObjects.TransactionRecord.TransactionType;
 import com.revature.bankDataObjects.BankAccount.BankAccountStatus;
 import com.revature.bankDataObjects.BankAccount.BankAccountType;
 import com.revature.bankDataObjects.UserProfile;
@@ -145,5 +147,25 @@ public class TestPostgresDAO {
 		assertEquals(UserProfileType.CUSTOMER, up.getType());
 		assertEquals(1, up.getOwnedAccounts().size());
 		assertTrue(1 == up.getOwnedAccounts().get(0));
+	}
+	
+	@Test
+	public void testReadTransactionRecord() throws BankDAOException{
+		
+		TransactionRecord tr = pdao.readTransactionRecord(1);
+		assertEquals(1, tr.getId());
+		assertEquals(TransactionType.FUNDS_DEPOSITED, tr.getType());
+		assertEquals(3, tr.getActingUser());
+		assertEquals(1, tr.getDestinationAccount());
+		assertEquals(123456, tr.getMoneyAmount());
+		
+		List<TransactionRecord> transactions = pdao.readAllTransactionRecords();
+		assertEquals(1, transactions.size());
+		tr = transactions.get(0);
+		assertEquals(1, tr.getId());
+		assertEquals(TransactionType.FUNDS_DEPOSITED, tr.getType());
+		assertEquals(3, tr.getActingUser());
+		assertEquals(1, tr.getDestinationAccount());
+		assertEquals(123456, tr.getMoneyAmount());
 	}
 }

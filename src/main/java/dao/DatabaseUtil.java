@@ -146,6 +146,10 @@ public class DatabaseUtil {
 					+ "		FOREIGN KEY (\"user_id\") REFERENCES \"user_profile\" (\"user_id\")";
 			stm = conn.createStatement();
 			stm.execute(addUserIDForeignKey);
+			String addAccountIDForeignKey = "ALTER TABLE \"account_ownership\" ADD CONSTRAINT \"FK_account\"\n"
+					+ "		FOREIGN KEY (\"account_id\") REFERENCES \"bank_account\" (\"account_id\")";
+			stm = conn.createStatement();
+			stm.execute(addAccountIDForeignKey);
 			
 			// populate with starting data -----------------
 			populateUserProfiles(conn);

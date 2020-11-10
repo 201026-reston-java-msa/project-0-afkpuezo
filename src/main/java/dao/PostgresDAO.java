@@ -256,8 +256,31 @@ public class PostgresDAO implements BankDAO {
 	 */
 	@Override
 	public TransactionRecord readTransactionRecord(int recID) throws BankDAOException {
-		// TODO Auto-generated method stub
-		return null;
+		
+		try (Connection conn = DatabaseUtil.getConnection()){
+			
+			if (conn == null) {
+				throw new BankDAOException(NULL_CONNECTION_MESSAGE);
+			}
+			
+			String sql = "SELECT * FROM transaction_record WHERE transaction_id = ?;";
+			PreparedStatement pstm = conn.prepareStatement(sql);
+			pstm.setInt(1, recID);
+			ResultSet trrSet = pstm.executeQuery();
+			
+			TransactionRecord tr = new TransactionRecord(recID);
+			while (trrSet.next()) { // should only be one result
+				// dont need to set ID
+				tr.setTime(trrSet.getString("time"));
+				tr.setActingUser(trrSet.getInt("acting_user"));
+				// TODO come back here
+			}
+			
+			return tr;
+		}
+		catch(SQLException e) {
+			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
+		}
 	}
 
 	/**

@@ -419,8 +419,28 @@ public class PostgresDAO implements BankDAO {
 	 */
 	@Override
 	public int getHighestUserProfileID() throws BankDAOException {
-		// TODO Auto-generated method stub
-		return 0;
+		
+		try (Connection conn = DatabaseUtil.getConnection()){
+			
+			String sql;
+			PreparedStatement pstm;
+			
+			sql = "SELECT MAX (user_id) as max_id FROM user_profile;";
+			pstm = conn.prepareStatement(sql);
+			ResultSet maxSet = pstm.executeQuery();
+			
+			int max = -1;
+			
+			while (maxSet.next()) {
+				max = maxSet.getInt("max_id");
+			}
+			
+			return max;
+		}
+		catch (SQLException e){
+			System.out.println("DEBUG: " + e.getMessage());
+			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
+		}
 	}
 
 	/** 
@@ -428,8 +448,28 @@ public class PostgresDAO implements BankDAO {
 	 */
 	@Override
 	public int getHighestBankAccountID() throws BankDAOException {
-		// TODO Auto-generated method stub
-		return 0;
+		
+		try (Connection conn = DatabaseUtil.getConnection()){
+			
+			String sql;
+			PreparedStatement pstm;
+			
+			sql = "SELECT MAX (account_id) as max_id FROM bank_account;";
+			pstm = conn.prepareStatement(sql);
+			ResultSet maxSet = pstm.executeQuery();
+			
+			int max = -1;
+			
+			while (maxSet.next()) {
+				max = maxSet.getInt("max_id");
+			}
+			
+			return max;
+		}
+		catch (SQLException e){
+			System.out.println("DEBUG: " + e.getMessage());
+			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
+		}
 	}
 
 	/** 
@@ -437,8 +477,28 @@ public class PostgresDAO implements BankDAO {
 	 */
 	@Override
 	public int getHighestTransactionRecordID() throws BankDAOException {
-		// TODO Auto-generated method stub
-		return 0;
+		
+		try (Connection conn = DatabaseUtil.getConnection()){
+			
+			String sql;
+			PreparedStatement pstm;
+			
+			sql = "SELECT MAX (transaction_id) as max_id FROM transaction_record;";
+			pstm = conn.prepareStatement(sql);
+			ResultSet maxSet = pstm.executeQuery();
+			
+			int max = -1;
+			
+			while (maxSet.next()) {
+				max = maxSet.getInt("max_id");
+			}
+			
+			return max;
+		}
+		catch (SQLException e){
+			System.out.println("DEBUG: " + e.getMessage());
+			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
+		}
 	}
 
 	/**

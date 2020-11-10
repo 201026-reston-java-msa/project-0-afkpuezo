@@ -322,4 +322,19 @@ public class TestPostgresDAO {
 		assertEquals(2, tr.getDestinationAccount());
 		assertEquals(444, tr.getMoneyAmount());
 	}
+	
+	@Test
+	public void testGetHighestID() throws BankDAOException{
+		
+		int max;
+		
+		max = pdao.getHighestUserProfileID();
+		assertEquals(4, max);
+		
+		max = pdao.getHighestBankAccountID();
+		assertEquals(2, max);
+		
+		max = pdao.getHighestTransactionRecordID();
+		assertEquals(1, max);
+	}
 }

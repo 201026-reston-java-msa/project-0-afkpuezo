@@ -16,6 +16,9 @@ import java.util.List;
 import javax.xml.stream.events.StartDocument;
 import javax.xml.transform.Source;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.Priority;
+
 import com.revature.bankDataObjects.BankAccount;
 import com.revature.bankDataObjects.TransactionRecord;
 import com.revature.bankDataObjects.TransactionRecord.TransactionType;
@@ -30,9 +33,12 @@ import bankSystem.Request.RequestType;
 import dao.BankDAO;
 import dao.BankDAOException;
 
+
+
 public class BankSystem {
 
 	// class/static variables
+	private static Logger log = Logger.getLogger(BankSystem.class);
 	
 	/**
 	 * ----------------------------------------------------------------------
@@ -1272,6 +1278,12 @@ public class BankSystem {
 			tr.setId(dao.getHighestTransactionRecordID() + 1);
 			tr.setActingUser(currentUser.getId());
 			tr.setTime("PLACEHOLDER"); // TODO fix this
+			
+			log.log(
+					Priority.INFO, 
+					"About to save transaction: " 
+							+ tr.getId());
+			
 			dao.write(tr);			
 		}
 		catch(BankDAOException e) {

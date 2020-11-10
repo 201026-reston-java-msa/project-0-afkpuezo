@@ -47,7 +47,7 @@ public class TestPostgresDAO {
 	
 	// junit util methods ----------------------------------------------------------
 	@Before
-	public void setupPDAO() {
+	public void setupPDAO() throws BankDAOException{
 		
 		pdao = new PostgresDAO();
 		DatabaseUtil.resetDatabase();

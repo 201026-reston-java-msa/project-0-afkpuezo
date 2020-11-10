@@ -79,9 +79,14 @@ public class PostgresDAO implements BankDAO {
 	//private String databasePassword;
 	
 	// constructor
-	public PostgresDAO() {
+	public PostgresDAO() throws BankDAOException{
 
-		DatabaseUtil.loadConfiguration();
+		try {
+			DatabaseUtil.loadConfiguration();			
+		}
+		catch (IOException e) {
+			throw new BankDAOException("ERROR: Could not properly locate DatabaseConfig.txt");
+		}
 	}
 	
 	// methods from DAO interface ------------------------------------------------

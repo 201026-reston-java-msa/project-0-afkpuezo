@@ -38,7 +38,7 @@ public class Driver {
 			"TRR 3 4:00 FDP 999 -1 515 12345"
 	};
 	
-	public static void main(String[] args) throws BankDAOException {
+	public static void main(String[] args) {
 		
 		log.log(Priority.INFO, "Project0 Bank online");
 		// look for flags in the params
@@ -58,18 +58,26 @@ public class Driver {
 		BankIO io = new CommandLineIO();
 		prepareTextFile();
 		
-		BankDAO dao;
+		BankDAO dao = null; // will be instantiated (or crash)
 		
-		if (useText) {
-			dao = new TextFileDAO(testFilename);
-			
-		}
-		else {
-			dao = new PostgresDAO();
-			if (resetDatabase) {
-				DatabaseUtil.resetDatabase();
+		try {
+			if (useText) {
+				dao = new TextFileDAO(testFilename);
+				
 			}
+			else {
+				dao = new PostgresDAO();
+				if (resetDatabase) {
+					DatabaseUtil.resetDatabase();
+				}
+			}			
 		}
+		catch (BankDAOException e) {
+			System.out.println("ERROR: Could not connect to database. Terminating.");
+			log.log(Priority.FATAL, "Error while instantiating DAO object: " + e.getMessage());
+			System.exit(1);
+		}
+		
 		
 		BankSystem bank = new BankSystem(io, dao);
 		bank.start();

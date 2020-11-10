@@ -214,5 +214,6 @@ November 10:
 	- finished PDAO [x]
 	- made things look a little bit nicer [x]
 	- made sure we can export to a jar and pass args [x]
-	- implement log4j [ ]
+	- implement log4j [x]
+	- everything is going well but i can't get gitignore to work
 	

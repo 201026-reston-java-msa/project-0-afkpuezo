@@ -11,18 +11,19 @@ import java.sql.Statement;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class DatabaseUtil {
-	
-	// constants
-	public static final String TEST_ADDRESS = "jdbc:postgresql://localhost:5432/";
-	public static final String TEST_USERNAME = "postgres";
-	public static final String TEST_PASSWORD = "password";
 
+	// constants
+	private final static String CONFIG_FILE_ADDRESS = "config\\DatabaseConfig.txt";
+	
 	// class / static variables
 	private static Logger log = Logger.getLogger(DatabaseUtil.class);
 	
@@ -34,11 +35,21 @@ public class DatabaseUtil {
 	/**
 	 * Retrieves the necessary information about the database.
 	 */
-	public static void loadConfiguration() {
+	public static void loadConfiguration() throws IOException{
 		
-		databaseAddress = TEST_ADDRESS;
-		databaseUsername = TEST_USERNAME;
-		databasePassword = TEST_PASSWORD;
+		BufferedReader reader = new BufferedReader(
+				new FileReader(CONFIG_FILE_ADDRESS));
+		
+		String[] lines = new String[3];
+		
+		for (int i = 0; i < lines.length; i++) {
+			lines[i] = reader.readLine();
+		}
+		reader.close();
+		
+		databaseAddress = lines[0];
+		databaseUsername = lines[1];
+		databasePassword = lines[2];
 	}
 	
 	/**

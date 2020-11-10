@@ -1,2 +1,1 @@
-2020-11-10 14:35:11 INFO  BankSystem:1282 - About to save transaction: 112
-2020-11-10 14:38:22 INFO  BankSystem:1282 - About to save transaction: 113
+2020-11-10 14:47:14 INFO  BankSystem:1282 - About to save transaction: 114 PLACEHOLDER FUNDS_DEPOSITED 1 0 1 100

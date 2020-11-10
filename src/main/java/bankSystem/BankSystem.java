@@ -308,6 +308,8 @@ public class BankSystem {
 				}
 				
 				if (!permitted) {
+					// should be no way to reach this?
+					log.log(Priority.WARN, "User attempted forbidden action " + currentRequest.getType());
 					throw new ImpossibleActionException(GENERIC_NO_PERMISSION_MESSAGE);
 				}
 				
@@ -1281,14 +1283,26 @@ public class BankSystem {
 			
 			log.log(
 					Priority.INFO, 
-					"About to save transaction: " 
-							+ tr.getId());
+					"About to save transaction: " + transactionRecordToString(tr));
 			
 			dao.write(tr);			
 		}
 		catch(BankDAOException e) {
 			io.displayText(TRANSACTION_RECORD_NOT_SAVED_MESSAGE);
 		}
+	}
+	
+	private String transactionRecordToString(TransactionRecord tr) {
+		
+		String s = "" + tr.getId() 
+				+ " " + tr.getTime() 
+				+ " " + tr.getType()
+				+ " " + tr.getActingUser()
+				+ " " + tr.getSourceAccount()
+				+ " " + tr.getDestinationAccount()
+				+ " " + tr.getMoneyAmount();
+		
+		return s;
 	}
 	
 	

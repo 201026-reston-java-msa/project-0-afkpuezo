@@ -8,12 +8,18 @@ package dao;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.Priority;
+
 import com.revature.bankDataObjects.BankAccount;
 import com.revature.bankDataObjects.BankData;
 import com.revature.bankDataObjects.TransactionRecord;
 import com.revature.bankDataObjects.TransactionRecord.TransactionType;
 import com.revature.bankDataObjects.UserProfile;
 import com.revature.bankDataObjects.UserProfile.UserProfileType;
+
+import driver.Driver;
+
 import com.revature.bankDataObjects.BankAccount.BankAccountStatus;
 import com.revature.bankDataObjects.BankAccount.BankAccountType;
 
@@ -65,6 +71,7 @@ public class PostgresDAO implements BankDAO {
 			= "ALERT: Attempting to write invalid data type.";
 	
 	// class / static variables
+	private static Logger log = Logger.getLogger(PostgresDAO.class);
 	
 	// instance variables
 	//private String databaseAddress;
@@ -126,6 +133,7 @@ public class PostgresDAO implements BankDAO {
 			//return buildBankAccountFromResults(accSet, ownerSet);
 		}
 		catch(SQLException e) {
+			log.log(Priority.ERROR, "SQL exception in readBankAccount: " + e.getMessage());
 			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
 		}
 	}
@@ -150,6 +158,7 @@ public class PostgresDAO implements BankDAO {
 			return getAccountListFromResults(conn, accSet);
 		}
 		catch(SQLException e) {
+			log.log(Priority.ERROR, "SQL exception in readAllBankAccounts: " + e.getMessage());
 			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
 		}
 	}
@@ -186,6 +195,7 @@ public class PostgresDAO implements BankDAO {
 			return up;
 		}
 		catch(SQLException e) {
+			log.log(Priority.ERROR, "SQL exception in readUserProfile by ID: " + e.getMessage());
 			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
 		}
 	}
@@ -224,6 +234,7 @@ public class PostgresDAO implements BankDAO {
 			return up;
 		}
 		catch(SQLException e) {
+			log.log(Priority.ERROR, "SQL exception in readUserProfile by username: " + e.getMessage());
 			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
 		}
 	}
@@ -248,6 +259,7 @@ public class PostgresDAO implements BankDAO {
 			return getUserProfileListFromResults(conn, userSet);
 		}
 		catch(SQLException e) {
+			log.log(Priority.ERROR, "SQL exception in readAllUserProfiles: " + e.getMessage());
 			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
 		}
 	}
@@ -286,6 +298,7 @@ public class PostgresDAO implements BankDAO {
 			return tr;
 		}
 		catch(SQLException e) {
+			log.log(Priority.ERROR, "SQL exception in readTransactionRecord: " + e.getMessage());
 			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
 		}
 	}
@@ -310,6 +323,7 @@ public class PostgresDAO implements BankDAO {
 			return getTransactionListFromResults(conn, trrSet);
 		}
 		catch(SQLException e) {
+			log.log(Priority.ERROR, "SQL exception in readAllTransactionRecords: " + e.getMessage());
 			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
 		}
 	}
@@ -338,6 +352,7 @@ public class PostgresDAO implements BankDAO {
 			return getTransactionListFromResults(conn, trrSet);
 		}
 		catch(SQLException e) {
+			log.log(Priority.ERROR, "SQL exception in readTransactionRecordByActingUserId: " + e.getMessage());
 			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
 		}
 	}
@@ -352,21 +367,21 @@ public class PostgresDAO implements BankDAO {
 	@Override
 	public List<TransactionRecord> readTransactionRecordByAccountId(int accID) throws BankDAOException {
 		
-		try (Connection conn = DatabaseUtil.getConnection()){
-			
-		if (conn == null) {
-			throw new BankDAOException(NULL_CONNECTION_MESSAGE);
-		}
-		
-		String sql = "SELECT * FROM transaction_record WHERE destination_account = ? OR source_account = ?;";
-		PreparedStatement pstm = conn.prepareStatement(sql);
-		pstm.setInt(1, accID);
-		pstm.setInt(2, accID);
-		ResultSet trrSet = pstm.executeQuery();
-	
-		return getTransactionListFromResults(conn, trrSet);
-		}
-		catch(SQLException e) {
+		try (Connection conn = DatabaseUtil.getConnection()) {
+
+			if (conn == null) {
+				throw new BankDAOException(NULL_CONNECTION_MESSAGE);
+			}
+
+			String sql = "SELECT * FROM transaction_record WHERE destination_account = ? OR source_account = ?;";
+			PreparedStatement pstm = conn.prepareStatement(sql);
+			pstm.setInt(1, accID);
+			pstm.setInt(2, accID);
+			ResultSet trrSet = pstm.executeQuery();
+
+			return getTransactionListFromResults(conn, trrSet);
+		} catch (SQLException e) {
+			log.log(Priority.ERROR, "SQL exception in readTransactionRecordByAccountId: " + e.getMessage());
 			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
 		}
 	}
@@ -385,7 +400,7 @@ public class PostgresDAO implements BankDAO {
 			writeHelp(conn, bd);
 		}
 		catch (SQLException e){
-			//System.out.println("DEBUG: " + e.getMessage());
+			log.log(Priority.ERROR, "SQL exception in write: " + e.getMessage());
 			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
 		}
 		
@@ -408,7 +423,7 @@ public class PostgresDAO implements BankDAO {
 			}
 		}
 		catch (SQLException e){
-			//System.out.println("DEBUG: " + e.getMessage());
+			log.log(Priority.ERROR, "SQL exception in write-list: " + e.getMessage());
 			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
 		}
 
@@ -438,7 +453,7 @@ public class PostgresDAO implements BankDAO {
 			return max;
 		}
 		catch (SQLException e){
-			System.out.println("DEBUG: " + e.getMessage());
+			log.log(Priority.ERROR, "SQL exception in getHighestUserProfileID: " + e.getMessage());
 			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
 		}
 	}
@@ -467,7 +482,7 @@ public class PostgresDAO implements BankDAO {
 			return max;
 		}
 		catch (SQLException e){
-			System.out.println("DEBUG: " + e.getMessage());
+			log.log(Priority.ERROR, "SQL exception in getHighestBankAccountID: " + e.getMessage());
 			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
 		}
 	}
@@ -496,7 +511,7 @@ public class PostgresDAO implements BankDAO {
 			return max;
 		}
 		catch (SQLException e){
-			System.out.println("DEBUG: " + e.getMessage());
+			log.log(Priority.ERROR, "SQL exception in getHighestTransactionRecordID: " + e.getMessage());
 			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
 		}
 	}
@@ -540,6 +555,7 @@ public class PostgresDAO implements BankDAO {
 			return owners;
 		}
 		catch (SQLException e) {
+			log.log(Priority.ERROR, "SQL exception in getAccountOwnerList: " + e.getMessage());
 			throw new BankDAOException(RESULT_SET_ERROR_MESSAGE);
 		}
 	}
@@ -595,6 +611,7 @@ public class PostgresDAO implements BankDAO {
 			return accounts;
 		}
 		catch (SQLException e) {
+			log.log(Priority.ERROR, "SQL exception in getUserOwnedAccountsList: " + e.getMessage());
 			throw new BankDAOException(RESULT_SET_ERROR_MESSAGE);
 		}
 	}
@@ -669,6 +686,7 @@ public class PostgresDAO implements BankDAO {
 			writeTransactionRecord(conn, (TransactionRecord)bd);
 		}
 		else { // should never be reached
+			log.log(Priority.ERROR, "Unrecognized child of BankData in writeHelp: " + bd.getClass());
 			throw new BankDAOException(WRITE_BANKDATA_NO_RECOGNIED_MESSAGE);
 		}
 	}

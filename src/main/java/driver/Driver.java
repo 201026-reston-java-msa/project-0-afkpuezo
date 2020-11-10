@@ -8,6 +8,9 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.Priority;
+
 import BankIO.BankIO;
 import BankIO.CommandLineIO;
 import bankSystem.BankSystem;
@@ -24,6 +27,8 @@ public class Driver {
 	private static final String RESET_DATABSE_ARG = "-r";
 	
 	// class / static vars
+	private static Logger log = Logger.getLogger(Driver.class);
+	
 	static private final String testFilename = "testfile.bdf"; // 'bank data file'
 	static private final String[] FILELINES = {
 			"PRF 101 user pass CST 444", "ACC 444 OPN SNG 78923 101", 
@@ -35,6 +40,7 @@ public class Driver {
 	
 	public static void main(String[] args) throws BankDAOException {
 		
+		log.log(Priority.INFO, "Project0 Bank online");
 		// look for flags in the params
 		boolean useText = false;
 		boolean resetDatabase = false;
@@ -69,6 +75,7 @@ public class Driver {
 		bank.start();
 		// clean things up
 		io.close();
+		log.log(Priority.INFO, "Project0 Bank offline");
 	}
 	
 	/**

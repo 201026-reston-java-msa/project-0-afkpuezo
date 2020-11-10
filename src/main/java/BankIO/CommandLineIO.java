@@ -857,12 +857,86 @@ public class CommandLineIO implements BankIO {
 		System.out.println(CHOICES_HEADER);
 		System.out.println(FRAME_LINE);
 		for (int i = 0; i < permittedRequestTypes.length; i++) {
-			String line = "(" + i + ") " + permittedRequestTypes[i];
+			String line = "(" + i + ") " + cleanUpRequestType(permittedRequestTypes[i]);
 			System.out.println(line);
 		}
 		
 		System.out.println(FRAME_LINE);
 		return parseInt(CHOICES_PROMPT, 0, permittedRequestTypes.length);
+	}
+	
+	/**
+	 * Helper method that formats RequestType enums in a more friendly way
+	 * 
+	 * @param rtype
+	 * @return
+	 */
+	private String cleanUpRequestType(RequestType rtype) {
+
+		String ans = "";
+
+		switch (rtype) {
+
+			case REGISTER_USER:
+				ans = "Register a new customer profile";
+				break;
+			case LOG_IN:
+				ans = "Log in to an existing profile";
+				break;
+			case LOG_OUT:
+				ans = "Log out";
+				break;
+			case QUIT:
+				ans = "Exit the application";
+				break;
+			case APPLY_OPEN_ACCOUNT:
+				ans = "Apply to open a new account";
+				break;
+			case APPROVE_OPEN_ACCOUNT:
+				ans = "Approve an application to open a new account";
+				break;
+			case DENY_OPEN_ACCOUNT:
+				ans = "Deny an application to open a new account";
+				break;
+			case CLOSE_ACCOUNT:
+				ans = "Close an existing account";
+				break;
+			case ADD_ACCOUNT_OWNER:
+				ans = "Add a user as an owner to an account";
+				break;
+			case REMOVE_ACCOUNT_OWNER:
+				ans = "Remove a user as an owner from an account";
+				break;
+			case DEPOSIT:
+				ans = "Deposit funds into an account";
+				break;
+			case WITHDRAW:
+				ans = "Withdraw funds from an account";
+				break;
+			case TRANSFER:
+				ans = "Transfer funds from one account to another";
+				break;
+			case VIEW_ACCOUNTS:
+				ans = "View account(s)";
+				break;
+			case VIEW_SELF_PROFILE:
+				ans = "View your own user profile";
+				break;
+			case VIEW_USERS:
+				ans = "View user profile(s)";
+				break;
+			case VIEW_TRANSACTIONS:
+				ans = "View transaction(s)";
+				break;
+			case CREATE_EMPLOYEE:
+				ans = "Create a new Employee account";
+				break;
+			case CREATE_ADMIN:
+				ans = "Create a new Administrator account";
+				break;
+		}
+		
+		return ans;
 	}
 	
 	/**

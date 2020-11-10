@@ -508,8 +508,9 @@ public class PostgresDAO implements BankDAO {
 	 */
 	@Override
 	public boolean isUsernameFree(String username) throws BankDAOException {
-		// TODO Auto-generated method stub
-		return false;
+		
+		UserProfile up = readUserProfile(username); // hacky but it works for now
+		return up.getType() == UserProfileType.NONE;
 	}
 
 	// helper methods -------------------------------------------------------------

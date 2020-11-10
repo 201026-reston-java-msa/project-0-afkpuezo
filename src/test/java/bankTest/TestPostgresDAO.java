@@ -337,4 +337,11 @@ public class TestPostgresDAO {
 		max = pdao.getHighestTransactionRecordID();
 		assertEquals(1, max);
 	}
+	
+	@Test
+	public void testIsUsernameFree() throws BankDAOException{
+		
+		assertTrue(pdao.isUsernameFree("unused"));
+		assertFalse(pdao.isUsernameFree("admin"));
+	}
 }

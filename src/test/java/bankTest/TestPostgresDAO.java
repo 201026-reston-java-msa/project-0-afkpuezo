@@ -159,7 +159,32 @@ public class TestPostgresDAO {
 		assertEquals(1, tr.getDestinationAccount());
 		assertEquals(123456, tr.getMoneyAmount());
 		
+		tr = pdao.readTransactionRecord(1001); // not found
+		assertEquals(1001, tr.getId());
+		assertEquals(TransactionType.NONE, tr.getType());
+		
 		List<TransactionRecord> transactions = pdao.readAllTransactionRecords();
+		assertEquals(1, transactions.size());
+		tr = transactions.get(0);
+		assertEquals(1, tr.getId());
+		assertEquals(TransactionType.FUNDS_DEPOSITED, tr.getType());
+		assertEquals(3, tr.getActingUser());
+		assertEquals(1, tr.getDestinationAccount());
+		assertEquals(123456, tr.getMoneyAmount());
+		
+		transactions = pdao.readTransactionRecordByActingUserId(3);
+		assertEquals(1, transactions.size());
+		tr = transactions.get(0);
+		assertEquals(1, tr.getId());
+		assertEquals(TransactionType.FUNDS_DEPOSITED, tr.getType());
+		assertEquals(3, tr.getActingUser());
+		assertEquals(1, tr.getDestinationAccount());
+		assertEquals(123456, tr.getMoneyAmount());
+		
+		transactions = pdao.readTransactionRecordByActingUserId(1001); // should find nothing
+		assertEquals(0, transactions.size());
+		
+		transactions = pdao.readTransactionRecordByAccountId(1);
 		assertEquals(1, transactions.size());
 		tr = transactions.get(0);
 		assertEquals(1, tr.getId());

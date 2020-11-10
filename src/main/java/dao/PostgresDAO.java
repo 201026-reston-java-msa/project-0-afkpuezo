@@ -320,8 +320,23 @@ public class PostgresDAO implements BankDAO {
 	 */
 	@Override
 	public List<TransactionRecord> readTransactionRecordByActingUserId(int actingUserID) throws BankDAOException {
-		// TODO Auto-generated method stub
-		return null;
+		
+		try (Connection conn = DatabaseUtil.getConnection()){
+			
+			if (conn == null) {
+				throw new BankDAOException(NULL_CONNECTION_MESSAGE);
+			}
+			
+			String sql = "SELECT * FROM transaction_record WHERE acting_user = ?;";
+			PreparedStatement pstm = conn.prepareStatement(sql);
+			pstm.setInt(1, actingUserID);
+			ResultSet trrSet = pstm.executeQuery();
+		
+			return getTransactionListFromResults(conn, trrSet);
+		}
+		catch(SQLException e) {
+			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
+		}
 	}
 
 	/**
@@ -333,8 +348,24 @@ public class PostgresDAO implements BankDAO {
 	 */
 	@Override
 	public List<TransactionRecord> readTransactionRecordByAccountId(int accID) throws BankDAOException {
-		// TODO Auto-generated method stub
-		return null;
+		
+		try (Connection conn = DatabaseUtil.getConnection()){
+			
+		if (conn == null) {
+			throw new BankDAOException(NULL_CONNECTION_MESSAGE);
+		}
+		
+		String sql = "SELECT * FROM transaction_record WHERE destination_account = ? OR source_account = ?;";
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setInt(1, accID);
+		pstm.setInt(2, accID);
+		ResultSet trrSet = pstm.executeQuery();
+	
+		return getTransactionListFromResults(conn, trrSet);
+		}
+		catch(SQLException e) {
+			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
+		}
 	}
 
 	/**

@@ -307,7 +307,7 @@ public class TestPostgresDAO {
 		
 		tr = new TransactionRecord(111);
 		tr.setTime("3:00");
-		tr.setType(TransactionType.FUNDS_TRANSFERED);
+		tr.setType(TransactionType.FUNDS_TRANSFERRED);
 		tr.setActingUser(1);
 		tr.setSourceAccount(1);
 		tr.setDestinationAccount(2);
@@ -316,7 +316,7 @@ public class TestPostgresDAO {
 		
 		tr = pdao.readTransactionRecord(111); // should be found now
 		assertEquals("3:00", tr.getTime());
-		assertEquals(TransactionType.FUNDS_TRANSFERED, tr.getType());
+		assertEquals(TransactionType.FUNDS_TRANSFERRED, tr.getType());
 		assertEquals(1, tr.getActingUser());
 		assertEquals(1, tr.getSourceAccount());
 		assertEquals(2, tr.getDestinationAccount());

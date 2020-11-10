@@ -621,7 +621,7 @@ public class TextFileDAO implements BankDAO {
 					tr.setType(TransactionType.FUNDS_WITHDRAWN);
 					break;
 				case TRANSACTION_TYPE_FUNDS_TRANSFERED:
-					tr.setType(TransactionType.FUNDS_TRANSFERED);
+					tr.setType(TransactionType.FUNDS_TRANSFERRED);
 					break;
 				case TRANSACTION_TYPE_USER_REGISTERED:
 					tr.setType(TransactionType.USER_REGISTERED);
@@ -741,7 +741,7 @@ public class TextFileDAO implements BankDAO {
 			case ACCOUNT_CLOSED:
 				entry = entry + " " + TRANSACTION_TYPE_ACCOUNT_CLOSED;
 				break;
-			case FUNDS_TRANSFERED:
+			case FUNDS_TRANSFERRED:
 				entry = entry + " " + TRANSACTION_TYPE_FUNDS_TRANSFERED;
 				break;
 			case FUNDS_DEPOSITED:

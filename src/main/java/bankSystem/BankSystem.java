@@ -942,7 +942,7 @@ public class BankSystem {
 			io.displayText(TRANSFER_SUCCESSFUL_MESSAGE);
 			
 			TransactionRecord tr = new TransactionRecord();
-			tr.setType(TransactionType.FUNDS_TRANSFERED);
+			tr.setType(TransactionType.FUNDS_TRANSFERRED);
 			tr.setSourceAccount(sourceAccID);
 			tr.setDestinationAccount(destAccID);
 			tr.setMoneyAmount(moneyAmount);

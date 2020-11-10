@@ -48,7 +48,7 @@ public class PostgresDAO implements BankDAO {
 	private static final String TRANSACTION_TYPE_ACCOUNT_CLOSED = "ACCOUNT_CLOSED";
 	private static final String TRANSACTION_TYPE_ACCOUNT_OWNER_ADDED = "ACCOUNT_OWNER_ADDED";
 	private static final String TRANSACTION_TYPE_ACCOUNT_OWNER_REMOVED = "ACCOUNT_OWNER_REMOVED";
-	private static final String TRANSACTION_TYPE_FUNDS_TRANSFERED = "FUNDS_TRANSFERED";
+	private static final String TRANSACTION_TYPE_FUNDS_TRANSFERRED = "FUNDS_TRANSFERRED";
 	private static final String TRANSACTION_TYPE_FUNDS_DEPOSITED = "FUNDS_DEPOSITED";
 	private static final String TRANSACTION_TYPE_FUNDS_WITHDRAWN = "FUNDS_WITHDRAWN";
 	private static final String TRANSACTION_TYPE_USER_REGISTERED = "USER_REGISTERED";
@@ -843,8 +843,8 @@ public class PostgresDAO implements BankDAO {
 				return TransactionType.FUNDS_DEPOSITED;
 			case TRANSACTION_TYPE_FUNDS_WITHDRAWN:
 				return TransactionType.FUNDS_WITHDRAWN;
-			case TRANSACTION_TYPE_FUNDS_TRANSFERED:
-				return TransactionType.FUNDS_TRANSFERED;
+			case TRANSACTION_TYPE_FUNDS_TRANSFERRED:
+				return TransactionType.FUNDS_TRANSFERRED;
 			case TRANSACTION_TYPE_USER_REGISTERED:
 				return TransactionType.USER_REGISTERED;
 			default:

@@ -61,6 +61,9 @@ public class PostgresDAO implements BankDAO {
 	private static final String RESULT_SET_ERROR_MESSAGE
 			= "ALERT: There was a problem processing results from the database.";
 	
+	private static final String WRITE_BANKDATA_NO_RECOGNIED_MESSAGE
+			= "ALERT: Attempting to write invalid data type.";
+	
 	// class / static variables
 	
 	// instance variables
@@ -375,8 +378,19 @@ public class PostgresDAO implements BankDAO {
 	 */
 	@Override
 	public void write(BankData bd) throws BankDAOException {
-		// TODO Auto-generated method stub
-
+		
+		if (bd instanceof UserProfile) {
+			writeUserProfile((UserProfile)bd);
+		}
+		else if (bd instanceof BankAccount) {
+			//writeBankAccount((BankAccount)bd);
+		}
+		else if (bd instanceof TransactionRecord) {
+			//writeTransactionRecord((TransactionRecord)bd);
+		}
+		else { // should never be reached
+			throw new BankDAOException(WRITE_BANKDATA_NO_RECOGNIED_MESSAGE);
+		}
 	}
 
 	/**
@@ -556,6 +570,36 @@ public class PostgresDAO implements BankDAO {
 		}
 		
 		return transactions;
+	}
+	
+	/**
+	 * Helper method to write a single userprofile
+	 * @param bd
+	 */
+	private void writeUserProfile(UserProfile up) throws BankDAOException{
+		
+		// the only thing that changes is the owned accounts.
+		// try to insert the user, if there's a conflict, don't change anything.
+		// separately, update the owned accounts relationship
+		
+		try (Connection conn = DatabaseUtil.getConnection()){
+			
+			String sql;
+			PreparedStatement pstm;
+			sql = "INSERT INTO user_profile (user_id, username, password, type)" 
+					+ "VALUES (?, ?, ? ,?)"
+					+ "ON CONFLICT (user_id) DO NOTHING";
+			pstm = conn.prepareStatement(sql);
+			pstm.setInt(1, up.getId());
+			pstm.setString(2, up.getUsername());
+			pstm.setString(3, up.getPassword());
+			pstm.setString(4, "" + up.getType()); // easy way of enum to string
+			pstm.execute();
+		}
+		catch (SQLException e) {
+			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
+		}
+		
 	}
 	
 	// util methods ------------------------------------------------------------

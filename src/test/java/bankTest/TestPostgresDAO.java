@@ -193,4 +193,26 @@ public class TestPostgresDAO {
 		assertEquals(1, tr.getDestinationAccount());
 		assertEquals(123456, tr.getMoneyAmount());
 	}
+	
+	@Test
+	public void testWriteUserProfile() throws BankDAOException{
+		
+		UserProfile up;
+		
+		up = pdao.readUserProfile(111); // should not be found yet
+		assertEquals(UserProfileType.NONE, up.getType());
+		
+		up = new UserProfile(111);
+		up.setUsername("new_cust");
+		up.setPassword("new_cust");
+		up.setType(UserProfileType.CUSTOMER);
+		pdao.write(up);
+		
+		// assume reading works
+		up = pdao.readUserProfile(111);
+		assertEquals(111, up.getId());
+		assertEquals("new_cust", up.getUsername());
+		assertEquals("new_cust", up.getPassword());
+		assertEquals(UserProfileType.CUSTOMER, up.getType());
+	}
 }

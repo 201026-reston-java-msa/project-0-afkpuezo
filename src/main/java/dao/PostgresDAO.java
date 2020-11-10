@@ -373,7 +373,9 @@ public class PostgresDAO implements BankDAO {
 
 	/**
 	 * Writes the given BankData object to the data storage.
-	 * User details cannot be changed after being initially written, other than owned accounts
+	 * User details cannot be changed after being initially written, other than owned accounts.
+	 * BankAccounts can change status, type, funds, and owners
+	 * TransactionRecords cannot be changed.
 	 * @param bd
 	 */
 	@Override
@@ -591,13 +593,13 @@ public class PostgresDAO implements BankDAO {
 			writeBankAccount(conn, (BankAccount)bd);
 		}
 		else if (bd instanceof TransactionRecord) {
-			//writeTransactionRecord(conn, (TransactionRecord)bd);
+			writeTransactionRecord(conn, (TransactionRecord)bd);
 		}
 		else { // should never be reached
 			throw new BankDAOException(WRITE_BANKDATA_NO_RECOGNIED_MESSAGE);
 		}
 	}
-	
+
 	/**
 	 * Helper method to write a single user profile
 	 * @param up
@@ -610,6 +612,7 @@ public class PostgresDAO implements BankDAO {
 		
 		String sql;
 		PreparedStatement pstm;
+		
 		sql = "INSERT INTO user_profile (user_id, username, password, type)" 
 				+ "VALUES (?, ?, ? ,?)"
 				+ "ON CONFLICT (user_id) DO NOTHING;";
@@ -645,9 +648,10 @@ public class PostgresDAO implements BankDAO {
 		
 		String sql;
 		PreparedStatement pstm;
+		
 		sql = "INSERT INTO bank_account (account_id, status, type, funds)" 
-				+ "VALUES (?, ?, ? ,?)\n"
-				+ "ON CONFLICT (account_id) DO UPDATE\n"
+				+ "VALUES (?, ?, ? ,?) "
+				+ "ON CONFLICT (account_id) DO UPDATE "
 				+ "SET status = ?,"
 				+ "type = ?,"
 				+ "funds = ?;";
@@ -674,6 +678,31 @@ public class PostgresDAO implements BankDAO {
 			pstm.setInt(2, ba.getId());
 			pstm.execute();
 		}
+	}
+	
+	/**
+	 * Helper method to write a single TransactionRecord
+	 * @param conn
+	 * @param tr
+	 */
+	private void writeTransactionRecord(Connection conn, TransactionRecord tr) throws SQLException {
+		
+		String sql;
+		PreparedStatement pstm;
+
+		sql = "INSERT INTO transaction_record (transaction_id, time, type, acting_user, "
+				+ "source_account, destination_account, money_amount) "
+				+ "VALUES (?, ? , ?, ?, ?, ?, ?) "
+				+ "ON CONFLICT (transaction_id) DO NOTHING;"; // should never be overwritten
+		pstm = conn.prepareStatement(sql);
+		pstm.setInt(1, tr.getId());
+		pstm.setString(2, tr.getTime());
+		pstm.setString(3, "" + tr.getType());
+		pstm.setInt(4, tr.getActingUser());
+		pstm.setInt(5, tr.getSourceAccount());
+		pstm.setInt(6, tr.getDestinationAccount());
+		pstm.setInt(7, tr.getMoneyAmount());
+		pstm.execute();
 	}
 	
 	// util methods ------------------------------------------------------------

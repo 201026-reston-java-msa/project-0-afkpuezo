@@ -296,4 +296,30 @@ public class TestPostgresDAO {
 		ownedAccounts = up.getOwnedAccounts();
 		assertTrue(ownedAccounts.contains(111));
 	}
+	
+	@Test
+	public void testWriteTransactionRecord() throws BankDAOException{
+		
+		TransactionRecord tr;
+		
+		tr = pdao.readTransactionRecord(111); // should not be found
+		assertEquals(TransactionType.NONE, tr.getType());
+		
+		tr = new TransactionRecord(111);
+		tr.setTime("3:00");
+		tr.setType(TransactionType.FUNDS_TRANSFERED);
+		tr.setActingUser(1);
+		tr.setSourceAccount(1);
+		tr.setDestinationAccount(2);
+		tr.setMoneyAmount(444);
+		pdao.write(tr);
+		
+		tr = pdao.readTransactionRecord(111); // should be found now
+		assertEquals("3:00", tr.getTime());
+		assertEquals(TransactionType.FUNDS_TRANSFERED, tr.getType());
+		assertEquals(1, tr.getActingUser());
+		assertEquals(1, tr.getSourceAccount());
+		assertEquals(2, tr.getDestinationAccount());
+		assertEquals(444, tr.getMoneyAmount());
+	}
 }

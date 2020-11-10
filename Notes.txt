@@ -206,4 +206,7 @@ November 9:
 	- I'm reusing some of the enum-to-string (and vice versa) code from the TextFileDAO in the PDAO
 	- I neglected to account for what happens when the pDAO tries to read an entry that doesn't exist [x]
 		- turns out I forgot to have BankAccount and TransactionRecord initialize their types to NONE
+	- okay, I wrote most of PDAO, tomorrow I just need to do the quick methods at the bottom (get highest id, 
+		is username free)
+		
 	

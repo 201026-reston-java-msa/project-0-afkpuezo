@@ -373,7 +373,7 @@ public class PostgresDAO implements BankDAO {
 
 	/**
 	 * Writes the given BankData object to the data storage.
-	 * User details cannot be changed after being initially written, other than owned accounts.
+	 * User profiles cannot be changed after being initially written, other than owned accounts.
 	 * BankAccounts can change status, type, funds, and owners
 	 * TransactionRecords cannot be changed.
 	 * @param bd
@@ -393,12 +393,24 @@ public class PostgresDAO implements BankDAO {
 
 	/**
 	 * Writes each of the BankData objects in the given List to the data storage. 
-	 * WILL overwrite if matching data is already present.
+	 * User profiles cannot be changed after being initially written, other than owned accounts.
+	 * BankAccounts can change status, type, funds, and owners
+	 * TransactionRecords cannot be changed.
 	 * @param bd
 	 */
 	@Override
 	public void write(List<BankData> toWrite) throws BankDAOException {
-		// TODO Auto-generated method stub
+
+		try (Connection conn = DatabaseUtil.getConnection()){
+			
+			for (BankData bd : toWrite) {
+				writeHelp(conn, bd);				
+			}
+		}
+		catch (SQLException e){
+			//System.out.println("DEBUG: " + e.getMessage());
+			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
+		}
 
 	}
 

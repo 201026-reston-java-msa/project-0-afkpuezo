@@ -105,7 +105,7 @@ public class CommandLineIO implements BankIO {
 			= "Enter a list of account IDs on a single line, separated by spaces.";
 	
 	private static final String ID_LIST_PROMPT
-			= "Enter the IDs here: ";
+			= "Enter the IDs here, separated by spaces: ";
 	private static final String ID_LIST_BAD_TOKEN_MESSAGE
 			= "Invalid input. Every ID must be numbers only.";
 	
@@ -253,7 +253,7 @@ public class CommandLineIO implements BankIO {
 		for (UserProfile up : users) {
 			String line = "|ID: " + up.getId();
 			line = line + " |Username: " + up.getUsername();
-			line = line + " |Type: " + up.getType();
+			line = line + " |Type: " + cleanUpGenericEnumString("" + up.getType());
 			
 			if (up.getType() == UserProfileType.CUSTOMER) {
 				line = line + " |Owned Account ID(s): ";
@@ -279,8 +279,8 @@ public class CommandLineIO implements BankIO {
 		
 		for (BankAccount ba : accounts) {
 			String line = "|ID: " + ba.getId();
-			line = line + " |Type: " + ba.getType();
-			line = line + " |Status: " + ba.getStatus();
+			line = line + " |Type: " + cleanUpGenericEnumString("" + ba.getType());
+			line = line + " |Status: " + cleanUpGenericEnumString("" + ba.getStatus());
 			line = line + " |Funds: " + intToMoneyString(ba.getFunds());
 			line = line + " |Owner ID(s): "; // assume not empty
 			
@@ -306,7 +306,7 @@ public class CommandLineIO implements BankIO {
 		
 		for (TransactionRecord tr : transactions) {
 			String line = "|ID: " + tr.getId();
-			line = line + " |Type: " + tr.getType();
+			line = line + " |Type: " + cleanUpGenericEnumString("" + tr.getType());
 			line = line + " |Time: " + tr.getTime();
 			line = line + " |Acting User ID: " + tr.getActingUser();
 			
@@ -1078,5 +1078,38 @@ public class CommandLineIO implements BankIO {
 		} while(!isValid);
 		
 		return params;
+	}
+	
+	/**
+	 * When enums are converted to a string, they are ALL_CAPS. This method
+	 * cleans them up to a more friendly format.
+	 * EXAMPLE_ENUM -> Example enum
+	 * @param s
+	 * @return
+	 */
+	private String cleanUpGenericEnumString(String s) {
+		
+		String ans = "";
+		
+		if (s.length() > 0) {
+			ans = ans + s.charAt(0);
+		}
+		
+		for (int i = 1; i < s.length(); i ++) {
+			
+			char old = s.charAt(i);
+			char fresh; // can't use 'new'...
+			
+			if (old == '_') {
+				fresh = ' ';
+			}
+			else {
+				fresh = Character.toLowerCase(old);
+			}
+			
+			ans = ans + fresh;
+		}
+		
+		return ans;
 	}
 }

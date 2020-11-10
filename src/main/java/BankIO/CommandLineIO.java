@@ -106,7 +106,8 @@ public class CommandLineIO implements BankIO {
 	private static final String VIEW_ACCOUNTS_HEADER = "Viewing accounts...";
 	private static final String VIEW_ACCOUNTS_MENU
 			= "(1) View all accounts owned by a single user\n"
-			+ "(2) Input a list of account IDS to view";
+			+ "(2) Input a list of account IDs to view\n"
+			+ FRAME_LINE;
 	private static final String VIEW_ACCOUNTS_ID_LIST_HEADER
 			= "Enter a list of account IDs on a single line, separated by spaces.";
 	
@@ -123,7 +124,8 @@ public class CommandLineIO implements BankIO {
 	private static final String VIEW_TRANSACTIONS_MENU
 			= "(1) View all transactions made by a single user\n"
 			+ "(2) View all transactions involving a certain account\n"
-			+ "(3) Input a list of transaction IDs to view";
+			+ "(3) Input a list of transaction IDs to view\n"
+			+ FRAME_LINE;
 	
 	private static final String CREATE_EMPLOYEE_HEADER 
 			= "Creating new employee account...";
@@ -261,9 +263,7 @@ public class CommandLineIO implements BankIO {
 	@Override
 	public void displayUserProfiles(List<UserProfile> users) {
 		
-		System.out.println(FRAME_LINE);
-		System.out.println(DISPLAY_PROFILES_HEADER);
-		System.out.println(FRAME_LINE);
+		displayText(DISPLAY_PROFILES_HEADER, true);
 		
 		for (UserProfile up : users) {
 			String line = "|ID: " + up.getId();
@@ -288,9 +288,7 @@ public class CommandLineIO implements BankIO {
 	@Override
 	public void displayBankAccounts(List<BankAccount> accounts) {
 		
-		System.out.println(FRAME_LINE);
-		System.out.println(DISPLAY_ACCOUNTS_HEADER);
-		System.out.println(FRAME_LINE);
+		displayText(DISPLAY_ACCOUNTS_HEADER, true);
 		
 		for (BankAccount ba : accounts) {
 			String line = "|ID: " + ba.getId();
@@ -315,9 +313,7 @@ public class CommandLineIO implements BankIO {
 	@Override
 	public void displayTransactionRecords(List<TransactionRecord> transactions) {
 		
-		System.out.println(FRAME_LINE);
-		System.out.println(DISPLAY_TRANSACTIONS_HEADER);
-		System.out.println(FRAME_LINE);
+		displayText(DISPLAY_TRANSACTIONS_HEADER, true);
 		
 		for (TransactionRecord tr : transactions) {
 			String line = "|ID: " + tr.getId();
@@ -374,6 +370,8 @@ public class CommandLineIO implements BankIO {
 		// then, return the request
 		RequestType rtype = permittedRequestTypes[chooseRequestType(permittedRequestTypes)];
 		Request req = null; // filled in later
+		
+		displayText("You chose: " + cleanUpRequestType(rtype), true);
 		
 		switch(rtype) {
 		
@@ -445,9 +443,11 @@ public class CommandLineIO implements BankIO {
 	 */
 	private Request buildCreateAdmin() {
 		
+		/*
 		System.out.println(FRAME_LINE);
 		System.out.println(CREATE_ADMIN_HEADER);
 		System.out.println(FRAME_LINE);
+		*/
 		
 		List<String> params = new ArrayList<>();
 		params.add(parseString(USERNAME_PROMPT));
@@ -465,9 +465,11 @@ public class CommandLineIO implements BankIO {
 	 */
 	private Request buildCreateEmployee() {
 		
+		/*
 		System.out.println(FRAME_LINE);
 		System.out.println(CREATE_EMPLOYEE_HEADER);
 		System.out.println(FRAME_LINE);
+		*/
 		
 		List<String> params = new ArrayList<>();
 		params.add(parseString(USERNAME_PROMPT));
@@ -486,7 +488,7 @@ public class CommandLineIO implements BankIO {
 	 */
 	private Request buildViewTransactions() {
 		
-		displayText(VIEW_TRANSACTION_HEADER, true);
+		//displayText(VIEW_TRANSACTION_HEADER, true);
 		
 		System.out.println(VIEW_TRANSACTIONS_MENU);
 		int choice = parseInt(CHOICES_PROMPT, 1, 4); // max NOT inclusive
@@ -539,7 +541,7 @@ public class CommandLineIO implements BankIO {
 	 */
 	private Request viewTransactionsByID() {
 		
-		System.out.println(VIEW_TRANSACTIONS_ID_LIST_HEADER);
+		//System.out.println(VIEW_TRANSACTIONS_ID_LIST_HEADER);
 		
 		List<String> params = parseIDList(ID_LIST_PROMPT);
 		params.add(0, BankSystem.TRANSACTION_TAG);
@@ -554,7 +556,7 @@ public class CommandLineIO implements BankIO {
 	 */
 	private Request buildViewUsers() {
 		
-		displayText(VIEW_ACCOUNTS_HEADER, true);
+		//displayText(VIEW_ACCOUNTS_HEADER, true);
 		
 		List<String> params = parseIDList(ID_LIST_PROMPT);
 		return new Request(
@@ -567,7 +569,7 @@ public class CommandLineIO implements BankIO {
 	 * @return
 	 */
 	private Request buildViewSelfProfile() {
-		// TODO Auto-generated method stub
+		
 		return new Request(RequestType.VIEW_SELF_PROFILE);
 	}
 
@@ -578,7 +580,7 @@ public class CommandLineIO implements BankIO {
 	 */
 	private Request buildViewAccounts() {
 		
-		displayText(VIEW_ACCOUNTS_HEADER, true);
+		//displayText(VIEW_ACCOUNTS_HEADER, true);
 		
 		System.out.println(VIEW_ACCOUNTS_MENU);
 		int choice = parseInt(CHOICES_PROMPT, 1, 3); // max NOT inclusive
@@ -613,7 +615,7 @@ public class CommandLineIO implements BankIO {
 	 */
 	private Request viewAccountsByID() {
 		
-		System.out.println(VIEW_ACCOUNTS_ID_LIST_HEADER);
+		//System.out.println(VIEW_ACCOUNTS_ID_LIST_HEADER);
 		
 		List<String> params = parseIDList(ID_LIST_PROMPT);
 		
@@ -632,7 +634,7 @@ public class CommandLineIO implements BankIO {
 	 */
 	private Request buildTransfer() {
 		
-		displayText(TRANSFER_HEADER, true); // why was I not doing this for every method...
+		//displayText(TRANSFER_HEADER, true); // why was I not doing this for every method...
 		
 		List<String> params = new ArrayList<>();
 		params.add("" + parseInt(TRANSFER_SOURCE_ACCOUNT_PROMPT));
@@ -650,9 +652,11 @@ public class CommandLineIO implements BankIO {
 	 */
 	private Request buildWithdraw() {
 		
+		/*
 		System.out.println(FRAME_LINE);
 		System.out.println(WITHDRAW_HEADER);
 		System.out.println(FRAME_LINE);
+		*/
 		
 		List<String> params = new ArrayList<>();
 		params.add("" + parseInt(ACCOUNT_ID_PROMPT, 0, Integer.MAX_VALUE));
@@ -669,9 +673,11 @@ public class CommandLineIO implements BankIO {
 	 */
 	private Request buildDeposit() {
 
+		/*
 		System.out.println(FRAME_LINE);
 		System.out.println(DEPOSIT_HEADER);
 		System.out.println(FRAME_LINE);
+		*/
 		
 		List<String> params = new ArrayList<>();
 		params.add("" + parseInt(ACCOUNT_ID_PROMPT, 0, Integer.MAX_VALUE));
@@ -688,9 +694,11 @@ public class CommandLineIO implements BankIO {
 	 */
 	private Request buildRemoveAccountOwner() {
 		
+		/*
 		System.out.println(FRAME_LINE);
 		System.out.println(REMOVE_OWNER_HEADER);
 		System.out.println(FRAME_LINE);
+		*/
 		
 		List<String> params = new ArrayList<>();
 		params.add("" + parseInt(ACCOUNT_ID_PROMPT, 0, Integer.MAX_VALUE));
@@ -708,9 +716,11 @@ public class CommandLineIO implements BankIO {
 	 */
 	private Request buildAddAccountOwner() {
 		
+		/*
 		System.out.println(FRAME_LINE);
 		System.out.println(ADD_OWNER_HEADER);
 		System.out.println(FRAME_LINE);
+		*/
 		
 		List<String> params = new ArrayList<>();
 		params.add("" + parseInt(ACCOUNT_ID_PROMPT, 0, Integer.MAX_VALUE));
@@ -728,9 +738,11 @@ public class CommandLineIO implements BankIO {
 	 */
 	private Request buildCloseAccount() {
 		
+		/*
 		System.out.println(FRAME_LINE);
 		System.out.println(CLOSE_HEADER);
 		System.out.println(FRAME_LINE);
+		*/
 		
 		List<String> params = new ArrayList<>();
 		params.add("" + parseInt(ACCOUNT_ID_PROMPT, 0, Integer.MAX_VALUE));
@@ -747,9 +759,11 @@ public class CommandLineIO implements BankIO {
 	 */
 	private Request buildDenyOpenAccount() {
 		
+		/*
 		System.out.println(FRAME_LINE);
 		System.out.println(DENY_HEADER);
 		System.out.println(FRAME_LINE);
+		*/
 		
 		List<String> params = new ArrayList<>();
 		params.add("" + parseInt(ACCOUNT_ID_PROMPT, 0, Integer.MAX_VALUE));
@@ -766,9 +780,11 @@ public class CommandLineIO implements BankIO {
 	 */
 	private Request buildApproveOpenAccount() {
 		
+		/*
 		System.out.println(FRAME_LINE);
 		System.out.println(APPROVE_HEADER);
 		System.out.println(FRAME_LINE);
+		*/
 		
 		List<String> params = new ArrayList<>();
 		params.add("" + parseInt(ACCOUNT_ID_PROMPT, 0, Integer.MAX_VALUE));
@@ -785,9 +801,11 @@ public class CommandLineIO implements BankIO {
 	 */
 	private Request buildApplyToOpenAccount() {
 		
+		/*
 		System.out.println(FRAME_LINE);
 		System.out.println(APPLY_HEADER);
 		System.out.println(FRAME_LINE);
+		*/
 		
 		System.out.println(FRAME_LINE);
 		return new Request(RequestType.APPLY_OPEN_ACCOUNT);
@@ -799,9 +817,11 @@ public class CommandLineIO implements BankIO {
 	 */
 	private Request buildQuit() {
 		
+		/*
 		System.out.println(FRAME_LINE);
 		System.out.println(QUIT_HEADER);
 		System.out.println(FRAME_LINE);
+		*/
 		
 		System.out.println(FRAME_LINE);
 		return new Request(RequestType.QUIT);
@@ -813,9 +833,11 @@ public class CommandLineIO implements BankIO {
 	 */
 	private Request buildLogOut() {
 		
+		/*
 		System.out.println(FRAME_LINE);
 		System.out.println(LOG_OUT_HEADER);
 		System.out.println(FRAME_LINE);
+		*/
 		
 		System.out.println(FRAME_LINE);
 		return new Request(RequestType.LOG_OUT);
@@ -827,9 +849,11 @@ public class CommandLineIO implements BankIO {
 	 */
 	private Request buildLogIn() {
 		
+		/*
 		System.out.println(FRAME_LINE);
 		System.out.println(LOG_IN_HEADER);
 		System.out.println(FRAME_LINE);
+		*/
 		
 		List<String> params = new ArrayList<>();
 		params.add(parseString(USERNAME_PROMPT));
@@ -847,9 +871,11 @@ public class CommandLineIO implements BankIO {
 	 */
 	private Request buildRegisterUser() {
 		
+		/*
 		System.out.println(FRAME_LINE);
 		System.out.println(REGISTER_HEADER);
 		System.out.println(FRAME_LINE);
+		*/
 		
 		List<String> params = new ArrayList<>();
 		params.add(parseString(USERNAME_PROMPT));
@@ -868,16 +894,21 @@ public class CommandLineIO implements BankIO {
 	 */
 	private int chooseRequestType(RequestType[] permittedRequestTypes) {
 		
+		/*
 		System.out.println(FRAME_LINE);
 		System.out.println(CHOICES_HEADER);
 		System.out.println(FRAME_LINE);
+		*/
+		
 		for (int i = 0; i < permittedRequestTypes.length; i++) {
-			String line = "(" + i + ") " + cleanUpRequestType(permittedRequestTypes[i]);
+			// print (i + 1) to avoid starting on 0
+			String line = "(" + (i + 1) + ") " + cleanUpRequestType(permittedRequestTypes[i]);
 			System.out.println(line);
 		}
 		
 		System.out.println(FRAME_LINE);
-		return parseInt(CHOICES_PROMPT, 0, permittedRequestTypes.length);
+		// add 1 to length and subtract 1 to correct for (i + 1)
+		return (parseInt(CHOICES_PROMPT, 0, (permittedRequestTypes.length + 1))) - 1; 
 	}
 	
 	/**

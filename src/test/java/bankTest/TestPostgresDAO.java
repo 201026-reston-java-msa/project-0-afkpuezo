@@ -17,6 +17,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.sql.Connection;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -53,22 +54,13 @@ public class TestPostgresDAO {
 		DatabaseUtil.resetDatabase();
 	}
 	
+	@After
+	public void cleanupDatabase() {
+		DatabaseUtil.resetDatabase();
+	}
+	
 	// test methods ----------------------------------------------------------------
 	
-	/*
-	@Test
-	public void testResourceName() {
-		
-		assertEquals(DatabaseUtil.TEST_ADDRESS, pdao.getResourceName());
-	}
-	
-	@Test
-	public void testGetConnection() {
-		
-		Connection conn = DatabaseUtil.getConnection();
-		assertNotNull(conn);
-	}
-	*/
 	
 	@Test
 	public void testReadBankAccount() throws BankDAOException{

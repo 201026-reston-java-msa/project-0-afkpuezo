@@ -1009,14 +1009,14 @@ public class BankSystem {
 				if (currentUser.getType() == UserProfileType.CUSTOMER
 						&& !currentUser.getOwnedAccounts().contains(accID)) {
 					unpermittedAccounts = unpermittedAccounts + " " + accID;
-					break;
+					continue;
 				}
 				
 				BankAccount ba = dao.readBankAccount(accID);
 				
 				if (ba.getType() == BankAccountType.NONE) {
 					nonexistantAccounts = nonexistantAccounts + " " + accID;
-					break;
+					continue;
 				}
 				
 				accounts.add(ba);

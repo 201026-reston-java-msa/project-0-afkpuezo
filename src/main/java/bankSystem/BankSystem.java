@@ -1279,7 +1279,7 @@ public class BankSystem {
 		try {
 			tr.setId(dao.getHighestTransactionRecordID() + 1);
 			tr.setActingUser(currentUser.getId());
-			tr.setTime("PLACEHOLDER"); // TODO fix this
+			tr.setTime(java.time.LocalDateTime.now().toString());
 			
 			log.log(
 					Priority.INFO, 

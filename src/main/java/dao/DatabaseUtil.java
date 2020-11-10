@@ -7,6 +7,10 @@
 package dao;
 
 import java.sql.Statement;
+
+import org.apache.log4j.Logger;
+import org.apache.log4j.Priority;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -20,6 +24,8 @@ public class DatabaseUtil {
 	public static final String TEST_PASSWORD = "password";
 
 	// class / static variables
+	private static Logger log = Logger.getLogger(DatabaseUtil.class);
+	
 	private static String databaseAddress;
 	private static String databaseUsername;
 	private static String databasePassword;
@@ -60,7 +66,7 @@ public class DatabaseUtil {
 					databasePassword
 					);
 		} catch (SQLException e) {
-			System.out.println("Unable to obtain connection to database: " + e.getMessage());
+			log.log(Priority.WARN, "Unable to obtain connection to database: " + e.getMessage());
 		}
 		
 		return conn;
@@ -71,6 +77,7 @@ public class DatabaseUtil {
 	 */
 	public static void resetDatabase() {
 		
+		log.log(Priority.INFO, "resetting database to initial configuration...");
 		try (Connection conn = getConnection()){
 			// drop tables --------------------------------------------------------------
 			dropTableIfExists(conn, "user_profile");
@@ -158,7 +165,8 @@ public class DatabaseUtil {
 			populateAccountOwnership(conn);
 		}
 		catch(SQLException e) {
-			System.out.println("Problem resetting database: " + e.getMessage());
+			log.log(Priority.WARN, "Problem resetting database: " + e.getMessage());
+			
 		}
 	}
 
@@ -249,7 +257,7 @@ public class DatabaseUtil {
 		
 		pstm = conn.prepareStatement(insertTransactionString);
 		pstm.setInt(1, 1); // id
-		pstm.setString(2, "PLACEHOLDER"); // time
+		pstm.setString(2, java.time.LocalDateTime.now().toString()); // time
 		pstm.setString(3, "FUNDS_DEPOSITED"); // type 
 		pstm.setInt(4, 3); // the acting user - the customer profile
 		pstm.setInt(5, -1); // the source account, none

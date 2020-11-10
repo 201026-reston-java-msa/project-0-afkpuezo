@@ -146,6 +146,14 @@ public class CommandLineIO implements BankIO {
 		
 		String temp = "" + funds;
 		
+		// we need to pad it if it's too small
+		// hopefully this padding doesn't break the entire javascript ecosystem
+		int padNeeded = 3 - temp.length();
+		
+		for (int i = 0; i < padNeeded; i++) {
+			temp = "0" + temp;
+		}
+		
 		return "$" + temp.substring(0, temp.length() - 2) + "." + temp.substring(temp.length() - 2);
 	}
 	
@@ -248,7 +256,7 @@ public class CommandLineIO implements BankIO {
 			line = line + " |Type: " + up.getType();
 			
 			if (up.getType() == UserProfileType.CUSTOMER) {
-				line = line + " |Owned Accounts:";
+				line = line + " |Owned Account ID(s): ";
 				for (int accID : up.getOwnedAccounts()) {
 					line = line + " " + accID;
 				} // end inner for loop
@@ -274,7 +282,7 @@ public class CommandLineIO implements BankIO {
 			line = line + " |Type: " + ba.getType();
 			line = line + " |Status: " + ba.getStatus();
 			line = line + " |Funds: " + intToMoneyString(ba.getFunds());
-			line = line + " |Owner(s):"; // assume not empty
+			line = line + " |Owner ID(s): "; // assume not empty
 			
 			for (int ownerID : ba.getOwners()) {
 				line = line + " " + ownerID;
@@ -300,7 +308,7 @@ public class CommandLineIO implements BankIO {
 			String line = "|ID: " + tr.getId();
 			line = line + " |Type: " + tr.getType();
 			line = line + " |Time: " + tr.getTime();
-			line = line + " |Acting User: " + tr.getActingUser();
+			line = line + " |Acting User ID: " + tr.getActingUser();
 			
 			line = line + " |Source Account: ";
 			if (tr.getSourceAccount() == -1) {

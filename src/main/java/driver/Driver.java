@@ -13,6 +13,7 @@ import BankIO.CommandLineIO;
 import bankSystem.BankSystem;
 import dao.BankDAO;
 import dao.BankDAOException;
+import dao.PostgresDAO;
 import dao.TextFileDAO;
 
 public class Driver {
@@ -31,7 +32,8 @@ public class Driver {
 		
 		BankIO io = new CommandLineIO();
 		prepareTextFile();
-		BankDAO dao = new TextFileDAO(testFilename);
+		//BankDAO dao = new TextFileDAO(testFilename);
+		BankDAO dao = new PostgresDAO(); 
 		BankSystem bank = new BankSystem(io, dao);
 		bank.start();
 		// clean things up

@@ -198,6 +198,7 @@ public class TestPostgresDAO {
 	public void testWriteUserProfile() throws BankDAOException{
 		
 		UserProfile up;
+		List<Integer> ownedAccounts;
 		
 		up = pdao.readUserProfile(111); // should not be found yet
 		assertEquals(UserProfileType.NONE, up.getType());
@@ -206,6 +207,9 @@ public class TestPostgresDAO {
 		up.setUsername("new_cust");
 		up.setPassword("new_cust");
 		up.setType(UserProfileType.CUSTOMER);
+		ownedAccounts = new ArrayList<>();
+		ownedAccounts.add(1);
+		up.setOwnedAccounts(ownedAccounts);
 		pdao.write(up);
 		
 		// assume reading works
@@ -214,5 +218,31 @@ public class TestPostgresDAO {
 		assertEquals("new_cust", up.getUsername());
 		assertEquals("new_cust", up.getPassword());
 		assertEquals(UserProfileType.CUSTOMER, up.getType());
+		ownedAccounts = up.getOwnedAccounts();
+		assertEquals(1, ownedAccounts.size());
+		assertTrue(ownedAccounts.contains(1));
+		
+		// try to overwrite
+		up = new UserProfile(111);
+		up.setUsername("new_cust2");
+		up.setPassword("new_cust2");
+		up.setType(UserProfileType.ADMIN);
+		ownedAccounts = new ArrayList<>();
+		ownedAccounts.add(1);
+		ownedAccounts.add(2);
+		up.setOwnedAccounts(ownedAccounts);
+		pdao.write(up);
+		
+		up = pdao.readUserProfile(111);
+		// should not be changed
+		assertEquals(111, up.getId());
+		assertEquals("new_cust", up.getUsername());
+		assertEquals("new_cust", up.getPassword());
+		assertEquals(UserProfileType.CUSTOMER, up.getType());
+		// should be changed
+		ownedAccounts = up.getOwnedAccounts();
+		assertEquals(2, ownedAccounts.size());
+		assertTrue(ownedAccounts.contains(1));
+		assertTrue(ownedAccounts.contains(2));
 	}
 }

@@ -372,8 +372,8 @@ public class PostgresDAO implements BankDAO {
 	}
 
 	/**
-	 * Writes the given BankData object to the data storage. WILL overwrite if matching
-	 * data is already present.
+	 * Writes the given BankData object to the data storage.
+	 * User details cannot be changed after being initially written, other than owned accounts
 	 * @param bd
 	 */
 	@Override
@@ -588,13 +588,29 @@ public class PostgresDAO implements BankDAO {
 			PreparedStatement pstm;
 			sql = "INSERT INTO user_profile (user_id, username, password, type)" 
 					+ "VALUES (?, ?, ? ,?)"
-					+ "ON CONFLICT (user_id) DO NOTHING";
+					+ "ON CONFLICT (user_id) DO NOTHING;";
 			pstm = conn.prepareStatement(sql);
 			pstm.setInt(1, up.getId());
 			pstm.setString(2, up.getUsername());
 			pstm.setString(3, up.getPassword());
 			pstm.setString(4, "" + up.getType()); // easy way of enum to string
 			pstm.execute();
+			
+			// now handle the owned accounts
+			// I think the easiest way to do this is to delete all of the ownership records for this user
+			// and then re-add only the ones that still exist
+			sql = "DELETE FROM account_ownership WHERE user_id = ?;";
+			pstm = conn.prepareStatement(sql);
+			pstm.setInt(1, up.getId());
+			pstm.execute();
+			
+			sql = "INSERT INTO account_ownership (user_id, account_id) VALUES (?, ?);";
+			for (int accID : up.getOwnedAccounts()) {
+				pstm = conn.prepareStatement(sql);
+				pstm.setInt(1, up.getId());
+				pstm.setInt(2, accID);
+				pstm.execute();
+			}
 		}
 		catch (SQLException e) {
 			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);

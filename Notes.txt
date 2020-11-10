@@ -209,4 +209,10 @@ November 9:
 	- okay, I wrote most of PDAO, tomorrow I just need to do the quick methods at the bottom (get highest id, 
 		is username free)
 		
+November 10:
+
+	- finished PDAO [x]
+	- made things look a little bit nicer [x]
+	- made sure we can export to a jar and pass args [x]
+	- implement log4j [ ]
 	

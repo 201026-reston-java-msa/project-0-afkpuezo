@@ -13,11 +13,16 @@ import BankIO.CommandLineIO;
 import bankSystem.BankSystem;
 import dao.BankDAO;
 import dao.BankDAOException;
+import dao.DatabaseUtil;
 import dao.PostgresDAO;
 import dao.TextFileDAO;
 
 public class Driver {
 
+	// constants
+	private static final String USE_TEXT_ARG = "-t";
+	private static final String RESET_DATABSE_ARG = "-r";
+	
 	// class / static vars
 	static private final String testFilename = "testfile.bdf"; // 'bank data file'
 	static private final String[] FILELINES = {
@@ -30,10 +35,36 @@ public class Driver {
 	
 	public static void main(String[] args) throws BankDAOException {
 		
+		// look for flags in the params
+		boolean useText = false;
+		boolean resetDatabase = false;
+		
+		for (String s : args) {
+			
+			if (s.equals(USE_TEXT_ARG)){
+				useText = true;
+			}
+			else if (s.equals(RESET_DATABSE_ARG)) {
+				resetDatabase = true;
+			}
+		}
+		
 		BankIO io = new CommandLineIO();
 		prepareTextFile();
-		//BankDAO dao = new TextFileDAO(testFilename);
-		BankDAO dao = new PostgresDAO(); 
+		
+		BankDAO dao;
+		
+		if (useText) {
+			dao = new TextFileDAO(testFilename);
+			
+		}
+		else {
+			dao = new PostgresDAO();
+			if (resetDatabase) {
+				DatabaseUtil.resetDatabase();
+			}
+		}
+		
 		BankSystem bank = new BankSystem(io, dao);
 		bank.start();
 		// clean things up

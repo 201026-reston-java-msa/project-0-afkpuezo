@@ -110,13 +110,26 @@ public class DatabaseUtil {
 					+ "\"time\" VARCHAR(120) NOT NULL,\n"
 					+ "\"type\" VARCHAR(120) NOT NULL,\n"
 					+ "\"acting_user\" INT NOT NULL,\n"
-					+ "\"source_account\" INT NOT NULL,\n"
-					+ "\"destination_account\" INT NOT NULL,\n"
-					+ "\"money_amount\" INT NOT NULL,\n"
+					+ "\"source_account\" INT,\n"
+					+ "\"destination_account\" INT,\n"
+					+ "\"money_amount\" INT,\n"
 					+ "CONSTRAINT \"PK_transaction_record\" PRIMARY KEY (\"transaction_id\")\n"
 					+ ");";
 			stm = conn.createStatement();
 			stm.execute(createTransactionTable);
+			
+			// user ID is foreign keys
+			String addTrasactionActingUserIDForeignKey = "ALTER TABLE \"transaction_record\" ADD CONSTRAINT \"FK_acting_user\"\n"
+					+ "		FOREIGN KEY (\"acting_user\") REFERENCES \"user_profile\" (\"user_id\")";
+			stm = conn.createStatement();
+			stm.execute(addTrasactionActingUserIDForeignKey);
+			// accounts are not foreign keys because they may be null
+			/*
+			String addTrasactionActingAccountIDForeignKey = "ALTER TABLE \"transaction_record\" ADD CONSTRAINT \"FK_source_account\"\n"
+					+ "		FOREIGN KEY (\"source_account\") REFERENCES \"bank_account\" (\"account_id\")";
+			stm = conn.createStatement();
+			stm.execute(addTrasactionActingAccountIDForeignKey);
+			*/
 			
 			String createAccountOwnershipTable = "CREATE TABLE \"account_ownership\"\n"
 					+ "(\n"

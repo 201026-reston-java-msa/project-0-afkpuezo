@@ -379,18 +379,13 @@ public class PostgresDAO implements BankDAO {
 	@Override
 	public void write(BankData bd) throws BankDAOException {
 		
-		if (bd instanceof UserProfile) {
-			writeUserProfile((UserProfile)bd);
+		try (Connection conn = DatabaseUtil.getConnection()){
+			writeHelp(conn, bd);
 		}
-		else if (bd instanceof BankAccount) {
-			//writeBankAccount((BankAccount)bd);
+		catch (SQLException e){
+			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
 		}
-		else if (bd instanceof TransactionRecord) {
-			//writeTransactionRecord((TransactionRecord)bd);
-		}
-		else { // should never be reached
-			throw new BankDAOException(WRITE_BANKDATA_NO_RECOGNIED_MESSAGE);
-		}
+		
 	}
 
 	/**
@@ -553,6 +548,14 @@ public class PostgresDAO implements BankDAO {
 		return users;
 	}
 	
+	/**
+	 * Converts the results of a query into a list of TransactionRecords objects.
+	 * @param conn
+	 * @param trrSet
+	 * @return
+	 * @throws SQLException
+	 * @throws BankDAOException
+	 */
 	private List<TransactionRecord> getTransactionListFromResults(Connection conn, ResultSet trrSet)
 			throws SQLException, BankDAOException{
 		
@@ -573,49 +576,103 @@ public class PostgresDAO implements BankDAO {
 	}
 	
 	/**
-	 * Helper method to write a single userprofile
+	 * Who doesn't love nested helper methods?
+	 * Figures out which helper method to send the given Bankdata to 
+	 * @param conn
 	 * @param bd
 	 */
-	private void writeUserProfile(UserProfile up) throws BankDAOException{
+	private void writeHelp(Connection conn, BankData bd) throws BankDAOException, SQLException{
+		
+		if (bd instanceof UserProfile) {
+			writeUserProfile(conn, (UserProfile)bd);
+		}
+		else if (bd instanceof BankAccount) {
+			writeBankAccount(conn, (BankAccount)bd);
+		}
+		else if (bd instanceof TransactionRecord) {
+			//writeTransactionRecord(conn, (TransactionRecord)bd);
+		}
+		else { // should never be reached
+			throw new BankDAOException(WRITE_BANKDATA_NO_RECOGNIED_MESSAGE);
+		}
+	}
+	
+	/**
+	 * Helper method to write a single user profile
+	 * @param up
+	 */
+	private void writeUserProfile(Connection conn, UserProfile up) throws SQLException{
 		
 		// the only thing that changes is the owned accounts.
 		// try to insert the user, if there's a conflict, don't change anything.
 		// separately, update the owned accounts relationship
 		
-		try (Connection conn = DatabaseUtil.getConnection()){
-			
-			String sql;
-			PreparedStatement pstm;
-			sql = "INSERT INTO user_profile (user_id, username, password, type)" 
-					+ "VALUES (?, ?, ? ,?)"
-					+ "ON CONFLICT (user_id) DO NOTHING;";
-			pstm = conn.prepareStatement(sql);
-			pstm.setInt(1, up.getId());
-			pstm.setString(2, up.getUsername());
-			pstm.setString(3, up.getPassword());
-			pstm.setString(4, "" + up.getType()); // easy way of enum to string
-			pstm.execute();
-			
-			// now handle the owned accounts
-			// I think the easiest way to do this is to delete all of the ownership records for this user
-			// and then re-add only the ones that still exist
-			sql = "DELETE FROM account_ownership WHERE user_id = ?;";
-			pstm = conn.prepareStatement(sql);
-			pstm.setInt(1, up.getId());
-			pstm.execute();
-			
-			sql = "INSERT INTO account_ownership (user_id, account_id) VALUES (?, ?);";
-			for (int accID : up.getOwnedAccounts()) {
-				pstm = conn.prepareStatement(sql);
-				pstm.setInt(1, up.getId());
-				pstm.setInt(2, accID);
-				pstm.execute();
-			}
-		}
-		catch (SQLException e) {
-			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
-		}
+		String sql;
+		PreparedStatement pstm;
+		sql = "INSERT INTO user_profile (user_id, username, password, type)" 
+				+ "VALUES (?, ?, ? ,?)"
+				+ "ON CONFLICT (user_id) DO NOTHING;";
+		pstm = conn.prepareStatement(sql);
+		pstm.setInt(1, up.getId());
+		pstm.setString(2, up.getUsername());
+		pstm.setString(3, up.getPassword());
+		pstm.setString(4, "" + up.getType()); // easy way of enum to string
+		pstm.execute();
 		
+		// now handle the owned accounts
+		// I think the easiest way to do this is to delete all of the ownership records for this user
+		// and then re-add only the ones that still exist
+		sql = "DELETE FROM account_ownership WHERE user_id = ?;";
+		pstm = conn.prepareStatement(sql);
+		pstm.setInt(1, up.getId());
+		pstm.execute();
+		
+		sql = "INSERT INTO account_ownership (user_id, account_id) VALUES (?, ?);";
+		for (int accID : up.getOwnedAccounts()) {
+			pstm = conn.prepareStatement(sql);
+			pstm.setInt(1, up.getId());
+			pstm.setInt(2, accID);
+			pstm.execute();
+		}
+	}
+	
+	/**
+	 * Helper method to write a single bank account
+	 * @param ba
+	 */
+	private void writeBankAccount(Connection conn, BankAccount ba) throws SQLException{
+		
+		String sql;
+		PreparedStatement pstm;
+		sql = "INSERT INTO bank_account (account_id, status, type, funds)" 
+				+ "VALUES (?, ?, ? ,?)"
+				+ "ON CONFLICT (account_id) DO UPDATE"
+				+ "SET status = ?,"
+				+ "type = ?,"
+				+ "funds = ?;";
+		pstm = conn.prepareStatement(sql);
+		pstm.setInt(1, ba.getId());
+		pstm.setString(2, "" + ba.getStatus());
+		pstm.setString(3, "" + ba.getType());
+		pstm.setInt(4, ba.getFunds());
+		pstm.setString(5, "" + ba.getStatus());
+		pstm.setString(6, "" + ba.getType());
+		pstm.setInt(7, ba.getFunds());
+		pstm.execute();
+		
+		// now update the ownership relation
+		sql = "DELETE FROM account_ownership WHERE account_id = ?;";
+		pstm = conn.prepareStatement(sql);
+		pstm.setInt(1, ba.getId());
+		pstm.execute();
+		
+		sql = "INSERT INTO account_ownership (user_id, account_id) VALUES (?, ?);";
+		for (int ownerID : ba.getOwners()) {
+			pstm = conn.prepareStatement(sql);
+			pstm.setInt(1, ownerID);
+			pstm.setInt(2, ba.getId());
+			pstm.execute();
+		}
 	}
 	
 	// util methods ------------------------------------------------------------

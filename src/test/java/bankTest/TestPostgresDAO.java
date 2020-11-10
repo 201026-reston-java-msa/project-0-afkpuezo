@@ -126,5 +126,24 @@ public class TestPostgresDAO {
 		up = pdao.readUserProfile(1001); // not found
 		assertEquals(1001, up.getId());
 		assertEquals(UserProfileType.NONE, up.getType());
+		
+		// test read all
+		List<UserProfile> users = pdao.readAllUserProfiles();
+		assertEquals(4, users.size());
+		
+		up = users.get(0); //
+		assertEquals(1, up.getId());
+		assertEquals("admin", up.getUsername());
+		assertEquals("admin", up.getPassword());
+		assertEquals(UserProfileType.ADMIN, up.getType());
+		assertTrue(up.getOwnedAccounts().isEmpty());
+		
+		up = users.get(2);
+		assertEquals(3, up.getId());
+		assertEquals("cust", up.getUsername());
+		assertEquals("pass", up.getPassword());
+		assertEquals(UserProfileType.CUSTOMER, up.getType());
+		assertEquals(1, up.getOwnedAccounts().size());
+		assertTrue(1 == up.getOwnedAccounts().get(0));
 	}
 }

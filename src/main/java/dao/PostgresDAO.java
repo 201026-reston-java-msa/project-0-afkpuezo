@@ -241,19 +241,7 @@ public class PostgresDAO implements BankDAO {
 			PreparedStatement pstm = conn.prepareStatement(sql);
 			ResultSet userSet = pstm.executeQuery();
 			
-			List<UserProfile> users = new ArrayList<>();
-			while (userSet.next()) { // should only be one result
-				UserProfile up = new UserProfile();
-				int userID = userSet.getInt("user_id");
-				up.setId(userID);
-				up.setUsername(userSet.getString("username"));
-				up.setPassword(userSet.getString("password"));
-				up.setType(stringToUserProfileType(userSet.getString("type")));
-				up.setOwnedAccounts(getUserOwnedAccountsList(conn, userID));
-				users.add(up);
-			}
-			
-			return users;
+			return getUserProfileListFromResults(conn, userSet);
 		}
 		catch(SQLException e) {
 			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
@@ -400,7 +388,7 @@ public class PostgresDAO implements BankDAO {
 	}
 	
 	/**
-	 * Convers the results of a query into a list of BankAccount objects.
+	 * Converts the results of a query into a list of BankAccount objects.
 	 * @param conn
 	 * @param accSet
 	 * @return
@@ -452,6 +440,31 @@ public class PostgresDAO implements BankDAO {
 		catch (SQLException e) {
 			throw new BankDAOException(RESULT_SET_ERROR_MESSAGE);
 		}
+	}
+	
+	/**
+	 * Converts the results of a query into a list of UserProfile objects.
+	 * @param conn
+	 * @param userSet
+	 * @return
+	 * @throws SQLException
+	 * @throws BankDAOException
+	 */
+	private List<UserProfile> getUserProfileListFromResults(Connection conn, ResultSet userSet)
+			throws SQLException, BankDAOException{
+		
+		List<UserProfile> users = new ArrayList<>();
+		while (userSet.next()) { // should only be one result
+			UserProfile up = new UserProfile();
+			int userID = userSet.getInt("user_id");
+			up.setId(userID);
+			up.setUsername(userSet.getString("username"));
+			up.setPassword(userSet.getString("password"));
+			up.setType(stringToUserProfileType(userSet.getString("type")));
+			up.setOwnedAccounts(getUserOwnedAccountsList(conn, userID));
+			users.add(up);
+		}
+		return users;
 	}
 	
 	// util methods ------------------------------------------------------------

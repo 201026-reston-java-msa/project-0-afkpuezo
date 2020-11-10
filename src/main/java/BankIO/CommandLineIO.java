@@ -40,6 +40,10 @@ public class CommandLineIO implements BankIO {
 			= "Invalid input. Please enter a number.";
 	private static final String PARSE_INT_CHOICE_OUT_OF_BOUNDS_MESSAGE
 			= "Invalid input. Please choose one of the available options.";
+	private static final String PARSE_INT_BELOW_MIN_PREFIX
+			= "Invalid input: must be at least minimum value of ";
+	private static final String PARSE_INT_BELOW_MAX_PREFIX
+			= "Invalid input: input must be below maximum value of ";
 	
 	private static final String PARSE_STRING_WHITESPACE_INVALID
 			= "Invalid input. No whitespace characters are allowed"; 
@@ -57,6 +61,8 @@ public class CommandLineIO implements BankIO {
 			= "'$' character is only valid as the first character.";
 	private static final String BAD_MONEY_FORMAT_GENERIC_PREFIX
 			= "Input contains an invalid character: ";
+	private static final String BAD_MONEY_FORMAT_NEGATIVE_MESSAGE
+			= "Negative money amounts are not allowed.";
 	
 	private static final String USERNAME_PROMPT = "Enter username: ";
 	private static final String PASSWORD_PROMPT = "Enter password: ";
@@ -170,7 +176,10 @@ public class CommandLineIO implements BankIO {
 		int startingIndex = 0;
 		if (funds.charAt(0) == '$') {
 			startingIndex += 1;
+		} else if (funds.charAt(0) == '-') {
+			throw new BadMoneyFormatException(BAD_MONEY_FORMAT_NEGATIVE_MESSAGE);
 		}
+		
 		
 		String clean = "";
 		boolean dotFound = false;
@@ -961,11 +970,14 @@ public class CommandLineIO implements BankIO {
 			try {
 				choice = Integer.parseInt(input);
 				// it's an int, is it a valid int?
-				if (min <= choice && choice < max) {
-					isValid = true;					
+				if (min > choice) {
+					System.out.println(PARSE_INT_BELOW_MIN_PREFIX + min);
+				}
+				else if (choice >= max) {
+					System.out.println(PARSE_INT_BELOW_MAX_PREFIX + max);
 				}
 				else {
-					System.out.println(PARSE_INT_CHOICE_OUT_OF_BOUNDS_MESSAGE);
+					isValid = true;					
 				}
 			}
 			catch (NumberFormatException e) {

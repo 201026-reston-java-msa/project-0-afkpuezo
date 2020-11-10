@@ -59,9 +59,9 @@ public class BankSystem {
 	public static final String START_MESSAGE 
 			= "Welcome to the bank!";
 	public static final String NO_USER_LOGGED_IN_MESSAGE 
-			= "NO USER LOGGED IN";
+			= "-No user logged in-";
 	public static final String USER_LOGGED_IN_PREFIX
-			= "LOGGED IN AS: "; // should append username
+			= "Currently logged in as: "; // should append username
 	public static final String USERNAME_IN_USE_MESSAGE 
 			= "Unable to proceed: That username is already in use.";
 	public static final String USER_DOES_NOT_EXIST_MESSAGE 
@@ -69,13 +69,13 @@ public class BankSystem {
 	public static final String GENERIC_DAO_ERROR_MESSAGE 
 			= "ALERT: There were issues communicating with the database. Contact your system administrator.";
 	public static final String LOG_IN_SUCCESSFUL_PREFIX
-			= "Successfully logging in as: ";
+			= "Successfully logged in as: ";
 	public static final String LOGIN_USER_NOT_FOUND_PREFIX 
 			= "Unable to proceed: No profile found matching username: ";
 	public static final String LOGIN_INVALID_PASSWORD_MESSAGE 
 			= "Unable to proceed: Incorrect password.";
-	public static final String LOGOUT_MESSAGE = "Logging out.";
-	public static final String QUIT_MESSAGE = "Quitting.";
+	public static final String LOGOUT_MESSAGE = "Logged out.";
+	public static final String QUIT_MESSAGE = "Quit.";
 	public static final String LOST_CONNECTION_UNRECOVERABLE_MESSAGE 
 			= "Connection to database lost; quitting application.";
 	public static final String ACCOUNT_DOES_NOT_EXIST_PREFIX 
@@ -152,7 +152,7 @@ public class BankSystem {
 			= "Unable to proceed: You cannot deposit to an account that is not open.";
 	
 	public static final String WITHDRAW_SUCCESSFUL_MESSAGE 
-			= "Deposit successful.";
+			= "Withdraw successful.";
 	public static final String WITHDRAW_ACCOUNT_NOT_OWNED_MESSAGE
 			= "Unable to proceed: You cannot withdraw from an account you do not own. Use a transfer instead.";
 	public static final String WITHDRAW_ACCOUNT_NOT_OPEN_MESSAGE
@@ -272,7 +272,7 @@ public class BankSystem {
 			}
 			else {
 				io.displayText(
-						USER_LOGGED_IN_PREFIX + currentUser.getUsername() + " ID: " + currentUser.getId(),
+						USER_LOGGED_IN_PREFIX + currentUser.getUsername() + " ID: " + currentUser.getId() + "",
 						true);
 			}
 			
@@ -309,7 +309,7 @@ public class BankSystem {
 				
 				if (!permitted) {
 					// should be no way to reach this?
-					log.log(Priority.WARN, "User attempted forbidden action " + currentRequest.getType());
+					log.log(Priority.WARN, "User " + currentUser.getId() + " attempted forbidden action " + currentRequest.getType());
 					throw new ImpossibleActionException(GENERIC_NO_PERMISSION_MESSAGE);
 				}
 				

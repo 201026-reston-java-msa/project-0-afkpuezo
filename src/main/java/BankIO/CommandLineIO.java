@@ -73,7 +73,7 @@ public class CommandLineIO implements BankIO {
 	
 	private static final String REGISTER_HEADER = "Registering new user...";
 	
-	private static final String LOG_IN_HEADER = "Loggin in...";
+	private static final String LOG_IN_HEADER = "Logging in...";
 	
 	private static final String LOG_OUT_HEADER = "Loggin out...";
 	
@@ -215,7 +215,13 @@ public class CommandLineIO implements BankIO {
 			}
 		}
 		
-		return Integer.parseInt(clean);
+		int money = Integer.parseInt(clean);
+		// if no dot, we have to add .00, effectively
+		if (!dotFound) {
+			money *= 100;
+		}
+		
+		return money; 
 	}
 	
 	
@@ -239,9 +245,9 @@ public class CommandLineIO implements BankIO {
 	public void displayText(String text, boolean frame) {
 		
 		if (frame) {
-			System.out.println(FRAME_LINE);
+			System.out.println("\n" + FRAME_LINE);
 			displayText(text);
-			System.out.println(FRAME_LINE);
+			System.out.println(FRAME_LINE + "\n");
 		}
 		else {
 			displayText(text);
@@ -769,7 +775,7 @@ public class CommandLineIO implements BankIO {
 		
 		System.out.println(FRAME_LINE);
 		return new Request(
-				RequestType.APPLY_OPEN_ACCOUNT,
+				RequestType.APPROVE_OPEN_ACCOUNT,
 				params);
 	}
 

@@ -383,6 +383,7 @@ public class PostgresDAO implements BankDAO {
 			writeHelp(conn, bd);
 		}
 		catch (SQLException e){
+			//System.out.println("DEBUG: " + e.getMessage());
 			throw new BankDAOException(GENERIC_SQL_EXCEPTION_MESSAGE);
 		}
 		
@@ -645,8 +646,8 @@ public class PostgresDAO implements BankDAO {
 		String sql;
 		PreparedStatement pstm;
 		sql = "INSERT INTO bank_account (account_id, status, type, funds)" 
-				+ "VALUES (?, ?, ? ,?)"
-				+ "ON CONFLICT (account_id) DO UPDATE"
+				+ "VALUES (?, ?, ? ,?)\n"
+				+ "ON CONFLICT (account_id) DO UPDATE\n"
 				+ "SET status = ?,"
 				+ "type = ?,"
 				+ "funds = ?;";

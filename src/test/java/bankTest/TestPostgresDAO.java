@@ -203,7 +203,7 @@ public class TestPostgresDAO {
 		up = pdao.readUserProfile(111); // should not be found yet
 		assertEquals(UserProfileType.NONE, up.getType());
 		
-		up = new UserProfile(111);
+		up = new UserProfile(111); // write this new profile
 		up.setUsername("new_cust");
 		up.setPassword("new_cust");
 		up.setType(UserProfileType.CUSTOMER);
@@ -244,5 +244,56 @@ public class TestPostgresDAO {
 		assertEquals(2, ownedAccounts.size());
 		assertTrue(ownedAccounts.contains(1));
 		assertTrue(ownedAccounts.contains(2));
+		
+		// make sure the accounts were updated as well
+		BankAccount ba;
+		List<Integer> owners;
+		
+		ba = pdao.readBankAccount(1);
+		owners = ba.getOwners();
+		assertTrue(owners.contains(111));
+		
+		ba = pdao.readBankAccount(2);
+		owners = ba.getOwners();
+		assertTrue(owners.contains(111));
+	}
+	
+	@Test
+	public void testWriteBankAccount() throws BankDAOException{
+		
+		BankAccount ba;
+		List<Integer> owners;
+		
+		ba = pdao.readBankAccount(111); // should not be found
+		assertEquals(BankAccountType.NONE, ba.getType());
+		
+		ba = new BankAccount(111); // write this new account
+		ba.setStatus(BankAccountStatus.PENDING);
+		ba.setType(BankAccountType.SINGLE);
+		owners = new ArrayList<>();
+		owners.add(3);
+		owners.add(4);
+		ba.setOwners(owners);
+		pdao.write(ba);
+		
+		ba = pdao.readBankAccount(111); // should be found now
+		assertEquals(BankAccountType.SINGLE, ba.getType());
+		assertEquals(BankAccountStatus.PENDING, ba.getStatus());
+		owners = ba.getOwners();
+		assertEquals(2, owners.size());
+		assertTrue(owners.contains(3));
+		assertTrue(owners.contains(4));
+		
+		// see if the users were updated too
+		UserProfile up;
+		List<Integer> ownedAccounts;
+		
+		up = pdao.readUserProfile(3);
+		ownedAccounts = up.getOwnedAccounts();
+		assertTrue(ownedAccounts.contains(111));
+		
+		up = pdao.readUserProfile(4);
+		ownedAccounts = up.getOwnedAccounts();
+		assertTrue(ownedAccounts.contains(111));
 	}
 }

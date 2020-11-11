@@ -13,8 +13,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.invoke.LambdaConversionException;
-import java.security.KeyStore.Entry;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -97,7 +95,9 @@ public class TextFileDAO implements BankDAO {
 	public BankAccount readBankAccount(int accID) throws BankDAOException {
 		
 		String entry = searchFile(BANK_ACCOUNT_PREFIX + " " + accID);
-		return buildAccountFromEntry(entry);
+		BankAccount ba = buildAccountFromEntry(entry);
+		ba.setId(accID); // fixes problem if no matching bank account is found
+		return ba;
 	}
 
 	/**
@@ -121,7 +121,9 @@ public class TextFileDAO implements BankDAO {
 	public UserProfile readUserProfile(int userID) throws BankDAOException {
 		
 		String entry = searchFile(USER_PROFILE_PREFIX + " " + userID);
-		return buildUserProfileFromEntry(entry);
+		UserProfile up = buildUserProfileFromEntry(entry);
+		up.setId(userID); // in case it wasn't found
+		return up;
 	}
 	
 	/**
@@ -162,7 +164,9 @@ public class TextFileDAO implements BankDAO {
 	public TransactionRecord readTransactionRecord(int recID) throws BankDAOException {
 		
 		String entry = searchFile(TRANSACTION_RECORD_PREFIX + " " + recID);
-		return buildTransactionRecordFromEntry(entry);
+		TransactionRecord tr = buildTransactionRecordFromEntry(entry);
+		tr.setId(recID); // fixes issue when not found
+		return tr;
 	}
 
 	@Override

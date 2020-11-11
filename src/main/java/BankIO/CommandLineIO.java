@@ -5,14 +5,9 @@
  */
 package BankIO;
 
-import java.security.Identity;
 import java.util.ArrayList;
-import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
-
-import javax.xml.crypto.dsig.spec.DigestMethodParameterSpec;
-import javax.xml.stream.events.EndDocument;
 
 import com.revature.bankDataObjects.BankAccount;
 import com.revature.bankDataObjects.TransactionRecord;
@@ -23,6 +18,7 @@ import bankSystem.BankSystem;
 import bankSystem.Request;
 import bankSystem.Request.RequestType;
 
+
 public class CommandLineIO implements BankIO {
 
 	// static / class variables / constants
@@ -30,16 +26,20 @@ public class CommandLineIO implements BankIO {
 	private static final String DISPLAY_PROFILES_HEADER = "Showing user profiles...";
 	private static final String DISPLAY_ACCOUNTS_HEADER = "Showing accounts...";
 	private static final String DISPLAY_TRANSACTIONS_HEADER = "Showing transactions...";
+	/*
 	private static final String CHOICES_HEADER 
 			= "Type the number matching one of the following choices: ";
+	 */
 	private static final String CHOICES_PROMPT 
 			= "Enter your choice here: ";
 	private static final String DISPLAY_FIELD_EMPTY = "---";
 	
 	private static final String PARSE_INT_INVALID_INPUT_MESSAGE
 			= "Invalid input. Please enter a number.";
+	/*
 	private static final String PARSE_INT_CHOICE_OUT_OF_BOUNDS_MESSAGE
 			= "Invalid input. Please choose one of the available options.";
+	*/
 	private static final String PARSE_INT_BELOW_MIN_PREFIX
 			= "Invalid input: must be at least minimum value of ";
 	private static final String PARSE_INT_BELOW_MAX_PREFIX
@@ -47,8 +47,10 @@ public class CommandLineIO implements BankIO {
 	
 	private static final String PARSE_STRING_WHITESPACE_INVALID
 			= "Invalid input. No whitespace characters are allowed"; 
+	/*
 	private static final String PARSE_STRING_EMPTY_STRING_INVALID
 			= "Invalid input - no input detected.";
+	*/
 	
 	private static final String PARSE_MONEY_BAD_FORMAT_PREFIX
 			= "Invalid input: ";
@@ -68,9 +70,10 @@ public class CommandLineIO implements BankIO {
 	private static final String PASSWORD_PROMPT = "Enter password: ";
 	private static final String USER_ID_PROMPT = "Enter user ID: ";
 	private static final String ACCOUNT_ID_PROMPT = "Enter account ID: ";
-	private static final String TRANSACTION_ID_PROMPT = "Enter transaction ID: ";
+	//private static final String TRANSACTION_ID_PROMPT = "Enter transaction ID: ";
 	private static final String MONEY_AMOUNT_PROMPT = "Enter an amount of money: ";
 	
+	/*
 	private static final String REGISTER_HEADER = "Registering new user...";
 	
 	private static final String LOG_IN_HEADER = "Logging in...";
@@ -98,40 +101,47 @@ public class CommandLineIO implements BankIO {
 	private static final String WITHDRAW_HEADER = "Withdrawing funds...";
 	
 	private static final String TRANSFER_HEADER = "Transferring funds...";
+	*/
 	private static final String TRANSFER_SOURCE_ACCOUNT_PROMPT
 			= "Enter source account ID: ";
 	private static final String TRANSFER_DESTINATION_ACCOUNT_PROMPT
 			= "Enter destination account ID: ";
 	
-	private static final String VIEW_ACCOUNTS_HEADER = "Viewing accounts...";
+	//private static final String VIEW_ACCOUNTS_HEADER = "Viewing accounts...";
 	private static final String VIEW_ACCOUNTS_MENU
 			= "(1) View all accounts owned by a single user\n"
 			+ "(2) Input a list of account IDs to view\n"
 			+ FRAME_LINE;
+	/*
 	private static final String VIEW_ACCOUNTS_ID_LIST_HEADER
 			= "Enter a list of account IDs on a single line, separated by spaces.";
+	*/
 	
 	private static final String ID_LIST_PROMPT
 			= "Enter the IDs here, separated by spaces: ";
 	private static final String ID_LIST_BAD_TOKEN_MESSAGE
 			= "Invalid input. Every ID must be numbers only.";
 	
+	/*
 	private static final String VIEW_USERS_HEADER = "Viewing users...";
 	
 	private static final String VIEW_TRANSACTION_HEADER = "Viewing transactions...";
 	private static final String VIEW_TRANSACTIONS_ID_LIST_HEADER
 			= "Enter a list of transaction IDs on a single line, separated by spaces.";
+	 */
 	private static final String VIEW_TRANSACTIONS_MENU
 			= "(1) View all transactions made by a single user\n"
 			+ "(2) View all transactions involving a certain account\n"
 			+ "(3) Input a list of transaction IDs to view\n"
 			+ FRAME_LINE;
 	
+	/*
 	private static final String CREATE_EMPLOYEE_HEADER 
 			= "Creating new employee account...";
 	
 	private static final String CREATE_ADMIN_HEADER 
 	= "Creating new administrator account...";
+	*/
 	
 	// instance variables (fields)
 	private Scanner scan;

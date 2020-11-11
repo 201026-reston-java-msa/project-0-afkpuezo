@@ -8,8 +8,8 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.Priority;
 
 import BankIO.BankIO;
 import BankIO.CommandLineIO;
@@ -40,7 +40,7 @@ public class Driver {
 	
 	public static void main(String[] args) {
 		
-		log.log(Priority.INFO, "Project0 Bank online");
+		log.log(Level.INFO, "Project0 Bank online");
 		// look for flags in the params
 		boolean useText = false;
 		boolean resetDatabase = false;
@@ -74,7 +74,7 @@ public class Driver {
 		}
 		catch (BankDAOException e) {
 			System.out.println("ERROR: Could not connect to database. Terminating.");
-			log.log(Priority.FATAL, "Error while instantiating DAO object: " + e.getMessage());
+			log.log(Level.FATAL, "Error while instantiating DAO object: " + e.getMessage());
 			System.exit(1);
 		}
 		
@@ -83,7 +83,7 @@ public class Driver {
 		bank.start();
 		// clean things up
 		io.close();
-		log.log(Priority.INFO, "Project0 Bank offline");
+		log.log(Level.INFO, "Project0 Bank offline");
 	}
 	
 	/**

@@ -11,18 +11,11 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-
-import java.sql.Connection;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.validator.PublicClassValidator;
 
 import com.revature.bankDataObjects.BankAccount;
 import com.revature.bankDataObjects.TransactionRecord;

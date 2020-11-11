@@ -7,6 +7,8 @@
 package bankSystem;
 
 public class ImpossibleActionException extends Exception {
+	
+	static final long serialVersionUID = 0; // dunno, this fixed a warning
 
 	// constructor(s)
 	public ImpossibleActionException(String message) {

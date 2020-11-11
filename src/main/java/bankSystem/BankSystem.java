@@ -9,15 +9,11 @@
  */
 package bankSystem;
 
-import java.io.LineNumberInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.stream.events.StartDocument;
-import javax.xml.transform.Source;
-
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.Priority;
 
 import com.revature.bankDataObjects.BankAccount;
 import com.revature.bankDataObjects.TransactionRecord;
@@ -32,7 +28,6 @@ import BankIO.BankIO;
 import bankSystem.Request.RequestType;
 import dao.BankDAO;
 import dao.BankDAOException;
-
 
 
 public class BankSystem {
@@ -260,7 +255,7 @@ public class BankSystem {
 	private void interactionLoop() {
 		
 		//boolean running = true;
-		String outputText = "";
+		//String outputText = "";
 		RequestType[] permittedRequestTypes; // = new RequestType[0]; // should get replaced in loop
 		Request currentRequest;
 		
@@ -309,7 +304,7 @@ public class BankSystem {
 				
 				if (!permitted) {
 					// should be no way to reach this?
-					log.log(Priority.WARN, "User " + currentUser.getId() + " attempted forbidden action " + currentRequest.getType());
+					log.log(Level.WARN, "User " + currentUser.getId() + " attempted forbidden action " + currentRequest.getType());
 					throw new ImpossibleActionException(GENERIC_NO_PERMISSION_MESSAGE);
 				}
 				
@@ -643,6 +638,7 @@ public class BankSystem {
 			tr.setType(TransactionType.ACCOUNT_CLOSED);
 			//tr.setActingUser(currentUser.getId());
 			tr.setDestinationAccount(ba.getId());
+			tr.setMoneyAmount(funds);
 			saveTransactionRecord(tr);
 		}
 		catch(BankDAOException e) {
@@ -1282,7 +1278,7 @@ public class BankSystem {
 			tr.setTime(java.time.LocalDateTime.now().toString());
 			
 			log.log(
-					Priority.INFO, 
+					Level.INFO, 
 					"About to save transaction: " + transactionRecordToString(tr));
 			
 			dao.write(tr);			

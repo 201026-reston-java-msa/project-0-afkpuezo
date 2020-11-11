@@ -18,9 +18,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import com.revature.bankDataObjects.BankAccount;
 import com.revature.bankDataObjects.BankData;
@@ -31,7 +29,7 @@ import com.revature.bankDataObjects.BankAccount.BankAccountType;
 import com.revature.bankDataObjects.TransactionRecord;
 import com.revature.bankDataObjects.TransactionRecord.TransactionType;
 
-import dao.BankDAO;
+//import dao.BankDAO;
 import dao.BankDAOException;
 import dao.TextFileDAO;
 
@@ -251,9 +249,10 @@ public class TextFileDAOTest {
 		prepareTextFile();
 		prepareTextFileDAO();
 		
-		BankAccount actual = tdao.readBankAccount(534843943);
+		BankAccount actual = tdao.readBankAccount(5555);
 		
-		assertEquals(-1, actual.getId());
+		assertEquals(5555, actual.getId());
+		assertEquals(BankAccountType.NONE, actual.getType());
 	}
 	
 	/**
@@ -297,9 +296,9 @@ public class TextFileDAOTest {
 		prepareTextFile();
 		prepareTextFileDAO();
 		
-		UserProfile actual = tdao.readUserProfile(534843943);
+		UserProfile actual = tdao.readUserProfile(7777);
 		
-		assertEquals(-1, actual.getId());
+		assertEquals(7777, actual.getId());
 	}
 	
 	/**
@@ -341,9 +340,9 @@ public class TextFileDAOTest {
 		prepareTextFile();
 		prepareTextFileDAO();
 		
-		TransactionRecord actual = tdao.readTransactionRecord(534843943);
+		TransactionRecord actual = tdao.readTransactionRecord(7777);
 		
-		assertEquals(-1, actual.getId());
+		assertEquals(7777, actual.getId());
 	}
 	
 	/**
@@ -381,6 +380,7 @@ public class TextFileDAOTest {
 		while (reader.ready()) {
 			data.add(reader.readLine());
 		}
+		reader.close();
 		for (String line : FILELINES) {
 			data.remove(line);
 		}
@@ -410,6 +410,7 @@ public class TextFileDAOTest {
 		while (reader.ready()) {
 			data.add(reader.readLine());
 		}
+		reader.close();
 		for (String line : FILELINES) {
 			if (!line.startsWith("ACC 444")) {
 				data.remove(line);				
@@ -459,6 +460,7 @@ public class TextFileDAOTest {
 		while (reader.ready()) {
 			data.add(reader.readLine());
 		}
+		reader.close();
 		for (String line : FILELINES) {
 			if (!(line.startsWith("PRF 123456") || line.startsWith("ACC 444") || line.startsWith("TRR 76543"))) {
 				data.remove(line);				
@@ -501,7 +503,7 @@ public class TextFileDAOTest {
 		UserProfile up = tdao.readUserProfile("user");
 		assertEquals(101, up.getId());
 		up = tdao.readUserProfile("doesn't_exist");
-		assertEquals(-1, up.getId());
+		assertEquals(0, up.getId());
 	}
 	
 	@Test

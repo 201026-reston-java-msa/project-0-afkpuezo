@@ -8,8 +8,8 @@ package dao;
 
 import java.sql.Statement;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.Priority;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -77,7 +77,7 @@ public class DatabaseUtil {
 					databasePassword
 					);
 		} catch (SQLException e) {
-			log.log(Priority.WARN, "Unable to obtain connection to database: " + e.getMessage());
+			log.log(Level.WARN, "Unable to obtain connection to database: " + e.getMessage());
 		}
 		
 		return conn;
@@ -88,7 +88,7 @@ public class DatabaseUtil {
 	 */
 	public static void resetDatabase() {
 		
-		log.log(Priority.INFO, "resetting database to initial configuration...");
+		log.log(Level.INFO, "resetting database to initial configuration...");
 		try (Connection conn = getConnection()){
 			// drop tables --------------------------------------------------------------
 			dropTableIfExists(conn, "user_profile");
@@ -176,7 +176,7 @@ public class DatabaseUtil {
 			populateAccountOwnership(conn);
 		}
 		catch(SQLException e) {
-			log.log(Priority.WARN, "Problem resetting database: " + e.getMessage());
+			log.log(Level.WARN, "Problem resetting database: " + e.getMessage());
 			
 		}
 	}

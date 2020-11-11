@@ -9,6 +9,8 @@ package dao;
 
 public class BankDAOException extends Exception {
 	
+	static final long serialVersionUID = 0; // dunno, this fixed a warning
+	
 	public BankDAOException (String message) {
 		super(message);
 	}

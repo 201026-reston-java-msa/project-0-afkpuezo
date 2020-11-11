@@ -918,7 +918,7 @@ public class CommandLineIO implements BankIO {
 		
 		System.out.println(FRAME_LINE);
 		// add 1 to length and subtract 1 to correct for (i + 1)
-		return (parseInt(CHOICES_PROMPT, 0, (permittedRequestTypes.length + 1))) - 1; 
+		return (parseInt(CHOICES_PROMPT, 1, (permittedRequestTypes.length + 1))) - 1; 
 	}
 	
 	/**
